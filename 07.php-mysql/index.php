@@ -18,6 +18,9 @@
     <div>
         <input type="submit" value="Submit" name="submit">
     </div>
+    <div>
+        <a href="account_list.php">View accounts</a>
+    </div>
 </form>
 </body>
 </html>

@@ -26,6 +26,18 @@
             return;
         }
 
-        echo 'Connect to database successfully!';
+        // echo 'Connect to database successfully!';
+
+        $query = "INSERT INTO users(Username, Password) ";
+        $query .= "VALUES ('$username', '$password')";
+
+        $result = mysqli_query($connection, $query);
+
+        if (!$result) {
+            die('Query failed ' . mysqli_error());
+            return;
+        }
+
+        echo '<br>Create new user successfully';
     }
 ?>

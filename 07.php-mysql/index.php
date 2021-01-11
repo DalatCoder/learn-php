@@ -21,6 +21,7 @@
     <div>
         <a href="account_list.php">View accounts</a>
         <a href="form_update.php">Update account</a>
+        <a href="form_delete.php">Delete account</a>
     </div>
 </form>
 </body>

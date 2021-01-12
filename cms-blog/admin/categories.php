@@ -68,6 +68,14 @@
                                     <input class="btn btn-primary" type="submit" name="submit" value="Add Category"/>
                                 </div>
                             </form>
+                            <?php
+                            if (isset($_GET['edit'])) {
+                                $updated_cat_id = $_GET['edit'];
+                                if (is_numeric($updated_cat_id)) {
+                                    include "includes/update_category.php";
+                                }
+                            }
+                            ?>
                         </div>
 
                         <?php
@@ -119,6 +127,7 @@
                                         <tr>
                                             <td><?php echo $cat_id; ?></td>
                                             <td><?php echo $cat_title; ?></td>
+                                            <td><a href="categories.php?edit=<?php echo $cat_id; ?>">Edit</a></td>
                                             <td><a href="categories.php?delete=<?php echo $cat_id; ?>">Delete</a></td>
                                         </tr>
                                         <?php

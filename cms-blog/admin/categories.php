@@ -36,10 +36,28 @@
 
                     <div class="row">
                         <div class="col-md-5">
-                            <form action="">
+
+                            <?php
+                            if (isset($_POST['submit'])) {
+                                $new_cat_title = $_POST['cat_title'];
+                                if (!$new_cat_title) {
+                                    echo 'This field should not be empty';
+                                } else {
+                                    $query = "INSERT INTO Categories(cat_title) VALUES('{$new_cat_title}')";
+
+                                    $create_category_query = mysqli_query($connection, $query);
+                                    if (!$create_category_query) {
+                                        die('Oops! Error when creating new category ' . mysqli_error($connection));
+                                    }
+                                }
+                            }
+                            ?>
+
+                            <form action="" method="post">
                                 <div class="form-group">
                                     <label for="cat_title">Add Category</label>
-                                    <input class="form-control" type="text" id="cat_title" name="cat_title" autocomplete="off"/>
+                                    <input class="form-control" type="text" id="cat_title" name="cat_title"
+                                           autocomplete="off"/>
                                 </div>
                                 <div class="form-group">
                                     <input class="btn btn-primary" type="submit" name="submit" value="Add Category"/>

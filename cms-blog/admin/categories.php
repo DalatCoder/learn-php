@@ -38,6 +38,8 @@
                         <div class="col-md-5">
 
                             <?php
+                            // Create new category
+
                             if (isset($_POST['submit'])) {
                                 $new_cat_title = $_POST['cat_title'];
                                 if (!$new_cat_title) {
@@ -49,6 +51,9 @@
                                     if (!$create_category_query) {
                                         die('Oops! Error when creating new category ' . mysqli_error($connection));
                                     }
+
+                                    // Redirect when we done
+                                    // header("Location: categories.php");
                                 }
                             }
                             ?>
@@ -66,6 +71,27 @@
                         </div>
 
                         <?php
+                        // GET Operation
+
+                        // Delete category
+                        if (isset($_GET['delete'])) {
+                            $delete_cat_id = $_GET['delete'];
+                            if (is_numeric($delete_cat_id)) {
+                                $query = "DELETE FROM Categories WHERE cat_id = $delete_cat_id";
+                                $delete_category_query = mysqli_query($connection, $query);
+                                if (!$delete_cat_id) {
+                                    die('Oops! Error when deleting selected category ' . mysqli_error($connection));
+                                }
+
+                                // Redirect when we done
+                                // header("Location: categories.php");
+                            }
+                        }
+                        ?>
+
+                        <?php
+                        // FETCH list of categories and display
+
                         $query = "SELECT * FROM Categories";
                         $select_all_categories_query = mysqli_query($connection, $query);
                         if (!$select_all_categories_query) {
@@ -93,6 +119,7 @@
                                         <tr>
                                             <td><?php echo $cat_id; ?></td>
                                             <td><?php echo $cat_title; ?></td>
+                                            <td><a href="categories.php?delete=<?php echo $cat_id; ?>">Delete</a></td>
                                         </tr>
                                         <?php
                                     }

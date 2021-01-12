@@ -17,7 +17,7 @@
                     $query = "SELECT * FROM Categories";
                     $select_all_categories_query = mysqli_query($connection, $query);
                     if (!$select_all_categories_query) {
-                        die('Oops! Error when fetching category data');
+                        die('Oops! Error when fetching category data ' . mysqli_error());
                         return;
                     }
 

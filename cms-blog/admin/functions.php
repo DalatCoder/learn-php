@@ -1,7 +1,6 @@
 <?php
 
-function insert_category()
-{
+function insert_category() {
     global $connection;
 
     if (isset($_POST['submit'])) {
@@ -23,8 +22,7 @@ function insert_category()
     }
 }
 
-function delete_category()
-{
+function delete_category() {
     global $connection;
 
     if (isset($_GET['delete'])) {
@@ -39,6 +37,25 @@ function delete_category()
 
             // Redirect when we done
             header("Location: categories.php");
+        }
+    }
+}
+
+function delete_post() {
+    global $connection;
+
+    if (isset($_GET['delete'])) {
+        $delete_post_id = $_GET['delete'];
+        if (is_numeric($delete_post_id)) {
+            $query = "DELETE FROM Posts WHERE post_id = $delete_post_id";
+
+            $delete_post_query = mysqli_query($connection, $query);
+            if (!$delete_post_query) {
+                die('Oops! Error when deleting selected post ' . mysqli_error($connection));
+            }
+
+            // Redirect when we done
+            header("Location: posts.php");
         }
     }
 }

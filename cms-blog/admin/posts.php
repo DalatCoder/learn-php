@@ -1,4 +1,5 @@
 <?php include "../includes/db.php"; ?>
+<?php include "functions.php"; ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -33,6 +34,8 @@
                             <i class="fa fa-desktop"></i> Posts
                         </li>
                     </ol>
+
+                    <?php delete_post(); ?>
 
                     <?php
                     $source = '';

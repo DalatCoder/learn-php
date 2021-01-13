@@ -19,17 +19,34 @@
 
         <!-- Blog Entries Column -->
         <div class="col-md-8">
-
-            <h1 class="page-header">
-                Page Heading
-                <small>Secondary Text</small>
-            </h1>
-
             <?php
-            $query = "SELECT * FROM Posts";
-            $select_all_posts_query = mysqli_query($connection, $query);
-            if (!$select_all_posts_query) {
-                die('Oops! Error when fetching list of posts ' . mysqli_error($connection));
+            if (isset($_GET['category_id']) && $_GET['category_id'] && is_numeric($_GET['category_id'])) {
+                $cat_id = $_GET['category_id'];
+
+                $query = "SELECT * FROM Categories WHERE cat_id = $cat_id";
+                $select_category_query = mysqli_query($connection, $query);
+                if (!$select_category_query) {
+                    die('Oops! Error when fetching category title ' . mysqli_error($connection));
+                }
+
+                $row = mysqli_fetch_assoc($select_category_query);
+
+                if ($row) {
+                    $cat_title = $row['cat_title'];
+                    ?>
+                    <h1 class="page-header">
+                        All posts in
+                        <small><?php echo $cat_title; ?></small>
+                    </h1>
+                    <?php
+                }
+
+                $query = "SELECT * FROM Posts WHERE post_category_id = $cat_id";
+                $select_all_posts_query = mysqli_query($connection, $query);
+
+                if (!$select_all_posts_query) {
+                    die('Oops! Error when fetching list of posts ' . mysqli_error($connection));
+                }
             }
 
             while ($row = mysqli_fetch_assoc($select_all_posts_query)) {
@@ -58,20 +75,19 @@
                             class="glyphicon glyphicon-chevron-right"></span></a>
 
                 <hr>
+
+                <!-- Pager -->
+                <ul class="pager">
+                    <li class="previous">
+                        <a href="#">&larr; Older</a>
+                    </li>
+                    <li class="next">
+                        <a href="#">Newer &rarr;</a>
+                    </li>
+                </ul>
                 <?php
             }
             ?>
-
-            <!-- Pager -->
-            <ul class="pager">
-                <li class="previous">
-                    <a href="#">&larr; Older</a>
-                </li>
-                <li class="next">
-                    <a href="#">Newer &rarr;</a>
-                </li>
-            </ul>
-
         </div>
 
         <!-- Blog Sidebar Widgets Column -->

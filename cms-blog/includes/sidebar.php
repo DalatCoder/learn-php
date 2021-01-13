@@ -39,8 +39,9 @@
                 <?php
                 for ($i = 0; $i < $first_list_end; $i++) {
                     $title = $categories[$i]['cat_title'];
+                    $id = $categories[$i]['cat_id'];
                     echo "
-                            <li><a href='#'>$title</a></li>
+                            <li><a href='category.php?category_id=$id'>$title</a></li>
                         ";
                 }
                 ?>
@@ -52,8 +53,9 @@
                 <?php
                 for ($i = $first_list_end; $i < $count; $i++) {
                     $title = $categories[$i]['cat_title'];
+                    $id = $categories[$i]['cat_id'];
                     echo "
-                            <li><a href='#'>$title</a></li>
+                            <li><a href='category.php?category_id=$id'>$title</a></li>
                         ";
                 }
                 ?>

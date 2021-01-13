@@ -39,8 +39,8 @@
             <td><?php echo $comment_status; ?></td>
             <td><a href="../post.php?post_id=<?php echo $post_id; ?>"><?php echo $post_title; ?></a></td>
             <td><?php echo $comment_date; ?></td>
-            <td><a href="comments.php?source=approved&comment_id=<?php echo $comment_id; ?>">Approved</a></td>
-            <td><a href="comments.php?source=unapproved&comment_id=<?php echo $comment_id; ?>">Unapproved</a>
+            <td><a href="comments.php?approved=<?php echo $comment_id; ?>">Approved</a></td>
+            <td><a href="comments.php?unapproved=<?php echo $comment_id; ?>">Unapproved</a>
             </td>
             <td><a href="comments.php?delete=<?php echo $comment_id; ?>">Delete</a></td>
         </tr>

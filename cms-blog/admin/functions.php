@@ -79,4 +79,42 @@ function delete_comment() {
     }
 }
 
+function approved_comment() {
+    global $connection;
+
+    if (isset($_GET['approved'])) {
+        $approved_comment_id = $_GET['approved'];
+        if (is_numeric($approved_comment_id)) {
+            $query = "UPDATE Comments SET comment_status = 'approved' WHERE comment_id = $approved_comment_id";
+
+            $approved_comment_query = mysqli_query($connection, $query);
+            if (!$approved_comment_query) {
+                die('Oops! Error when approving selected comment ' . mysqli_error($connection));
+            }
+
+            // Redirect when we done
+            header("Location: comments.php");
+        }
+    }
+}
+
+function unapproved_comment() {
+    global $connection;
+
+    if (isset($_GET['unapproved'])) {
+        $unapproved_comment_id = $_GET['unapproved'];
+        if (is_numeric($unapproved_comment_id)) {
+            $query = "UPDATE Comments SET comment_status = 'unapproved' WHERE comment_id = $unapproved_comment_id";
+
+            $unapproved_comment_query = mysqli_query($connection, $query);
+            if (!$unapproved_comment_query) {
+                die('Oops! Error when unapproving selected comment ' . mysqli_error($connection));
+            }
+
+            // Redirect when we done
+            header("Location: comments.php");
+        }
+    }
+}
+
 ?>

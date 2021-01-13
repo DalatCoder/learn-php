@@ -35,6 +35,8 @@
                         </li>
                     </ol>
 
+                    <?php approved_comment(); ?>
+                    <?php unapproved_comment(); ?>
                     <?php delete_comment(); ?>
 
                     <?php

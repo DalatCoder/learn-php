@@ -31,7 +31,7 @@
                             <i class="fa fa-dashboard"></i> <a href="index.php">Dashboard</a>
                         </li>
                         <li class="active">
-                            <i class="fa fa-desktop"></i> Posts
+                            <i class="fa fa-user"></i> Users
                         </li>
                     </ol>
 

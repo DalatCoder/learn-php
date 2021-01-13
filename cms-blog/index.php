@@ -39,6 +39,7 @@
                 $post_date = $row['post_date'];
                 $post_image = $row['post_image'];
                 $post_content = $row['post_content'];
+                if (strlen($post_content) > 200) $post_content = substr($post_content, 0, 200) . ' ...';
                 ?>
                 <h2>
                     <a href="post.php?post_id=<?php echo $post_id; ?>"><?php echo $post_title; ?></a>

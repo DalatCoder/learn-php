@@ -14,7 +14,7 @@
     </thead>
     <tbody>
     <?php
-    $query = "SELECT * FROM Posts";
+    $query = "SELECT * FROM Posts JOIN Categories ON post_category_id = cat_id";
     $select_all_posts_query = mysqli_query($connection, $query);
     if (!$select_all_posts_query) {
         die('Oops! Error when fetching posts data ' . mysqli_error($connection));
@@ -32,12 +32,13 @@
         $post_tags = $row['post_tags'];
         $post_comment_count = $row['post_comment_count'];
         $post_status = $row['post_status'];
+        $cat_title = $row['cat_title'];
         ?>
         <tr>
             <td><?php echo $post_id; ?></td>
             <td><?php echo $post_author; ?></td>
             <td><?php echo $post_title; ?></td>
-            <td><?php echo $post_category_id; ?></td>
+            <td><?php echo $cat_title; ?></td>
             <td><?php echo $post_status; ?></td>
             <td><img width="100px" src="../images/<?php echo $post_image; ?>" alt="images"></td>
             <td><?php echo $post_tags; ?></td>

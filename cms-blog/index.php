@@ -21,12 +21,12 @@
         <div class="col-md-8">
 
             <h1 class="page-header">
-                Page Heading
-                <small>Secondary Text</small>
+                Welcome to my blog
+                <small>Hello world</small>
             </h1>
 
             <?php
-            $query = "SELECT * FROM Posts";
+            $query = "SELECT * FROM Posts WHERE post_status = 'published'";
             $select_all_posts_query = mysqli_query($connection, $query);
             if (!$select_all_posts_query) {
                 die('Oops! Error when fetching list of posts ' . mysqli_error($connection));

@@ -82,6 +82,14 @@
                             die('Oops! Error when creating new comment ' . mysqli_error($connection));
                         }
 
+                        $query = "UPDATE Posts SET post_comment_count = post_comment_count + 1 ";
+                        $query .= "WHERE post_id = $post_id";
+
+                        $increment_post_comment_count_query = mysqli_query($connection, $query);
+                        if (!$increment_post_comment_count_query) {
+                            die('Oops! Error when increasing post comment count ' . mysqli_error($connection));
+                        }
+
                         header("Location: post.php?post_id=$post_id");
                     }
                     ?>
@@ -118,7 +126,7 @@
                     $query = "SELECT * FROM Comments WHERE comment_post_id = $post_id ";
                     $query .= "AND comment_status = 'approved' ";
                     $query .= "ORDER BY comment_id DESC";
-                    
+
                     $select_approved_comments_query = mysqli_query($connection, $query);
                     if (!$select_approved_comments_query) {
                         die('Oops! Error when fetching comments data ' . mysqli_error($connection));
@@ -147,7 +155,6 @@
                 }
             }
             ?>
-
         </div>
 
         <!-- Blog Sidebar Widgets Column -->

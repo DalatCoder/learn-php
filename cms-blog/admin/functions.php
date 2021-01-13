@@ -60,4 +60,23 @@ function delete_post() {
     }
 }
 
+function delete_comment() {
+    global $connection;
+
+    if (isset($_GET['delete'])) {
+        $delete_comment_id = $_GET['delete'];
+        if (is_numeric($delete_comment_id)) {
+            $query = "DELETE FROM Comments WHERE comment_id = $delete_comment_id";
+
+            $delete_comment_query = mysqli_query($connection, $query);
+            if (!$delete_comment_query) {
+                die('Oops! Error when deleting selected comment ' . mysqli_error($connection));
+            }
+
+            // Redirect when we done
+            header("Location: comments.php");
+        }
+    }
+}
+
 ?>

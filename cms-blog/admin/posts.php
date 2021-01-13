@@ -48,6 +48,10 @@
                             include "components/add_post.php";
                             break;
 
+                        case 'edit_post':
+                            include "components/edit_post.php";
+                            break;
+                            
                         default:
                             include "components/view_all_posts.php";
                             break;

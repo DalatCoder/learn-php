@@ -7,6 +7,7 @@
         <th>Last Name</th>
         <th>Email</th>
         <th>Role</th>
+        <th>Delete</th>
     </tr>
     </thead>
     <tbody>
@@ -33,6 +34,7 @@
             <td><?php echo $user_lastname; ?></td>
             <td><?php echo $user_email; ?></td>
             <td><?php echo $user_role; ?></td>
+            <td><a href="users.php?delete=<?php echo $user_id ?>">Delete</a></td>
         </tr>
         <?php
     }

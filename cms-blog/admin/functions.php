@@ -117,4 +117,23 @@ function unapproved_comment() {
     }
 }
 
+function delete_user() {
+    global $connection;
+
+    if (isset($_GET['delete'])) {
+        $delete_user_id = $_GET['delete'];
+        if (is_numeric($delete_user_id)) {
+            $query = "DELETE FROM Users WHERE user_id = $delete_user_id";
+
+            $delete_user_query = mysqli_query($connection, $query);
+            if (!$delete_user_query) {
+                die('Oops! Error when deleting selected user ' . mysqli_error($connection));
+            }
+
+            // Redirect when we done
+            header("Location: users.php");
+        }
+    }
+}
+
 ?>

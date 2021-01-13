@@ -35,6 +35,8 @@
                         </li>
                     </ol>
 
+                    <?php delete_user(); ?>
+
                     <?php
                     $source = '';
                     if (isset($_GET['source'])) {

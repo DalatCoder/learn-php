@@ -67,15 +67,42 @@
                     <hr>
 
                     <!-- Blog Comments -->
+                    <?php
+                    if (isset($_POST['create_comment'])) {
+                        $post_id = $_GET['post_id'];
+                        $comment_author = $_POST['comment_author'];
+                        $comment_email = $_POST['comment_email'];
+                        $comment_content = $_POST['comment_content'];
+
+                        $query = "INSERT INTO Comments (comment_post_id, comment_author, comment_email, comment_content, comment_status, comment_date) ";
+                        $query .= "VALUES ($post_id, '$comment_author', '$comment_email', '$comment_content', 'unapproved', now())";
+
+                        $create_comment_query = mysqli_query($connection, $query);
+                        if (!$create_comment_query) {
+                            die('Oops! Error when creating new comment ' . mysqli_error($connection));
+                        }
+
+                        header("Location: post.php?post_id=$post_id");
+                    }
+                    ?>
 
                     <!-- Comments Form -->
                     <div class="well">
                         <h4>Leave a Comment:</h4>
-                        <form role="form">
+                        <form role="form" action="" method="post">
                             <div class="form-group">
-                                <textarea class="form-control" rows="3"></textarea>
+                                <label for="author">Author</label>
+                                <input type="text" id="author" name="comment_author" class="form-control" placeholder="Author name">
                             </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="comment_email" class="form-control" placeholder="Author email">
+                            </div>
+                            <div class="form-group">
+                                <label for="content">Content</label>
+                                <textarea class="form-control" rows="3" id="content" name="comment_content"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary" name="create_comment">Submit</button>
                         </form>
                     </div>
 

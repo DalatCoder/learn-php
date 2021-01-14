@@ -119,7 +119,11 @@ handle_submit();
                            name="checkboxArray[]"></td>
                 <td><?php echo $post_id; ?></td>
                 <td><?php echo $post_author; ?></td>
-                <td><?php echo $post_title; ?></td>
+                <td>
+                    <a href="../post.php?post_id=<?php echo $post_id; ?>">
+                        <?php echo $post_title; ?>
+                    </a>
+                </td>
                 <td><?php echo $cat_title; ?></td>
                 <td><?php echo $post_status; ?></td>
                 <td><img width="100px" src="../images/<?php echo $post_image; ?>" alt="images"></td>

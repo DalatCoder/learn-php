@@ -131,11 +131,21 @@ if (isset($_POST['update_post'])) {
     </div>
 
     <div class="form-group">
-        <label for="content">Post Content</label>
-        <textarea name="post_content" id="content" cols="30" rows="10" class="form-control"><?php echo $post_content; ?></textarea>
+        <label for="editor">Post Content</label>
+        <textarea name="post_content" id="editor" cols="30" rows="30" class="form-control"><?php echo $post_content; ?></textarea>
     </div>
 
     <div class="form-group">
         <input type="submit" class="btn btn-primary" name="update_post" value="Update Post">
     </div>
 </form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function (event) {
+        ClassicEditor
+            .create(document.querySelector('#editor'))
+            .catch(error => {
+                console.error(error);
+            });
+    });
+</script>

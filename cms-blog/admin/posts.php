@@ -1,3 +1,12 @@
+<?php
+if(!isset($_SESSION))
+{
+    session_start();
+}
+?>
+
+<?php include "includes/authenticate.php"; ?>
+
 <?php include "../includes/db.php"; ?>
 <?php include "functions.php"; ?>
 
@@ -22,10 +31,7 @@
             <!-- Page Heading -->
             <div class="row">
                 <div class="col-lg-12">
-                    <h1 class="page-header">
-                        Welcome to Admin
-                        <small>Trong Hieu</small>
-                    </h1>
+                    <?php include "components/page_heading.php"; ?>
                     <ol class="breadcrumb">
                         <li>
                             <i class="fa fa-dashboard"></i> <a href="index.php">Dashboard</a>
@@ -51,7 +57,7 @@
                         case 'edit_post':
                             include "components/edit_post.php";
                             break;
-                            
+
                         default:
                             include "components/view_all_posts.php";
                             break;

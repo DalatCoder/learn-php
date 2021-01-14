@@ -1,7 +1,7 @@
 <!-- Blog Search Well -->
 <div class="well">
     <h4>Blog Search</h4>
-    <form action="/learn-php/cms-blog/search.php" method="post">
+    <form action="search.php" method="post">
         <div class="input-group">
             <input type="text" class="form-control" name="search" autocomplete="off">
             <span class="input-group-btn">
@@ -9,6 +9,22 @@
                     <span class="glyphicon glyphicon-search"></span>
                 </button>
             </span>
+        </div> <!-- /.input-group -->
+    </form> <!-- /.search-form -->
+</div>
+
+<!-- Blog Login Well -->
+<div class="well">
+    <h4>Login your account</h4>
+    <form action="login.php" method="post">
+        <div class="form-group">
+            <input type="text" class="form-control" name="username" autocomplete="off" placeholder="Username" id="username">
+        </div> <!-- /.input-group -->
+        <div class="form-group">
+            <input type="password" class="form-control" name="password" autocomplete="off" placeholder="Password" id="password">
+        </div> <!-- /.input-group -->
+        <div class="form-group">
+            <input type="submit" class="btn btn-primary btn-block" value="Login" name="login">
         </div> <!-- /.input-group -->
     </form> <!-- /.search-form -->
 </div>

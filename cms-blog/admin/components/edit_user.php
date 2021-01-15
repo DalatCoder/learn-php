@@ -24,7 +24,7 @@ if (isset($_GET['source']) && isset($_GET['user_id']) && $_GET['source'] == "edi
     $user_role = $row['user_role'];
     $user_username = $row['user_username'];
     $user_email = $row['user_email'];
-    $user_password = $row['user_password'];
+    $user_password = "";
     $user_image = $row['user_image'];
 }
 
@@ -42,6 +42,16 @@ if (isset($_POST['update_user'])) {
         $user_image_temp = $_FILES['user_image']['tmp_name'];
         move_uploaded_file($user_image, "images/$user_image");
     }
+
+    $query = "SELECT rand_salt FROM Users LIMIT 1";
+    $select_randSalt_query = mysqli_query($connection, $query);
+    if (!$select_randSalt_query) {
+        die('Oops! Error when getting rand salt. ' . mysqli_error($connection));
+    }
+    $row = mysqli_fetch_assoc($select_randSalt_query);
+    $rand_salt = $row['rand_salt'];
+
+    $user_password = crypt($user_password, $rand_salt);
 
     $query = "UPDATE Users SET ";
     $query .= "user_firstname = '$user_firstname', ";

@@ -28,6 +28,8 @@ if (isset($_POST['login'])) {
         $db_user_email = $row['user_email'];
         $db_user_image = $row['user_image'];
 
+        $password = crypt($password, $db_user_password);
+
         if ($password === $db_user_password && $db_user_role === 'admin') {
             $_SESSION['user_id'] = $db_user_id;
             $_SESSION['user_username'] = $db_user_username;

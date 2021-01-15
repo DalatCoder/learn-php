@@ -1,6 +1,8 @@
 <?php include "includes/db.php"; ?>
 
 <?php
+$register_success = false;
+
 function handle_submit()
 {
     global $connection;
@@ -48,10 +50,8 @@ function handle_submit()
         die('Oops! Error when creating new user. ' . mysqli_error($connection));
     }
 
-    echo 'Your registration has been submitted';
+    $register_success = true;
 }
-
-handle_submit();
 ?>
 
 <!DOCTYPE html>
@@ -75,6 +75,14 @@ handle_submit();
                 <div class="col-xs-6 col-xs-offset-3">
                     <div class="form-wrap">
                         <h1 class="text-center">Register</h1>
+                        <?php
+                        handle_submit();
+                        if ($register_success) {
+                            ?>
+                            <p class="text-center">Your registration has been summitted. Back to <a href="index.php">Home Page</a></p>
+                            <?php
+                        }
+                        ?>
                         <form role="form" action="registration.php" method="post" id="login-form" autocomplete="off">
                             <div class="form-group">
                                 <label for="username" class="sr-only">username</label>
@@ -117,7 +125,7 @@ handle_submit();
 <script src="js/bootstrap.min.js"></script>
 
 <script>
-    $("#login-form").submit(function(e){
+    $("#login-form").submit(function (e) {
         var username = $("#username").val();
         var email = $("#email").val();
         var password = $("#key").val();

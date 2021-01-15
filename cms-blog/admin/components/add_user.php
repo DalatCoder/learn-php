@@ -7,6 +7,16 @@ if (isset($_POST['create_user'])) {
     $user_password = $_POST['user_password'];
     $user_role = $_POST['user_role'];
 
+    $query = "SELECT rand_salt FROM Users LIMIT 1";
+    $select_randSalt_query = mysqli_query($connection, $query);
+    if (!$select_randSalt_query) {
+        die('Oops! Error when getting rand salt. ' . mysqli_error($connection));
+    }
+    $row = mysqli_fetch_assoc($select_randSalt_query);
+    $rand_salt = $row['rand_salt'];
+
+    $user_password = crypt($user_password, $rand_salt);
+
     $user_image = $_FILES['user_image']['name'];
     if ($user_image) {
         $user_image_temp = $_FILES['user_image']['tmp_name'];

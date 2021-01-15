@@ -26,7 +26,28 @@
             </h1>
 
             <?php
-            $query = "SELECT * FROM Posts WHERE post_status = 'published'";
+            $query = "SELECT count(*) AS total FROM Posts";
+            $count_number_of_posts_query = mysqli_query($connection, $query);
+            if (!$count_number_of_posts_query) {
+                die('Oops! Error when counting number of posts. ' . mysqli_error($connection));
+            }
+            $number_of_posts = mysqli_fetch_assoc($count_number_of_posts_query)['total'];
+
+            $number_of_posts_by_page = 3;
+            $number_of_pages = ceil($number_of_posts / $number_of_posts_by_page);
+
+            $curent_page = 1;
+            $start_index = 0;
+            if (isset($_GET['page']) && $_GET['page'] && is_numeric($_GET['page'])) {
+                $page = $_GET['page'];
+                if ($page > $number_of_pages)
+                    $page = 1;
+                $curent_page = $page;
+                $start_index = $curent_page - 1;
+                $start_index = $start_index * $number_of_posts_by_page;
+            }
+
+            $query = "SELECT * FROM Posts WHERE post_status = 'published' LIMIT $start_index, $number_of_posts_by_page";
             $select_all_posts_query = mysqli_query($connection, $query);
             if (!$select_all_posts_query) {
                 die('Oops! Error when fetching list of posts ' . mysqli_error($connection));
@@ -63,17 +84,67 @@
                 <?php
             }
             ?>
+            <?php
+            if ($number_of_posts > $number_of_posts_by_page) {
+                ?>
+                <!-- Pager -->
+                <ul class="pager">
+                    <?php
+                    if ($curent_page <= 1) {
+                        ?>
+                        <li class="previous disabled">
+                            <a class="disabled" href="javascript:;">&larr; Older</a>
+                        </li>
+                        <?php
+                    } else {
+                        ?>
+                        <li class="previous">
+                            <a href="index.php?page=<?php echo $curent_page - 1; ?>">&larr; Older</a>
+                        </li>
+                        <?php
+                    }
+                    ?>
 
-            <!-- Pager -->
-            <ul class="pager">
-                <li class="previous">
-                    <a href="#">&larr; Older</a>
-                </li>
-                <li class="next">
-                    <a href="#">Newer &rarr;</a>
-                </li>
-            </ul>
+                    <?php
+                    for ($i = 1; $i <= $number_of_pages; $i++) {
+                        if ($curent_page == $i) {
+                            ?>
+                            <li>
+                                <a class="active_link" href="index.php?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            </li>
+                            <?php
+                        } else {
+                            ?>
+                            <li>
+                                <a href="index.php?page=<?php echo $i; ?>"><?php echo $i; ?></a>
+                            </li>
+                            <?php
+                        }
+                        ?>
 
+                        <?php
+                    }
+                    ?>
+
+                    <?php
+                    if ($curent_page < $number_of_pages) {
+                        ?>
+                        <li class="next">
+                            <a href="index.php?page=<?php echo $curent_page + 1; ?>">Newer &rarr;</a>
+                        </li>
+                        <?php
+                    } else {
+                        ?>
+                        <li class="next disabled">
+                            <a class="disabled" href="javascript:;">Newer &rarr;</a>
+                        </li>
+                        <?php
+                    }
+                    ?>
+                </ul>
+                <?php
+            }
+            ?>
         </div>
 
         <!-- Blog Sidebar Widgets Column -->

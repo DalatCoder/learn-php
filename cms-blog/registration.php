@@ -38,6 +38,8 @@ function handle_submit()
     $row = mysqli_fetch_assoc($select_randSalt_query);
     $rand_salt = $row['rand_salt'];
 
+    $password = crypt($password, $rand_salt);
+
     $query = "INSERT INTO Users (user_username, user_email, user_password, user_role) ";
     $query .= "VALUES ('$username', '$email', '$password', 'subscriber')";
 
@@ -45,6 +47,8 @@ function handle_submit()
     if (!$register_user_query) {
         die('Oops! Error when creating new user. ' . mysqli_error($connection));
     }
+
+    echo 'Your registration has been submitted';
 }
 
 handle_submit();

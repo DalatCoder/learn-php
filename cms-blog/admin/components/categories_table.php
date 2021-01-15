@@ -28,7 +28,10 @@ if ($count > 0) {
                 <td><?php echo $cat_id; ?></td>
                 <td><?php echo $cat_title; ?></td>
                 <td><a href="categories.php?edit=<?php echo $cat_id; ?>">Edit</a></td>
-                <td><a href="categories.php?delete=<?php echo $cat_id; ?>">Delete</a></td>
+                <td>
+                    <a onclick="javascript: return confirm('Are you sure want to delete category: \'<?php echo $cat_title; ?>\'')"
+                       href="categories.php?delete=<?php echo $cat_id; ?>">Delete</a>
+                </td>
             </tr>
             <?php
         }

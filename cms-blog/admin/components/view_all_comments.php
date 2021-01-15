@@ -42,7 +42,10 @@
             <td><a href="comments.php?approved=<?php echo $comment_id; ?>">Approved</a></td>
             <td><a href="comments.php?unapproved=<?php echo $comment_id; ?>">Unapproved</a>
             </td>
-            <td><a href="comments.php?delete=<?php echo $comment_id; ?>">Delete</a></td>
+            <td>
+                <a onclick="javascript: return confirm('Are you sure want to delete this comment');"
+                   href="comments.php?delete=<?php echo $comment_id; ?>">Delete</a>
+            </td>
         </tr>
         <?php
     }

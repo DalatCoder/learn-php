@@ -36,7 +36,10 @@
             <td><?php echo $user_email; ?></td>
             <td><?php echo $user_role; ?></td>
             <td><a href="users.php?source=edit_user&user_id=<?php echo $user_id ?>">Edit</a></td>
-            <td><a href="users.php?delete=<?php echo $user_id ?>">Delete</a></td>
+            <td>
+                <a onclick="javascript: return confirm('Are you sure want to delete user \'<?php echo $username; ?>\'')"
+                   href="users.php?delete=<?php echo $user_id ?>">Delete</a>
+            </td>
         </tr>
         <?php
     }

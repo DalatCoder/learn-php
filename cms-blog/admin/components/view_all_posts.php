@@ -131,7 +131,10 @@ handle_submit();
                 <td><?php echo $post_comment_count; ?></td>
                 <td><?php echo $post_date; ?></td>
                 <td><a href="posts.php?source=edit_post&post_id=<?php echo $post_id; ?>">Edit</a></td>
-                <td><a href="posts.php?delete=<?php echo $post_id; ?>">Delete</a></td>
+                <td>
+                    <a onClick="javascript: return confirm('Are you sure want to delete \'<?php echo $post_title; ?>\'?');"
+                       href="posts.php?delete=<?php echo $post_id; ?>">Delete</a>
+                </td>
             </tr>
             <?php
         }

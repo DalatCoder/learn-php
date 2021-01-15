@@ -1,5 +1,55 @@
 <?php include "includes/db.php"; ?>
 
+<?php
+function handle_submit()
+{
+    global $connection;
+
+    if (!isset($_POST['submit'])) return;
+
+    $username = $_POST['username'];
+    if (!$username) {
+        echo 'Username cannot be empty';
+        return;
+    }
+
+    $email = $_POST['email'];
+    if (!$email) {
+        echo 'Email cannot be empty';
+        return;
+    }
+
+    $password = $_POST['password'];
+    if (!$password) {
+        echo 'Password cannot be empty';
+        return;
+    }
+
+    $username = mysqli_real_escape_string($connection, $username);
+    $email = mysqli_real_escape_string($connection, $email);
+    $password = mysqli_real_escape_string($connection, $password);
+
+    $query = "SELECT rand_salt FROM Users LIMIT 1";
+    $select_randSalt_query = mysqli_query($connection, $query);
+    if (!$select_randSalt_query) {
+        die('Oops! Error when fetching randSalt string. ' . mysqli_error($connection));
+    }
+
+    $row = mysqli_fetch_assoc($select_randSalt_query);
+    $rand_salt = $row['rand_salt'];
+
+    $query = "INSERT INTO Users (user_username, user_email, user_password, user_role) ";
+    $query .= "VALUES ('$username', '$email', '$password', 'subscriber')";
+
+    $register_user_query = mysqli_query($connection, $query);
+    if (!$register_user_query) {
+        die('Oops! Error when creating new user. ' . mysqli_error($connection));
+    }
+}
+
+handle_submit();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -61,6 +111,32 @@
 
 <!-- Bootstrap Core JavaScript -->
 <script src="js/bootstrap.min.js"></script>
+
+<script>
+    $("#login-form").submit(function(e){
+        var username = $("#username").val();
+        var email = $("#email").val();
+        var password = $("#key").val();
+
+        var errorMessage = "";
+        if (username.trim().length === 0) {
+            errorMessage += "Username cannot be empty\n";
+        }
+        if (email.trim().length === 0) {
+            errorMessage += "Email cannot be empty\n";
+        }
+        if (password.trim().length === 0) {
+            errorMessage += "Password cannot be empty\n";
+        } else if (password.trim().length < 3) {
+            errorMessage += "Password length must be greater than or equal 3 characters\n";
+        }
+
+        if (errorMessage.length > 0) {
+            alert(errorMessage);
+            return false;
+        }
+    });
+</script>
 
 </body>
 

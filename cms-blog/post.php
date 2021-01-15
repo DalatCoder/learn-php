@@ -33,6 +33,10 @@
                 $row = mysqli_fetch_assoc($select_post_query);
 
                 if ($row) {
+                    // Increase post views count
+                    $increase_view_query = "UPDATE Posts SET post_views_count = post_views_count + 1 WHERE post_id = $post_id";
+                    mysqli_query($connection, $increase_view_query);
+
                     $post_title = $row['post_title'];
                     $post_author = $row['post_author'];
                     $post_date = $row['post_date'];
@@ -153,6 +157,10 @@
                     ?>
                     <?php
                 }
+            }
+            else {
+                // Invalid post
+                header("Location: index.php");
             }
             ?>
         </div>

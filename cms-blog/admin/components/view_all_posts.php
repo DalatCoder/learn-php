@@ -88,6 +88,7 @@ handle_submit();
             <th>Tags</th>
             <th>Comments</th>
             <th>Date</th>
+            <th>Views</th>
             <th>Edit</th>
             <th>Delete</th>
         </tr>
@@ -112,6 +113,7 @@ handle_submit();
             $post_tags = $row['post_tags'];
             $post_comment_count = $row['post_comment_count'];
             $post_status = $row['post_status'];
+            $post_views_count = $row['post_views_count'];
             $cat_title = $row['cat_title'];
             ?>
             <tr>
@@ -130,6 +132,7 @@ handle_submit();
                 <td><?php echo $post_tags; ?></td>
                 <td><?php echo $post_comment_count; ?></td>
                 <td><?php echo $post_date; ?></td>
+                <td><?php echo $post_views_count; ?></td>
                 <td><a href="posts.php?source=edit_post&post_id=<?php echo $post_id; ?>">Edit</a></td>
                 <td>
                     <a onClick="javascript: return confirm('Are you sure want to delete \'<?php echo $post_title; ?>\'?');"

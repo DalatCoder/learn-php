@@ -57,7 +57,7 @@
                     $title = $categories[$i]['cat_title'];
                     $id = $categories[$i]['cat_id'];
                     echo "
-                            <li><a href='category.php?category_id=$id'>$title</a></li>
+                            <li><a href='posts.php?source=categories&category_id=$id'>$title</a></li>
                         ";
                 }
                 ?>
@@ -71,7 +71,7 @@
                     $title = $categories[$i]['cat_title'];
                     $id = $categories[$i]['cat_id'];
                     echo "
-                            <li><a href='category.php?category_id=$id'>$title</a></li>
+                            <li><a href='posts.php?source=categories&category_id=$id'>$title</a></li>
                         ";
                 }
                 ?>

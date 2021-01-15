@@ -33,7 +33,7 @@ if (!isset($_SESSION)) {
                     $id = $row['cat_id'];
                     echo "
                             <li>
-                                <a href='category.php?category_id=$id'>{$title}</a>
+                                <a href='posts.php?source=categories&category_id=$id'>{$title}</a>
                             </li>
                         ";
                 }

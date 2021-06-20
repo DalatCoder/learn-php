@@ -1,5 +1,7 @@
 <?php
 
+require 'auth.inc.php';
+
 require 'config.inc.php';
 
 $name = '';

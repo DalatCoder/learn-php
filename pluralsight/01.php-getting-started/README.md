@@ -102,3 +102,14 @@ $foreach($result as $row) {
   $value2 = $row['col2'];
 }
 ```
+
+### Delete data
+
+```php
+$sql = sprintf(
+  "DELETE FROM table WHERE col1='%s'",
+    $db->real_escape_string('value1'),
+);
+
+$db->query($sql);
+```

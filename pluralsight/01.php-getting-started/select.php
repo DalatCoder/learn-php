@@ -11,6 +11,7 @@ $sql = 'SELECT * FROM users';
 $result = $db->query($sql);
 
 foreach ($result as $row) {
+  $row['id'] = htmlspecialchars($row['id'], ENT_QUOTES);
   $row['color'] = htmlspecialchars($row['color'], ENT_QUOTES);
   $row['name'] = htmlspecialchars($row['name'], ENT_QUOTES);
   $row['gender'] = htmlspecialchars($row['gender'], ENT_QUOTES);
@@ -28,12 +29,32 @@ $db->close();
 
 <body class="container py-5">
   <div class="row justify-content-center">
-    <ul>
-      <?php foreach ($result as $index => $item) : ?>
+    <table class="table table-hover table-borderless">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Gender</th>
+          <th>Color</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($result as $index => $item) : ?>
+          <tr>
+            <td><?php echo $item['id']; ?></td>
+            <td><?php echo $item['name']; ?></td>
+            <td><?php echo $item['gender']; ?></td>
+            <td><?php echo $item['color']; ?></td>
 
-        <li style="color: <?php echo $item['color']; ?>;"> <?php echo $item['name']; ?> (<?php echo $item['gender']; ?>) </li>
+            <td>
+              <a href="delete.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-danger">Delete</a>
+            </td>
 
-      <?php endforeach; ?>
-    </ul>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+
   </div>
 </body>

@@ -126,3 +126,10 @@ $sql = sprintf(
 
 $db->query($sql);
 ```
+
+## Include files
+
+- `include`: Copy file content into the position of the `include` call, give a `warning` if the file is not found
+- `include_once`: Make sure to include one time
+- `require`: Stop execution when there is no file
+- `require_once`: Stop execution when there is no file

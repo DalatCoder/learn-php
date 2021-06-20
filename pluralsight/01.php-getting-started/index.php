@@ -1,5 +1,7 @@
 <?php
 
+require 'config.inc.php';
+
 $name = '';
 $password = '';
 $gender = '';
@@ -38,10 +40,10 @@ if (isset($_POST['submit'])) {
 
   if ($ok) {
     $db = new mysqli(
-      'localhost',
-      'root',
-      '',
-      'php-getting-started'
+      MYSQL_HOST,
+      MYSQL_USER,
+      MYSQL_PASSWORD,
+      MYSQL_DATABASE
     );
 
     $sql = sprintf(

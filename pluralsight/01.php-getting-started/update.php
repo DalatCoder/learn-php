@@ -1,60 +1,27 @@
 <?php
 
-$name = '';
-$password = '';
-$gender = '';
-$color = '';
-$languages = [];
-$comments = '';
-$termAndCondition = '';
+if (isset($_GET['id'])) {
+  $value = $_GET['id'];
 
-function getValue($key)
-{
-  if (isset($_POST[$key])) {
-
-    $value = $_POST[$key];
-
-    if (is_array($value) && count($value) > 0) {
-      return $value;
-    }
-
-    return htmlspecialchars($value, ENT_QUOTES);
+  if (!ctype_digit($value)) {
+    header('Location: select.php');
+    return;
   }
 
-  return NULL;
-}
+  $db = new mysqli(
+    'localhost',
+    'root',
+    '',
+    'php-getting-started'
+  );
 
-if (isset($_POST['submit'])) {
+  $sql = "DELETE FROM users WHERE id=$value";
 
-  $ok = true;
+  $db->query($sql);
 
-  $name = getValue('name');
-  $gender = getValue('gender');
-  $color = getValue('color');
+  echo '<p>User deleted</p>';
 
-  if (!$name || !$gender || !$color) {
-    $ok = false;
-  }
-
-  if ($ok) {
-    $db = new mysqli(
-      'localhost',
-      'root',
-      '',
-      'php-getting-started'
-    );
-
-    $sql = sprintf(
-      "INSERT INTO users (name, gender, color) VALUES ('%s', '%s', '%s')",
-      $db->real_escape_string($name),
-      $db->real_escape_string($gender),
-      $db->real_escape_string($color),
-    );
-
-    $result = $db->query($sql);
-
-    $db->close();
-  }
+  $db->close();
 }
 
 ?>

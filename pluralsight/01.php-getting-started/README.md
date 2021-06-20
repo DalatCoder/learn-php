@@ -80,3 +80,14 @@ $sql = sprintf(
 
 $db->query($sql);
 ```
+
+### Prepared Statements
+
+```php
+$statement = $db->prepare(
+  "INSERT INTO table (col1, col2) VALUES (?, ?)"
+);
+
+$statement->bind_param('ss', $value1, $value2);
+$statement->execute();
+```

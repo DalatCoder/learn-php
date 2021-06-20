@@ -113,3 +113,16 @@ $sql = sprintf(
 
 $db->query($sql);
 ```
+
+### Update data
+
+```php
+$sql = sprintf(
+  "UPDATE table SET col1='%s', col2='%s' WHERE col3='%s'",
+    $db->real_escape_string('value1'),
+    $db->real_escape_string('value2'),
+    $db->real_escape_string('value3')
+);
+
+$db->query($sql);
+```

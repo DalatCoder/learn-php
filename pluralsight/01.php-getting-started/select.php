@@ -48,6 +48,7 @@ $db->close();
             <td><?php echo $item['color']; ?></td>
 
             <td>
+              <a href="update.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-info">Update</a>
               <a href="delete.php?id=<?php echo $item['id']; ?>" class="btn btn-sm btn-danger">Delete</a>
             </td>
 

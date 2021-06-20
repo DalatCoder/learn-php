@@ -8,7 +8,8 @@ $languages = [];
 $comments = '';
 $termAndCondition = '';
 
-function getValue($key) {
+function getValue($key)
+{
     if (isset($_POST[$key])) {
         if (is_array($_POST[$key])) return $_POST[$key];
         else return htmlspecialchars($_POST[$key], ENT_QUOTES);
@@ -37,13 +38,13 @@ if (isset($_POST['submit'])) {
         Comments: %s <br>
         Term and Conditions: %s <br>
     ",
-    $name,
-    $password,
-    $gender,
-    $color,
-    implode(' ', $languages),
-    $comments,
-    $termAndCondition
+        $name,
+        $password,
+        $gender,
+        $color,
+        implode(' ', $languages),
+        $comments,
+        $termAndCondition
     );
 }
 

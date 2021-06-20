@@ -1,5 +1,52 @@
 <?php
 
+$name = '';
+$password = '';
+$gender = '';
+$color = '';
+$languages = [];
+$comments = '';
+$termAndCondition = '';
+
+function getValue($key) {
+    if (isset($_POST[$key])) {
+        if (is_array($_POST[$key])) return $_POST[$key];
+        else return htmlspecialchars($_POST[$key], ENT_QUOTES);
+    }
+
+    return NULL;
+}
+
+if (isset($_POST['submit'])) {
+
+    $name = getValue('name');
+    $password = getValue('password');
+    $gender = getValue('gender');
+    $color = getValue('color');
+    $languages = getValue('languages');
+    $comments = getValue('comments');
+    $termAndCondition = getValue('tc');
+
+    printf(
+        "
+        User name: %s <br>
+        Password: %s <br>
+        Gender: %s <br>
+        Color: %s <br>
+        Language(s): %s <br>
+        Comments: %s <br>
+        Term and Conditions: %s <br>
+    ",
+    $name,
+    $password,
+    $gender,
+    $color,
+    implode(' ', $languages),
+    $comments,
+    $termAndCondition
+    );
+}
+
 ?>
 
 <head>

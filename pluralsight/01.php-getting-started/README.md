@@ -31,3 +31,52 @@ Use `htmlspecialchars(html, ENT_QUOTE)` to escape special characters
 - check for non-empty values for text fields, radio buttons, and checkboxes
 - Special treatment for lists
 - Consider using JavaScript validation as an additional feature
+
+## Using MySQL with PHP
+
+- Install PHPMyAdmin
+- Enable `mysqli` extension in `php.ini`
+
+## Using `mysqli` extension
+
+### Connection
+
+```php
+$db = new mysqli(
+  'localhost',
+  'user',
+  'password',
+  'database_name'
+)
+```
+
+### Close connection
+
+```php
+$db->close();
+```
+
+### Insert data
+
+```php
+$db->query(
+  "INSERT INTO table (col1, col2)
+    VALUES ('1', '2')"
+);
+```
+
+### SQL Injection
+
+- `printf()`: Print the result string
+- `sprintf()`: Return the result string
+
+```php
+$sql = sprintf(
+  "INSERT INTO table (col1, col2)
+    VALUES ('%s', '%s')",
+    $db->real_escape_string('value1'),
+    $db->real_escape_string('value2')
+);
+
+$db->query($sql);
+```

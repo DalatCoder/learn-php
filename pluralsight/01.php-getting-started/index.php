@@ -29,38 +29,31 @@ if (isset($_POST['submit'])) {
   $ok = true;
 
   $name = getValue('name');
-  $password = getValue('password');
   $gender = getValue('gender');
   $color = getValue('color');
-  $languages = getValue('languages');
-  $comments = getValue('comments');
-  $termAndCondition = getValue('tc');
 
-  if (!$name || !$password || !$gender || !$color || !$languages || !$comments || !$termAndCondition) {
+  if (!$name || !$gender || !$color) {
     $ok = false;
   }
 
-  if (!$languages) $languages = [];
-
   if ($ok) {
-    printf(
-      "
-        User name: %s <br>
-        Password: %s <br>
-        Gender: %s <br>
-        Color: %s <br>
-        Language(s): %s <br>
-        Comments: %s <br>
-        Term and Conditions: %s <br>
-    ",
-      $name,
-      $password,
-      $gender,
-      $color,
-      implode(' ', $languages),
-      $comments,
-      $termAndCondition
+    $db = new mysqli(
+      'localhost',
+      'root',
+      '',
+      'php-getting-started'
     );
+
+    $sql = sprintf(
+      "INSERT INTO users (name, gender, color) VALUES ('%s', '%s', '%s')",
+      $db->real_escape_string($name),
+      $db->real_escape_string($gender),
+      $db->real_escape_string($color),
+    );
+
+    $db->query($sql);
+
+    $db->close();
   }
 }
 
@@ -79,11 +72,6 @@ if (isset($_POST['submit'])) {
       <div class="form-group mb-3">
         <label class="form-label" for="">User Name</label>
         <input class="form-control" type="text" name="name" value="<?php echo htmlspecialchars($name, ENT_QUOTES); ?>">
-      </div>
-
-      <div class="form-group mb-3">
-        <label for="" class="form-label">Password</label>
-        <input type="password" name="password" class="form-control">
       </div>
 
       <div class="form-group mb-3">
@@ -119,28 +107,6 @@ if (isset($_POST['submit'])) {
           <option value="#0f0" <?php if ($color === '#0f0') echo 'selected'; ?>>green</option>
           <option value="#00f" <?php if ($color === '#00f') echo 'selected'; ?>>blue</option>
         </select>
-      </div>
-
-      <div class="form-group mb-3">
-        <label for="" class="form-label">Languages spoken</label>
-        <select class="form-select" multiple name="languages[]" id="">
-          <option value="en" <?php if (in_array('en', $languages)) echo 'selected'; ?>>English</option>
-          <option value="fr" <?php if (in_array('fr', $languages)) echo 'selected'; ?>>French</option>
-          <option value="it" <?php if (in_array('it', $languages)) echo 'selected'; ?>>Italian</option>
-        </select>
-      </div>
-
-      <div class="form-group mb-3">
-        <label for="" class="form-label">Comments</label>
-        <textarea name="comments" id="" cols="30" rows="3" class="form-control"><?php echo htmlspecialchars($comments, ENT_QUOTES); ?></textarea>
-      </div>
-
-      <div class="form-group mb-3">
-        <?php if ($termAndCondition === "ok") : ?>
-          <input class="form-check-input" type="checkbox" name="tc" value="ok" checked> I accept the T&amp;C <br>
-        <?php else : ?>
-          <input class="form-check-input" type="checkbox" name="tc" value="ok"> I accept the T&amp;C <br>
-        <?php endif; ?>
       </div>
 
       <div class="form-group mb-3">

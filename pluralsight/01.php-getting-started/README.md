@@ -147,3 +147,9 @@ $hash = password_hash($password, PASSWORD_DEFAULT);
 ```
 
 - `PASSWORD_DEFAULT`: for the best available algorithm
+
+## Verify password
+
+```php
+password_verify($raw_password, $hashed_password);
+```

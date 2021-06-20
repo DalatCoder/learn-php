@@ -162,3 +162,12 @@ password_verify($raw_password, $hashed_password);
 
 ![Session](session.png)
 ![Session](session1.png)
+
+### Storing authentication information using PHP sessions
+
+`session_start`: Tạo 1 1 key mới tại `HTTP header` tên là `Set-Cookie`
+
+- `name`: PHPSESSID
+- `content`: id chứa thông tin session được lưu ở phía server
+
+Do `HTTP header` cần phải được gửi đi đầu tiên, do đó, hàm này cũng phải được gọi ở đầu tập tin php.

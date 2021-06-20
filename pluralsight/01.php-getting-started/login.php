@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <?php
 
 require 'config.inc.php';
@@ -43,7 +45,7 @@ if (isset($_POST['submit'])) {
     );
 
     $sql = sprintf(
-      "SELECT password FROM users WHERE name='%s'",
+      "SELECT * FROM users WHERE name='%s'",
       htmlspecialchars($name, ENT_QUOTES)
     );
 
@@ -57,6 +59,9 @@ if (isset($_POST['submit'])) {
       if (password_verify($password, $passwordHashed)) {
         $isLoggedInSuccess = true;
         $message = 'Login success';
+
+        $_SESSION['username'] = $row->name;
+        $_SESSION['isAdmin'] = $row->isAdmin;
       } else {
         $message = 'Login failed';
       }

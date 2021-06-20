@@ -51,7 +51,7 @@ if (isset($_POST['submit'])) {
       $db->real_escape_string($color),
     );
 
-    $db->query($sql);
+    $result = $db->query($sql);
 
     $db->close();
   }

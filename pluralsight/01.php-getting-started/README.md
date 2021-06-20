@@ -91,3 +91,14 @@ $statement = $db->prepare(
 $statement->bind_param('ss', $value1, $value2);
 $statement->execute();
 ```
+
+### Reading data
+
+```php
+$result = $db->query('SELECT * FROM table');
+
+$foreach($result as $row) {
+  $value1 = $row['col1'];
+  $value2 = $row['col2'];
+}
+```

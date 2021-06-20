@@ -153,3 +153,12 @@ $hash = password_hash($password, PASSWORD_DEFAULT);
 ```php
 password_verify($raw_password, $hashed_password);
 ```
+
+## PHP Session
+
+- HTTP is a stateless protocol, meaning it cannot remember anything
+- Cookie was invented, cookies can remember pieces of information, but cookies are stored on the client, which not super secure.
+- Session came up
+
+![Session](session.png)
+![Session](session1.png)

@@ -133,3 +133,17 @@ $db->query($sql);
 - `include_once`: Make sure to include one time
 - `require`: Stop execution when there is no file
 - `require_once`: Stop execution when there is no file
+
+## Include HTML files
+
+- `readfile()`
+
+## Secure password storage
+
+Go to [php.net/password](php.net/password)
+
+```php
+$hash = password_hash($password, PASSWORD_DEFAULT);
+```
+
+- `PASSWORD_DEFAULT`: for the best available algorithm

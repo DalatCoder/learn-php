@@ -33,8 +33,9 @@ if (isset($_POST['submit'])) {
   $name = getValue('name');
   $gender = getValue('gender');
   $color = getValue('color');
+  $password = getValue('password');
 
-  if (!$name || !$gender || !$color) {
+  if (!$name || !$gender || !$color || !$password) {
     $ok = false;
   }
 
@@ -46,11 +47,14 @@ if (isset($_POST['submit'])) {
       MYSQL_DATABASE
     );
 
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+
     $sql = sprintf(
-      "INSERT INTO users (name, gender, color) VALUES ('%s', '%s', '%s')",
+      "INSERT INTO users (name, gender, color, password) VALUES ('%s', '%s', '%s', '%s')",
       $db->real_escape_string($name),
       $db->real_escape_string($gender),
       $db->real_escape_string($color),
+      $db->real_escape_string($hash)
     );
 
     $result = $db->query($sql);
@@ -77,6 +81,11 @@ if (isset($_POST['submit'])) {
       </div>
 
       <div class="form-group mb-3">
+        <label class="form-label" for="">Password</label>
+        <input class="form-control" type="password" name="password"">
+      </div>
+
+      <div class=" form-group mb-3">
         <label for="" class="form-label">Gender</label>
         <div class="form-control">
           <div class="form-check">

@@ -449,3 +449,43 @@ $bulk = new MongoDB\Driver\BulkWrite;
 $bulk->delete(['id' => intval($pid)], ['limit' => 1]);
 
 ```
+
+## Doctrine ORM
+
+Overview:
+
+- Introducing Doctrine
+- Doctrine libraries
+  - Doctrine ORM
+- Setting up Doctrine
+  - Composer
+- Using Doctrine ORM with PHP
+
+### Introduce to Doctrine
+
+A set of PHP libraries primarily focused on providing persistence services and related functionality
+
+### Setting up Doctrine ORM
+
+Using Composer to install Doctrine
+
+`composer require doctrine/orm:2.7.3`
+
+- Install Doctrine using PHP dependency manager (Composer)
+- Include Composer autoload file in your porject
+- Obtain an EntityManager object
+- Create your entities (maps to your database tables)
+
+### Create Your Entities
+
+- Code first:
+
+Start with developing Objects and then map them onto your database
+
+- Model first:
+
+Model using tools (e.g. UML), then generate DB schema and PHP code from this model
+
+- Database first:
+
+Already have a DB schema and generate corresponding PHP code from it

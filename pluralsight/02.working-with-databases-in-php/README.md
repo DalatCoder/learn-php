@@ -206,3 +206,77 @@ mysqli_close($conn);
 ### PHP and MariaDB
 
 The PHP connectors for MySQL generally work with MariaDB as well
+
+### PHP and Microsoft SQL Server
+
+SQLSRV extension
+
+- Azure SQL Database
+- Microsoft SQL Server
+
+PHP Extensions for MS SQL Server
+
+- Mssql extension (Removed in PHP 7.0.0)
+- SQLSRV extension (Supported by Microsoft)
+
+```php
+
+$servername = 'localhost, 8080';
+$connectionInfo = [
+  'Database' => 'dbname',
+  'UID' => 'userName',
+  'PWD' => 'password'
+];
+
+$conn = $sqlsrv_connect($serverName, $connectionInfo);
+
+if (!$conn) {
+  echo 'Success';
+}
+else {
+  echo 'Failed';
+  die (print_r(sqlsrv_errors(), true));
+}
+
+```
+
+Insert data
+
+```php
+$sql = "INSERT INTO user(firstname, lastname) VALUES (?, ?)";
+$params = ['Hieu', 'Nguyen Trong'];
+
+$stmt = sqlsrv_query($conn, $sql, $params);
+
+if ($stmt === false) {
+  die (print_r(sqlsrv_errors(), true));
+}
+```
+
+Transaction
+
+```php
+
+if (sqlsrv_begin_transaction($conn) === false) {
+  die(print_r(sqlsrv_errors(), true));
+}
+
+$stmt1 = sqlsrv_query($conn, $sql1, $params1);
+$stmt2 = sqlsrv_query($conn, $sql2, $params2);
+
+if ($stmt1 && $stmt2) {
+  sqlsrv_commit($conn);
+}
+else {
+  sqlsrv_rollback($conn);
+}
+
+```
+
+### Other Relational Databases
+
+- Oracle: OCI8 extension
+- DB2: ibm_db2 extension
+- MS Access: ODBC
+- PostgreSQL: pgsql
+- SQLite: SQLite3 extension

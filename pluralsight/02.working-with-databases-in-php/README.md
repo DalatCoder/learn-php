@@ -440,3 +440,12 @@ $bulk->update(
 - `multi` => `false`: Only 1 document is updated
 - `upsert` => `false`: Nothing happens if there is no document
 - `upsert` => `true`: Auto insert
+
+#### Delete a Document
+
+```php
+
+$bulk = new MongoDB\Driver\BulkWrite;
+$bulk->delete(['id' => intval($pid)], ['limit' => 1]);
+
+```

@@ -79,3 +79,36 @@ Overview:
 ### How does HTTP Authentication work?
 
 ![Authentication Overview](http_authentication_overview.png)
+
+### HTTP `Basic` Authentication
+
+- Simplistic authentication process
+- Authentication method string is `Basic`
+- Credentials are colon-concatenated and base64-encoded
+
+![HTTP basic authentication overview](http_basic_authentication_overview.png)
+
+Advantages
+
+- Simple to implement
+- Quick to deliver
+- Passwords can be encrypted
+- One round-trip required
+- Part of the HTTP specification
+
+Disadvantages
+
+- Credentials are not encrypted
+- Vulnerable to Man-in-the-middle attacks
+  - Essentials to use HTTPS/TLS
+- How do you logout?
+  - Restart your browser
+  - Clear browser's cache
+  - Authenticate with incorrect credentials
+- Not the most professional user experience
+
+### Implemnet in PHP
+
+- `PHP_AUTH_USER`: authenticated user
+- `PHP_AUTH_PW`: password
+- `AUTH_TYPE`: type of authentication

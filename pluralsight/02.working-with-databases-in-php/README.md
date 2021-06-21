@@ -280,3 +280,58 @@ else {
 - MS Access: ODBC
 - PostgreSQL: pgsql
 - SQLite: SQLite3 extension
+
+## PHP Data Objects (PDO)
+
+The PHP Data Objects (PDO) defines a lightweight, consistent interface for accessing databases in PHP.
+
+- PDO provices a data-access abstraction layer for PHP
+- Use the same functions to talk to different relational databases (MySQL, MS SQL, ...)
+- PDO ships with PHP 5.1
+- You must use a database-specific PDO driver to access a database server
+
+Go to [php.net/manual/en/pdo.drivers.php](php.net/manual/en/pdo.drivers.php)
+
+- Only use for relational databases
+
+![PDO](pdo.png)
+
+### Configure PDO
+
+- Enable PDO extension
+
+Go to [php.net/manual/en/pdo.installation.php](php.net/manual/en/pdo.installation.php)
+
+- Enable database-specific PDO extension
+- Update code with PDO syntax
+
+### Using PDO
+
+```php
+
+$servername = 'localhost';
+$dbname = 'mydb';
+$username = 'username';
+$password = 'password';
+
+// Open PDO connection
+$conn = new PDO(
+  "mysql:host=$servername;dbname=$dbname", $username, $password
+);
+
+$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$sql = "INSERT INTO users (firstname, lastname) VALUES ('Ha', 'Nguyen Thi')";
+
+$conn->exec($sql);
+```
+
+### PDO Supports
+
+- MySQL
+- MariaDB
+- MS SQL Server
+- Oracle
+- SQLite
+- PostgreSQL
+- ...

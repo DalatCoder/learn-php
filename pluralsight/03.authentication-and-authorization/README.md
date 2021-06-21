@@ -33,7 +33,7 @@ The benefits:
 - Only valid users have access
 - Access is appropriately authorized
 
-### HTTP Authentication
+### About HTTP Authentication
 
 Authentication framework, which can be used by a server to challenge a
 client request, and by a client to provide authentication information, as
@@ -57,3 +57,25 @@ defined by RFC 7235
 Please be aware for session cookies:
 
 - Set the HttpOnly and Secure flags to avoid XSS attacks
+
+## HTTP Authentication
+
+Overview:
+
+- What is HTTP authentication?
+- Common HTTP authentication methods
+- Relevant HTTP headers
+- Advantages and disadvantages
+- Why HTTPS is essential
+- How to implement it in PHP
+
+### What is?
+
+> An authentication framework, which can be used by a server to challenge a client
+> request, and by a client to provide authentication information, as defined by
+> RFC 7235. It doesn't use login pages, cookies, or session identifiers, rather
+> (it uses) standard fields in the HTTP header
+
+### How does HTTP Authentication work?
+
+![Authentication Overview](http_authentication_overview.png)

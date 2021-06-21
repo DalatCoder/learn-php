@@ -335,3 +335,108 @@ $conn->exec($sql);
 - SQLite
 - PostgreSQL
 - ...
+
+## PHP and Non-relational Databases
+
+Overview
+
+- A few NoSQL databases to use with PHP
+- Configure PHP to use MongoDB
+- Performing CRUD
+
+### Quick remainder
+
+#### Relational
+
+Data is structured into multiple related tables with fixed columns
+
+#### NoSQL
+
+Data is structured in means other than tabular relations. Many offerings out there!
+
+![Overview](overview.png)
+
+### NoSQL Databases
+
+- Flat files
+- Graph
+- Document
+- Cache
+- Key-value pair
+- Wide column
+
+PHP Supports a Few NoSQL Databases
+
+- MongoDB
+- Amazon DynamoDB
+
+Go to [php.net/manual/en/set.mongodb.php](php.net/manual/en/set.mongodb.php)
+
+### MongoClient driver (Deprecated)
+
+```php
+
+$mClient = new MongoClient();
+$db = $mClient->sampleDB;
+
+// Create a collection
+$collection = $db->createCollection("collection01");
+
+$document = [
+  'firstname' => 'Hieu',
+  'lastname' => 'Nguyen Trong'
+];
+
+$collection->insert($document);
+
+```
+
+### MongoDB driver
+
+#### Insert
+
+```php
+
+// connect
+$manager = new Mongodb\Driver\Manager("connection string");
+
+// Create a bulk-write object
+$bulk = new MongoDB\Driver\BulkWrite;
+
+$newUser = [
+  'firstname' => 'Ha',
+  'lastname' => 'Nguyen Thi'
+];
+
+$id = $bulk->insert($newUser);
+
+$result = $manager->executeBulkWrite('MyDB.Users', $bulk);
+
+```
+
+#### Selelct All Documents
+
+```php
+
+$query = new MongoDB\Driver\Query([]);
+$cursor = $manager->executeQuery("MyDB.Users, $query);
+
+```
+
+#### Update a Document
+
+```php
+
+$bulk = new MongoDB\Driver\BulkWrite;
+
+$bulk->update(
+  ['id' => 2010],
+  ['$set' => ["firstname" => $firstname]],
+  ['multi' => false, 'upsert' => false]
+);
+
+```
+
+- `multi` => `false`: Only 1 document is updated
+- `upsert` => `false`: Nothing happens if there is no document
+- `upsert` => `true`: Auto insert

@@ -23,30 +23,186 @@ Overview
 ## Why to Choose NoSQL over Relational?
 
 - Easier modeling
+
   No need to define the schema first, easier to update as data and requirements change
 
 - Data structure
+
   Designed to handle unstructured data, which makes up much of today's data
 
 - Scaling
+
   Much cheaper to scale a NoSQL database, scaling out over cheap servers
 
 ## Which database whould you choose?
 
 - Accounting software
+
   Relational (fixed columns, low traffic)
 
 - Website cache
+
   NoSQL (key-value structure)
 
 - Social media platform
+
   NoSQL (graph)
 
 - Web platform with billions of users
+
   NoSQL (performance and scalability)
 
 - Highly distributed relational data
+
   Both (can store relational data in NoSQL)
 
 - Sensor data from thousands of IoT devices
+
   NoSQL (dynamic fields, high volume, JSON)
+
+## PHP and Relational Databases
+
+Overview:
+
+- MySQL, MariaDB and MS SQL Server
+- Connecting to MySQL in PHP
+- Connecting to MariaDB in PHP
+- Connecting to MS SQL Server in PHP
+- Other relational databases
+
+  - Oracle
+  - SQLite
+
+### Working with Relationla databases in PHP
+
+- Directly via PHP
+- Using PDO
+- Other libraries such as Doctrine ORM
+
+### PDO vs. Database Extensions
+
+- PDO supports 12+ different databases
+- If switching between relational databases, it makes senses to use PDO
+- Both approaches are object oriented
+- Both offer protection against SQL injection (prepared statements)
+
+### PHP and MySQL
+
+- PHP 5 and later
+
+  - MySQLi extension
+  - PDO
+
+- Earlier PHP versions
+  - MySQL extension (deprecated in 2012)
+
+OOP approach
+
+```php
+
+$servername = 'localhost';
+$username = 'username'
+$password = 'password';
+
+$conn = new mysqli($servername, $username, $password);
+
+if ($conn->connect_error) {
+  die('Connection failed: ' . $conn->connect_error);
+}
+
+echo 'Successfully connected to MySQL';
+
+```
+
+Procedure approach
+
+```php
+
+$servername = 'localhost';
+$username = 'username'
+$password = 'password';
+
+$conn = mysqli_connect($servername, $username, $password);
+
+if (!$conn) {
+  die('Connection failed: ' . mysqli_connect_error());
+}
+
+echo 'Successfully connected to MySQL';
+
+```
+
+#### MySQL operations (CRUD)
+
+- Create database
+
+```php
+$sql = "CREATE DATABASE myDB";
+
+if ($conn->query($sql) === true) {
+  echo 'Success';
+}
+else {
+  echo 'Error' . $conn->error;
+}
+
+```
+
+- Create table
+
+```php
+$sql = "CREATE TABLE users (
+  id INT(6) UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  firstname VARCHAR(30) NOT NULL,
+  lastname VARCHAR(30) NOT NULL,
+  email VARCHAR(50)
+)";
+```
+
+- Insert data
+
+```php
+$sql = "INSERT INTO users (firstname, lastname, email)
+  VALUES ('', '', '')
+";
+
+// object-oriented
+$conn->multi_query($sql);
+
+// procedure
+mysqli_multi_query($conn, $sql);
+```
+
+Prepared statement
+
+```php
+$stmt = $conn->prepare("INSERT INTO users (firstname, lastname, email) VALUES (?, ?, ?)");
+
+$stmt->bind_param("sss", $firstname, $lastname, $email);
+
+$firstname = 'Hieu';
+$lastname = 'Nguyen';
+$email = 'hieuntctk42@gmail.com'
+
+$stmt->execute();
+```
+
+Use Prepared Statements to avoid SQ: injection attacks!
+
+- Read data
+- Update data
+- Delelte data
+- Close MySQL connection
+
+```php
+
+// object-oriented
+$conn->close();
+
+// procedural
+mysqli_close($conn);
+```
+
+### PHP and MariaDB
+
+The PHP connectors for MySQL generally work with MariaDB as well

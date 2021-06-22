@@ -254,3 +254,22 @@ Sessions
 - Determined by `session.save_handler`
 - File location is set in `session.save_path`
 - Session data can be stored in other ways
+
+Advantages
+
+- Extremely common
+- Numerous PHP libraries available
+- Support available in PHP frameworks
+- Very flexible
+
+Disadvantages
+
+- Unstandardised look and feel
+- Credentials are sent in plain text
+- Can be susceptible to Man-in-the-middle attacks
+- Susceptible to Phising attacks
+
+> The internationalized domain name (IDN) homograph attack is a way a
+> malicious party may deceive computer users about what remote system
+> they are communicating with, by exploiting the fact that many different
+> characters look alike

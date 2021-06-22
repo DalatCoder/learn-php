@@ -47,7 +47,7 @@ defined by RFC 7235
   - Bearer
   - ...
 
-### Form-based Authentication
+### About Form-based Authentication
 
 - Has no formal specification
 - Uses HTTP and HTML elements (input, hidden, password field)
@@ -200,3 +200,57 @@ Disadvantages
 - Security level cannot be guarateed
 - Vulnerable to Man-in-the-middle attacks
 - Prevents stronger password hashing
+
+## Form-based Authentication
+
+Overview:
+
+- Form-based authentication
+- What it is
+- How it works
+- How to implement it in PHP
+- Advantages and disadvantages
+- Security considerations
+
+### What is form-based authentication?
+
+> There is no formalized specification
+
+```php
+<form method="POST" action="/login">
+  username: <input type="text" name="username" required>
+  password: <input type="password" name="password" required>
+  <input name="__csrf" type="hidden" value="tronghieuthiha">
+  <button type="submit">Login</button>
+</form>
+```
+
+> Cross-Site Request Forgery (CSRF) is an attack that forces an end user to execute
+> unwanted actions on a web application in which they're currently authenticated.
+> With a little help of social engineering an attacker may trick the users of a
+> web application into executing actions of the attacker's choosing
+
+Details:
+
+- `Web App Hacking: Cross-Site Request Forgery (CSRF)` in Pluralsight
+- `Web Security and the OWASP Top 10: The Big Picture`
+
+Flow
+
+![HTTP Form-based Authentication](http_form_authentication.png)
+
+> HTTP Is a Stateless Protocol
+
+Given this, one request is not natively connected in any way to any other.
+So, how to maintan state between requests?
+
+Sessions
+
+- Perform authentication over HTTPS
+- Session id identifies a user's session data
+- `$_SESSION` is populated with unserialised session data
+- Data in `$_SESSION` is serialized on PHP shutdown or call to session_write_close
+- Session data is saved in flat files by default
+- Determined by `session.save_handler`
+- File location is set in `session.save_path`
+- Session data can be stored in other ways

@@ -366,3 +366,82 @@ Important Session Configuration Directives
   (HTTPS) connections
 - `session.cookie_httponly`: Sets whether session cookies should only be sent over HTTPs
 - `session.cookie_samesite`: Sets whether cookies should not be sent with cross-site requests. It can be set to one of three options: `None`, `Lax` and `Strict`
+
+## Authorization
+
+Overview:
+
+- Learn about authorization
+- What it is
+- How it compliments authentication
+- Three authorization types
+
+### What is
+
+> Authorization is the function of specifying access rights/priviledges to
+> resources. More formally, to authorize is to define an access policy
+
+- A compliment to authentication
+- Determines what the user can and cannot do
+
+### Common Authorization Types
+
+1. Access Control Lists
+2. Role-based Access Control
+3. JSON Web Tokens
+
+#### Access Control Lists
+
+> Access Control Lists refers to the perrmissions attached to an object that
+> specify which users are granted access to that object and the operations it is
+> allowed to perform. Each entry in an access control list specifies the subject
+> and an associated operation that it is permitted to perform
+
+Advantages
+
+- Excellent for smaller requirements
+- Small organizations
+- File-based access control
+- Network access
+
+Disadvantages
+
+- Does not scale well
+- Managing permissions becomes cumbersome
+- Difficult to audit and update access
+
+#### Role-based Access Control
+
+> Role-based access control (RBAC) systems assign access and actions according to
+> a person's role within the system. Everyone who holds that role has the same
+> set of rights. Those who hold different roles have different rights.
+
+Advantages
+
+- Suit large organizations
+- Uses roles, not resources
+- Roles and responsibilities determine access
+
+- Who
+- What
+- When
+- Where
+- What order
+- What circumstances
+
+#### JSON Web Tokens
+
+> They are a compact and self-contained way for securely transmitting information
+> between parties using JSON objects
+
+> This information can be verified and trusted because it is digitally signed
+> (and can be encrypted). JWTs can be signed using a secret (with the HMAC algorithm)
+> or a public/private key pair using RSA or ECDSA.
+
+Contain 3 parts:
+
+- A header
+- A payload
+- A signature
+
+Each of these three parts is Base64 encoded and the concatenated together with a dot.

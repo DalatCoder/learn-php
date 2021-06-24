@@ -246,6 +246,9 @@ So, how to maintan state between requests?
 
 Sessions
 
+- Session can be created by calling:
+  - `session_start()`: explicity
+  - `session.auto_start = 1`: implicity
 - Perform authentication over HTTPS
 - Session id identifies a user's session data
 - `$_SESSION` is populated with unserialised session data
@@ -273,3 +276,12 @@ Disadvantages
 > malicious party may deceive computer users about what remote system
 > they are communicating with, by exploiting the fact that many different
 > characters look alike
+
+Implement Form-based Authentication in PHP
+
+- Many third-party libraries available
+- Can be done without third-party support
+- Libraries are likely a better choice
+
+Flow
+![HTTP Form-based Authentication](http_authentication_form_based.png)

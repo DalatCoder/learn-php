@@ -279,9 +279,90 @@ Disadvantages
 
 Implement Form-based Authentication in PHP
 
-- Many third-party libraries available
+- Many third-party libraries available over `composer`
+  - Symfony form
+  - Laravel Collective
+  - Laminas
 - Can be done without third-party support
 - Libraries are likely a better choice
 
 Flow
 ![HTTP Form-based Authentication](http_authentication_form_based.png)
+
+Generate CSRF Token
+
+- `random_bytes`:
+
+  > Generates an arbitrary length string of cryptographic random bytes suitable
+  > for cryptographic use
+
+- `bin2hex`:
+  > Converts the generated random bytes into a hexadecimal representation
+
+```php
+public static function generateCSRFToken()
+{
+    if (empty($_SESSION['token'])) {
+        $_SESSION['token'] = bin2hex(random_bytes(32));
+    }
+}
+```
+
+Compare `CSRF token`
+
+- `hash_equals` is a timing attack-safe string comparision function
+
+> In cryptography, a timing attack is a side-channel attack in which the
+> attacker attempts to compromise a cryptosystem by analyzing the time
+> taken to execute cryptographic algorithms
+
+```php
+if (! hash_equals($_SESSION['token'], $_POST['__csrf'])) {
+    $errors['__csrf'] = 'CSRF token is invalid';
+}
+```
+
+Regenerate `session` if the user logged in successfully to prevent `session fixation attack`
+
+> Session Fixation is an attack that forces a user's session ID to a known value
+> permitting an attacker to hijack user sessions
+
+```php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $errors = Authenticate::login();
+
+  if (empty($errors)) {
+    session_regenerate_id(true);
+
+    $_SESSION['identity'] = Authenticate::getFormFieldValue('username');
+    header('Location: /');
+  }
+}
+```
+
+Key `setcookie` options:
+
+- path: Sets the path where the cookie will be used
+- domain: Sets the domain, or subdomain, that the cookie is used for
+- secure: Sets whether the cookie should only be sent over a secure connection by
+  the client, if a secure connection is available
+- httponly: Sets whether the cookie is available over HTTP only or not. If set to false
+  the cookie won't be accessible to Javascript (reduce the XSS)
+
+Important Session Configuration Directives
+
+- `session.save_path`: By default, this is where PHP stores the session files
+- `session.name`: This sets the name of the session. By default, it's set to `PHPSESSID`
+- `session.auto_start`: This sets whether sessions are automatically started
+- `session.use_trans_sid`: Sets whether transparent sid support is enabled or not, meaning
+  whether the session id is passed in the URL or not
+- `session.cookie_domain`: Sets the domain which the session cookie can be used for
+- `session.use_strict_mode`: Sets whether accept uninitialized session IDs. If an uninitialized/unknown one is sent from the client, a new session ID will be generate and
+  sent back
+- `session.use_cookies`: Sets whether the session identifier is sent using cookies
+- `session.use_only_cookies`: Sets whether PHP will use cookies exclusively to send
+  the session identifier
+- `session.cookie_secure`: Sets whether session cookies should only be sent over secure
+  (HTTPS) connections
+- `session.cookie_httponly`: Sets whether session cookies should only be sent over HTTPs
+- `session.cookie_samesite`: Sets whether cookies should not be sent with cross-site requests. It can be set to one of three options: `None`, `Lax` and `Strict`

@@ -483,12 +483,8 @@ Advantages
 
 Quick ACL Demonstration
 
-| User                                                                           | Object | Permission                                        |
-| ------------------------------------------------------------------------------ | ------ | ------------------------------------------------- |
-| Paul                                                                           | User   | Login, Logout, Manage Account                     |
-| ------------------------------------------------------------------------------ |
-| Mary                                                                           | User   | Login, Logout, Manage Account, Suspend User,      |
-|                                                                                |        | Change Password                                   |
-| ------------------------------------------------------------------------------ |
-| Terri                                                                          | User   | Login, Logout, Manage Account, Suspend User,      |
-|                                                                                |        | Change Password, Add User, Edit User, Delete User |
+| User  | Object | Permission                                                                                     |
+| :---: | :----: | :--------------------------------------------------------------------------------------------- |
+| Paul  |  User  | Login, Logout, Manage Account                                                                  |
+| Mary  |  User  | Login, Logout, Manage Account, Suspend User, Change Password                                   |
+| Terri |  User  | Login, Logout, Manage Account, Suspend User, Change Password, Add User, Edit User, Delete User |

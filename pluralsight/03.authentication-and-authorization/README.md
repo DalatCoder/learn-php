@@ -433,7 +433,6 @@ Advantages
 
 > They are a compact and self-contained way for securely transmitting information
 > between parties using JSON objects
-
 > This information can be verified and trusted because it is digitally signed
 > (and can be encrypted). JWTs can be signed using a secret (with the HMAC algorithm)
 > or a public/private key pair using RSA or ECDSA.
@@ -445,3 +444,5 @@ Contain 3 parts:
 - A signature
 
 Each of these three parts is Base64 encoded and the concatenated together with a dot.
+
+### Access Control List - ACL

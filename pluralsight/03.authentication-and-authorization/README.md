@@ -480,6 +480,15 @@ Advantages
 - Know what users should not be able to do
 - Used for years in computer security
 - Used in the major operating systems
+- They are conceptually simple
+- Relatively simple to create and manage
+- Quite granular in nature
+- Don't require a lot of computing overhead
+
+Disadvantages
+
+- Suitable for smaller organizations
+- The larger they are the more difficult they are to manage
 
 Quick ACL Demonstration
 
@@ -489,3 +498,7 @@ Quick ACL Demonstration
 |  Mary  |  User  | Login, Logout, Manage Account, Suspend User, Change Password                                   |
 | Terri  |  User  | Login, Logout, Manage Account, Suspend User, Change Password, Add User, Edit User, Delete User |
 | Petter |  User  | All Permissions                                                                                |
+
+### Implement ACL in PHP
+
+Using `laminas-acl` package

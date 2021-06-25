@@ -514,3 +514,36 @@ Differences to Access Control Lists
 
 1. Works at the role level
 2. Doesn't have the concept of a resource
+
+## JSON Web Tokens
+
+> A compact and self-contained way for securely transmitting information between
+> parties as a JSON object. This information can be verified and trusted because
+> it is digitally signed (and can be encrypted). JWTs can be signed using a
+> secret (with the HMAC algorithm) or a public/private key pair using RSA or ECDSA
+> Signed tokens can verify the integrity of the claims contained within it, while
+> ecrypted tokens hide those claims from other parties. When tokens are signed
+> using public/private key pairs, the signature also certifies that only the
+> party holding the private key is the one that signed it
+
+Composed of three parts:
+
+- A header
+  - The siging algorithm
+  - The token's type
+- A payload: A JSON string containing 'claims', which are:
+  - Statement about an entity
+  - Additional data
+- A signature: a combination of
+  - The JWT header
+  - The JWT payload
+  - A secret value
+
+Advantages
+
+- Lightweight authorization method
+- Single-use authorization token
+
+Disadvantages
+
+- Can add weight to requests

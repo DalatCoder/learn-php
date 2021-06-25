@@ -502,3 +502,15 @@ Quick ACL Demonstration
 ### Implement ACL in PHP
 
 Using `laminas-acl` package
+
+## Role-based Access Control - RBAC
+
+> Role-based Access Control, or RBAC, provides web application security administrators with the ability to determine who
+> can perform what actions, when, from where, in what order, and in some cases under what relational circumstances.
+> In role-based access control, access decisions are based on an individual's roles and responsibilities within
+> the organization or user base.
+
+Differences to Access Control Lists
+
+1. Works at the role level
+2. Doesn't have the concept of a resource

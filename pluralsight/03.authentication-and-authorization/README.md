@@ -446,3 +446,49 @@ Contain 3 parts:
 Each of these three parts is Base64 encoded and the concatenated together with a dot.
 
 ### Access Control List - ACL
+
+Overview
+
+- Learn about Access Control Lists
+- What they are
+- How they work
+- Their advantages and disadvantages
+- How to implement them in PHP
+
+> Access Control Lists refers to the permissions attached to an object that
+> specify which users are granted access to that object and the operations it is
+> allowed to perform. Each entry in an access control list specifies the subject
+> and an associated operation that is permitted to perform
+
+Discretionary Access Control - DAC
+
+> Is a means of restricting access to information based on the identity of users
+> and/or membership in certain groups. Access decisions are typically based on
+> the authorizations granted to a user based on the credentials they presented
+> at the time of authentication. In most typical DAC models, the owner of the
+> information or any resource can change its permissions at their discretion
+
+Core concepts
+
+- Roles
+- Resources
+- Rights
+
+Advantages
+
+- Quickly audit user permissions
+- Know what users should not be able to do
+- Used for years in computer security
+- Used in the major operating systems
+
+Quick ACL Demonstration
+
+| User                                                                           | Object | Permission                                        |
+| ------------------------------------------------------------------------------ | ------ | ------------------------------------------------- |
+| Paul                                                                           | User   | Login, Logout, Manage Account                     |
+| ------------------------------------------------------------------------------ |
+| Mary                                                                           | User   | Login, Logout, Manage Account, Suspend User,      |
+|                                                                                |        | Change Password                                   |
+| ------------------------------------------------------------------------------ |
+| Terri                                                                          | User   | Login, Logout, Manage Account, Suspend User,      |
+|                                                                                |        | Change Password, Add User, Edit User, Delete User |

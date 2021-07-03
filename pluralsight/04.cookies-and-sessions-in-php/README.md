@@ -2,7 +2,7 @@
 
 HTTP is stateless protocol.
 
-Sessions and Cookies were created to main state between HTTP requests.
+Sessions and Cookies were created to maintain state between HTTP requests.
 
 ![Overview](overview.png)
 

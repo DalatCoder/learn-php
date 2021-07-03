@@ -150,3 +150,13 @@ setcookie('lang', 'french', $options);
 ### Updating Cookies
 
 Using `setcookie` function with the updated value
+
+### Deleting Cookies
+
+- Cookies are saved in `$_COOKIE`
+- `unset($_COOKIE['name'])`: only delete cookie data at server-side
+- Alter cookie with the time in past to delete cookie at client-side
+
+  ```php
+  options['expires'] = time() - 3600
+  ```

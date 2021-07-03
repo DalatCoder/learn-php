@@ -8,6 +8,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       header('Location: index.php');
     }
   }
+
+  if (isset($_POST['unsubscribe']) && isset($_COOKIE['name'])) {
+    $options['expires'] = time() - 60;
+    setcookie('name', $_COOKIE['name'], $options);
+    unset($_COOKIE['name']);
+    header('Location: index.php');
+  }
 }
 ?>
 
@@ -38,8 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <h5 class="title">
           Thank you <?php echo $_COOKIE['name'] ?>, for subscribing to our services
         </h5>
+
+        <form action="about-us.php" method="post">
+          <button class="btn btn-primary" type="submit" name="unsubscribe">Unsubscribe</button>
+        </form>
       <?php endif; ?>
     </div>
+
+    <pre style="color: white;"> <?php print_r($_COOKIE) ?> </pre>
   </div>
 </body>
 

@@ -160,3 +160,19 @@ Using `setcookie` function with the updated value
   ```php
   options['expires'] = time() - 3600
   ```
+
+### Best Practices When Using Cookies
+
+- No sensitive data
+- Filter data coming from cookies - Sanitize data before using `setcookie`
+- Set the expiration date
+- Set the `secure`, `httponly` and `samesite` option
+
+Limitations of Cookies
+
+- Storing any sensitive data is highly not recommend
+- Cookies could be turned off in a browser by the user
+- Size of cookies is limited to 4Kb
+- Available in `$_COOKIE` only after page is reloaded in the browser
+- Same information makes round trip to the server. More the data, larger the request size
+- To overcome these limitations, `session` was introduced.

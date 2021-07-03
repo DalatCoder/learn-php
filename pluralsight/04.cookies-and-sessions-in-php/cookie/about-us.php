@@ -3,7 +3,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (isset($_POST['subscribe'])) {
     if (isset($_POST['name']) & !empty($_POST['name'])) {
       $username = htmlspecialchars($_POST['name'], ENT_QUOTES);
-      $options['expires'] = time() + 3600;
+      $options = [
+        'expires' => time() + 3600,
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'strict'
+      ];
       setcookie('name', $username, $options);
       header('Location: index.php');
     }

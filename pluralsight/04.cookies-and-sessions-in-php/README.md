@@ -62,3 +62,34 @@ Cookies vs. Sessions
 |                    Easy to use, less secure | Not so easily accessible, more secure |
 | Cookie is sent to server with every request | Session ID is sent to server          |
 |        Uses super global variable $\_COOKIE | Uses super global variable $\_SESSION |
+
+## Working With Cookies
+
+Overview:
+
+- Creating Cookies
+- Implementing Cookies
+- Deleting Cookies
+- Best Practices
+
+### 1. Remainder
+
+- Cookies are set by the server and stored client-side
+- It helps preserving the state of the HTTP protocol
+- Stored in `$_COOKIE` at key-value pair
+- Limited data storage
+- Cookies are used to:
+  - identify unique visitors
+  - personalize the user experience
+  - track the pages visited by a user
+- Cookies rely on the HTTP protocol
+
+Sample Request - Response with Cookies
+
+![Request Response with Cookie](req-res-with-cookie.png)
+
+For this cookie to exist, there has to be a request-response scenario
+
+- A user sends a request for the page that sets cookies
+- The server then sets the cookie on the user's computer
+- Other page requests from the user will send the cookie name and value

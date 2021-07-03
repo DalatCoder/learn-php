@@ -146,3 +146,7 @@ setcookie('lang', 'french', $options);
 - `setcookie()` should be called before any output to the browser
   - before `<html>`
   - before `echo()` or `print()`
+
+### Updating Cookies
+
+Using `setcookie` function with the updated value

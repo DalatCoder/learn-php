@@ -5,6 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $username = htmlspecialchars($_POST['name'], ENT_QUOTES);
       $options['expires'] = time() + 3600;
       setcookie('name', $username, $options);
+      header('Location: index.php');
     }
   }
 }
@@ -32,6 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <h3 class="title">We can help!</h3>
       <p class="text">Stop wasting time and money designing and managing a website that doesn’t get results.
         Happiness guaranteed!</p>
+
+      <?php if (isset($_COOKIE['name'])) : ?>
+        <h5 class="title">
+          Thank you <?php echo $_COOKIE['name'] ?>, for subscribing to our services
+        </h5>
+      <?php endif; ?>
     </div>
   </div>
 </body>

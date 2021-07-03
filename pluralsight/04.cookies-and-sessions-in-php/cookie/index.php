@@ -18,13 +18,17 @@
 
     <div class="text-center">
       <h4 class="title">Subscribe to our Services</h4>
-      <form method="post" action="about-us.php">
-        <div class="row">
-          <label for="name" class="col-sm-3">Your Name:</label>
-          <input type="text" name="name" class="col-sm-6" />
-        </div>
-        <button class="btn btn-primary" type="submit" name="subscribe">Subscribe</button>
-      </form>
+      <?php if (isset($_COOKIE['name'])) : ?>
+        <h3 class="title">Welcome <?php echo $_COOKIE['name'] ?></h3>
+      <?php else : ?>
+        <form method="post" action="about-us.php">
+          <div class="row">
+            <label for="name" class="col-sm-3">Your Name:</label>
+            <input type="text" name="name" class="col-sm-6" />
+          </div>
+          <button class="btn btn-primary" type="submit" name="subscribe">Subscribe</button>
+        </form>
+      <?php endif; ?>
     </div>
   </div>
 </body>

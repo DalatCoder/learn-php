@@ -176,3 +176,45 @@ Limitations of Cookies
 - Available in `$_COOKIE` only after page is reloaded in the browser
 - Same information makes round trip to the server. More the data, larger the request size
 - To overcome these limitations, `session` was introduced.
+
+## Working With Sessions
+
+Overview:
+
+- Purpose of sessions
+- Starting, using and destroying a session
+- Working with session variables
+- Using sessions to preserve data
+- Storing session data in MySQL database using SessionHandlerInterface
+
+Sessions
+
+- Tool for managing the state of an application
+- Global variable stored on the web server
+- Stored in PHP super global `$_SESSION` array variable
+- Each session is associated with unique id, called `Session ID` or `SID`
+- Must be started before any output to the browser
+- Data on the server and the cookie in the browser work together
+- Server remembers you while working on an application using session
+- Automatically deleted when the browser is closed
+
+Why sessions?
+
+- To store data persistenly for an application
+- For frequently referred to data
+- To store important information securely
+- For more storage and smaller request size
+
+How session works?
+
+- HTTP is stateless
+- To preverse the application state
+  - Cookies shares user data between server and client
+  - Sessions uses server storage to store current user information
+- Session data can be stored in file or database
+- Session ID can be propagated using
+  - Cookies
+  - URL Parameters
+- Using `cookies` to transfer the SID is recommended
+
+![How session works](howsessionwork.png)

@@ -218,3 +218,52 @@ How session works?
 - Using `cookies` to transfer the SID is recommended
 
 ![How session works](howsessionwork.png)
+
+### Session Configurations
+
+Ways to config session:
+
+- `php.ini` file: whole server
+- Apache configuration file, `httpd.conf`
+- `.htaccess` file: current working directory
+- `ini_set()`
+
+### Session Configuration Options
+
+- `session.auto_start`: automatically start session.
+  Default is `off`.
+  Using session in every request without calling to `session_start` function.
+- `session.name`: change name of current session & session cookie.
+  Default session name is `PHPSESSID`
+- `session.save_path`: path where sessions data is stored on file system.
+  Default is the server's `tmp` directory
+- `session.gc_maxlifetime`: specifies time in seconds for which session data is valid,
+  default is 1440 seconds or 24 minutes
+- `session.cookie_lifetime`: specifies the lifetime of the cookie sent to browser,
+  default is 0
+- `session.cookie_path`: sets the cookie path, default is `/`
+- `session.cookie_secure`: specifies if cookie should be sent only over a secure http connection,
+  of by default
+- `session.use_strict_mode`: if enabled, rejects session ID that isn't initialized by server,
+  disabled by default
+- `session.cookie_httponly`: access cookie through HTTP protocol, disabled by default (enable to reduce XSS attack)
+- `session.use_cookies`: specifies if SID will be stored in cookies on client side, enabled by default
+- `session.use_only_cookies`: forces session to use only cookie for SID, works in conjunction with `session.use_cookies`
+- `session.use_trans_sid`: controls the use of transparent SID, disabled by default
+- `session.cache_limiter`: specifies cache control method used for session pages, default is nocache
+- `session.cookie_samesite`: controls the accessibility of the cookie in cross-domain requests, should be `Lax` or `Strict`
+
+Learn more at [https://www.php.net/manual/en/session.configuration.php](https://www.php.net/manual/en/session.configuration.php)
+
+### Session Functions
+
+- `session_start()`: starts the session and makes `$_SESSION` available.
+  If no session exists for the currently connected client, then a new one will be created.
+  Otherwise, the existing one will be restored. This should be called before any output to
+  the browser.
+- `session_name()`: changes the name of session, same as `session.name`
+- `session_id()`: get and/or set the current session id.
+  Set new session ID: `session_id('<new SID>')`
+- `session_detroy()`: destroys all data registered to a session
+
+Learn more at [https://www.php.net/manual/en/ref.session.php](https://www.php.net/manual/en/ref.session.php)

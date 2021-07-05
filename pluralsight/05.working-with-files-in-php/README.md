@@ -149,3 +149,28 @@ echo $flag; // true or false
 - General
   - `fileperms()`: who?
   - `chmod`: change file permission
+
+## Working with the Filesystem
+
+### 1. Querying the Filesystem
+
+- `getcwd`: Get current working directory
+- `disk_free_space`: Get available bytes in directory's current volume
+- `disk_total_space`: Get total size in bytes of directory's current volume
+- `is_file`: Check if $filename points to a file
+- `is_dir`: Check if $filename points to a directory
+- `file_exists`: Check if $filename points to a file or a directory
+
+### 2. Reading directories
+
+- `opendir()`
+- `readdir()` / `rewinddir()`
+- `closedir()`
+
+- `scandir()`: open - readding - close
+
+### 3. Manipulating directories
+
+- `chdir`: Change directory (Navigation)
+- `mkdir`: Create a directory
+- `rmdir`: Remove a directory (Not going to remove recursively)

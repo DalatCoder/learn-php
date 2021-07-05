@@ -132,3 +132,25 @@ Overview
 
 - `date_sun_info($time, $lat, $long) : array`: Returns array with information about sunset/sunrise and twilight begin/end
 - Finding latitude and longitue at: [https://www.latlong.net](https://www.latlong.net)
+
+Look at `datetime-oop/sun_week.php`
+
+### `Modify()`: DateTime vs DateTimeImmutable
+
+- `DateTime::modify()`: Alters the object and returns modified object
+
+  ```php
+  $date1 = new DateTime();
+  $date2 = $date1->modify('+1 day 9:30 pm');
+
+  // $date1 and $date2 will be the same
+  ```
+
+- `DateTimeImmutable::modify()`: Alters the object and returns new object
+
+  ```php
+  $date1 = new DateTimeImmutable();
+  $date2 = $date1->modify('+1 day 9:30 pm');
+
+  // $date1 and $date2 will not be the same
+  ```

@@ -252,4 +252,18 @@ On server side:
 
 #### 2.2. `PUT` request
 
+- `$putdata = fopen('php://input', 'r');`: Open input buffer that come into our program
+
+```php
+  $putdata = fopen('php://input', 'r');
+  $dest = fopen('dest.txt', 'w');
+
+  while ($data = fread($putdata, 1024)) {
+    fwrite($dest, $data);
+  }
+
+  fclose($putdata);
+  fclose($dest);
+```
+
 ### 3. Security Considerations

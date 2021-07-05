@@ -94,3 +94,21 @@ Demo
 ```
 
 Learn more at [https://www.php.net/manual/en/ref.filesystem.php](https://www.php.net/manual/en/ref.filesystem.php)
+
+### 3. Creating files
+
+- Temporary files
+
+  - `tmpfile()`: Return a temporary resource to work with
+  - `tempnam()`: Return a filename, including full path for a temporary file
+
+- Permanent files
+  - `fopen()`: `w` mode
+  - `touch()`
+
+### 4. Writing to files
+
+- `file_put_contents()`
+- `fopen` -> `fwrite` -> `fclose`
+- `fputs`: Put on string of text into a file
+- `fputcsv`

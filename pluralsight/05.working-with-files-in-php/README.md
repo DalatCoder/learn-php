@@ -189,4 +189,67 @@ echo $flag; // true or false
 
 ### 2. Receiving Files
 
+#### 2.1. `POST` request
+
+##### Submitting Single POSTed File
+
+On client side, using HTML `form` tag
+
+```html
+<form method="POST" action="__URL__" enctype="multipart/form-data">
+  <input type="file" name="file" />
+  <button type="submit">Submit</button>
+</form>
+```
+
+On server side:
+
+- Use `$_FILES` superglobal to access file info
+- `$_FILES['file']['name']`: name attribute of the associated form tag
+- `$_FILES['file']['type']`: MIME type of the file
+- `$_FILES['file']['tmp_name']`: path to uploaded file on server
+- `$_FILES['file']['size']`: size of uploaded file
+- `$_FILES['file']['error']`: numeric error code [Learn more](https://www.php.net/manual/en/features.file-upload.errors.php)
+
+```php
+  $filename = $_FILES['file']['tmp_name'];
+
+  if (is_uploaded_file($filename)) {
+    // Perform security check
+  }
+
+  move_uploaded_file($filename, '/some/path');
+```
+
+##### Submitting Multiple POSTed Files
+
+On client side, using HTML `form` tag
+
+```html
+<form method="POST" action="__URL__" enctype="multipart/form-data">
+  <input type="file" name="files[]" />
+  <input type="file" name="files[]" />
+  <input type="file" name="files[]" />
+  <button type="submit">Submit</button>
+</form>
+```
+
+OR
+
+```html
+<form method="POST" action="__URL__" enctype="multipart/form-data">
+  <input type="file" name="files[]" multiple />
+  <button type="submit">Submit</button>
+</form>
+```
+
+On server side:
+
+```php
+  $fileinfo = $_FILES['files'];
+  $param = $_FILES['files'][param][index];
+```
+
+#### 2.2. `PUT` request
+
 ### 3. Security Considerations

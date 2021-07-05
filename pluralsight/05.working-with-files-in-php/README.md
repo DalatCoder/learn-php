@@ -133,3 +133,19 @@ echo $flag; // true or false
 - `is_readable()`
 - `is_writeable()`
 - `is_executable()`
+
+### 7. File permissions
+
+- Owner
+
+  - `fileowner()`: who?
+  - `chown()`: change owner
+
+- Group
+
+  - `filegroup()`: who?
+  - `chgrp()`: change group
+
+- General
+  - `fileperms()`: who?
+  - `chmod`: change file permission

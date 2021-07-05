@@ -112,3 +112,12 @@ Learn more at [https://www.php.net/manual/en/ref.filesystem.php](https://www.php
 - `fopen` -> `fwrite` -> `fclose`
 - `fputs`: Put on string of text into a file
 - `fputcsv`
+
+### 5. Deleting files
+
+`unlink` attempts to delete a file
+
+```php
+$flag = unlink('path/to/file');
+echo $flag; // true or false
+```

@@ -30,9 +30,15 @@
 
     <?php else : ?>
         <?php
-        $title = $_REQUEST['title'];
-        $author = $_REQUEST['author'];
-        $root = '../books';
+        $title = basename($_REQUEST['title']);
+        $author = basename($_REQUEST['author']);
+
+        if ($author == '' || $author == '.' || $author == '..') {
+            echo 'Invlid author name';
+            exit;
+        }
+
+        $root = './uploads';
 
         if (!file_exists("$root/$author")) {
             mkdir("$root/$author");

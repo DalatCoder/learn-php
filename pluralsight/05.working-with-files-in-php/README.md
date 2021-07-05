@@ -252,7 +252,7 @@ On server side:
 
 #### 2.2. `PUT` request
 
-- `$putdata = fopen('php://input', 'r');`: Open input buffer that come into our program
+`$putdata = fopen('php://input', 'r');`: Open input buffer that come into our program
 
 ```php
   $putdata = fopen('php://input', 'r');
@@ -267,3 +267,9 @@ On server side:
 ```
 
 ### 3. Security Considerations
+
+- Configure the web server properly
+- Quarantine uploaded files
+- Check for path navigation in uploaded file names (e.g. `../foo.txt`) before using
+- Consider setting `open_basedir` and `doc_root` in `php.ini`
+- Use `is_uploaded_file()` and `move_uploaded_file()` for POSTed files

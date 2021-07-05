@@ -99,3 +99,31 @@ Demo
 
 - Keep track for database operation
 - Setting time limit for cookies and sessions
+
+## Understanding DateTime class in PHP
+
+Overview
+
+- Object Oriented date and time functions
+- Timestamp in DateTime class
+- Play around with DateTime object
+- Create a demo app to find our sunrise and sunset timings
+
+### DateTime class
+
+- Object Oriented
+- Stores information about date, time and timezones
+- Timezone information is independent of server settings
+- Dedicated methods for date and time calculations: `modify`, `add`, `sub` and `diff`
+
+```php
+  $date_now = new DateTime();
+  $date = new DateTime('January 14, 2020');
+
+  echo $date_now->format('l, F j, Y g:i a');
+
+  $time_now = $date_now->getTimeStamp();
+  // $time_now = $date_now->format('U');
+
+  $date->setTimestamp($time_now);
+```

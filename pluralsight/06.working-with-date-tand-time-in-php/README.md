@@ -127,3 +127,8 @@ Overview
 
   $date->setTimestamp($time_now);
 ```
+
+### Finding Sunrise and Sunset Timing
+
+- `date_sun_info($time, $lat, $long) : array`: Returns array with information about sunset/sunrise and twilight begin/end
+- Finding latitude and longitue at: [https://www.latlong.net](https://www.latlong.net)

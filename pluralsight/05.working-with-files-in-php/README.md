@@ -121,3 +121,15 @@ Learn more at [https://www.php.net/manual/en/ref.filesystem.php](https://www.php
 $flag = unlink('path/to/file');
 echo $flag; // true or false
 ```
+
+### 6. File metadata
+
+- `fileatime()`: File access time
+- `filemtime()`: File modify time
+- `filesize()`: File size
+- `filetype()`: File type
+  - It not going to return `MIME` type
+  - Check whether a `file` or a `directory`
+- `is_readable()`
+- `is_writeable()`
+- `is_executable()`

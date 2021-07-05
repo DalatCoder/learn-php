@@ -174,3 +174,19 @@ echo $flag; // true or false
 - `chdir`: Change directory (Navigation)
 - `mkdir`: Create a directory
 - `rmdir`: Remove a directory (Not going to remove recursively)
+
+## Files and Web Services
+
+### 1. Send Files
+
+```php
+  $filename = './books/Charles Dickens/A Tale of Two Cities.txt';
+
+  header('content-type: text/plain');
+
+  readfile($filename);
+```
+
+### 2. Receiving Files
+
+### 3. Security Considerations

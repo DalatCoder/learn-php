@@ -154,3 +154,20 @@ Look at `datetime-oop/sun_week.php`
 
   // $date1 and $date2 will not be the same
   ```
+
+### Change Date and Time independently
+
+- `DateTime::setDate($year, $month, $day)`: Sets the date
+- `DateTime::setTime($hour, $min, $sec)`: Sets the time
+
+### Using DateTime::createFromFormat
+
+Learn more at [PHP Manual](https://www.php.net/manual/en/datetime.createfromformat.php)
+
+```php
+  $date = new DateTime('09/05/2020');
+  echo $date->format('F j, Y');
+
+  $date = DateTime::createFromFormat('d/m/Y', '09/05/2020');
+  echo $date->format('F j, Y');
+```

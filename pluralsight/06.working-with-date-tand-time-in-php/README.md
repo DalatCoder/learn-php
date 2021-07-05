@@ -79,4 +79,23 @@ Learn more about date format at: [PHP Manual](https://www.php.net/manual/en/date
 - `date($format, $timestamp)`: Format a local time/date
 - `checkdate($month, $day, $year)`: Validate a date
 
-Check `date-functions.php`
+```php
+  echo "Today is " . date('g:i:s a \o\n l, F j, Y') . '<br>';
+  echo "Tomorrow is " . date('g:i:s a \o\n l, F j, Y', $timestamp_tomorrow) . '<br>';
+  echo "New Year 2021 is " . date('g:i:s a \o\n l, F j, Y', $timestamp_newyear) . '<br>';
+
+  echo "<br><br>";
+
+  $year = 2021;
+
+  if (checkdate(2, 29, $year)) {
+      echo "{$year} is a leap year";
+  } else {
+      echo "{$year} is not a leap year";
+  }
+```
+
+Demo
+
+- Keep track for database operation
+- Setting time limit for cookies and sessions

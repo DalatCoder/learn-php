@@ -126,3 +126,7 @@ Deals with algorithms and assignment of responsibilities between objects
 - Design patterns are general solutions for common problems in software design
 - These are blueprints, not algorithms or code
 - Use `design pattern` to achieve the goals set by `design principle`
+
+## 2. Creational Pattern
+
+Provide various object creation mecahnisms, which increase flexibility and reuse of existing code

@@ -215,3 +215,4 @@ The `index.php` is because it has a special meaning. `Index.php` is known as a `
 As you may have gegun to suspect, the real powser of PHP is in its hundreds (even thousands) of built-in functions that let you access data in a MySQL database, send email, dynamically generate images, and even create Adobe Acrobat PDF files on the fly.
 
 ## 5. Introducing MySQL
+## 6. Publishing MySQL data on the Web

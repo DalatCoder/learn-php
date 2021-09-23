@@ -345,3 +345,281 @@ include __DIR__ . '/../templates/output.html.php';
 ### 6.5. Handling SELECT Result Sets
 
 The query method looks just like `exec` in that it accepts an `SQL` query as an argument to be sent to the database server. What it returns, however, is a `PDOStatement` object, which represents a `result set` containing a list of all the rows (entries) returned from the query.
+
+```php
+<?php 
+
+try {
+	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
+	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+	$sql = 'SELECT `joketext` FROM `joke`';
+	$results = $pdo->query($sql);
+
+	$output = 'Database connection established';
+}
+catch (PDOException $e) {
+	// Handle exception
+	$output = 'Unable to connect to the database server';
+}
+
+include __DIR__ . '/../templates/output.html.php';
+```
+
+We could use a `while` loop here to process the rows in the result set one at a time 
+
+```php
+while ($row = $result->fetch()) {
+	// Process the row
+}
+```
+
+The `fetch` method of the `PDOStatement` object returns the next row in the result set as an array. When there are no more rows in the result set, `fetch` returns `false` instead.
+
+It's common to use a `foreach` loop in a PHP template to display each item of an array in turn. Here's how this might look for our `$jokes` array
+
+```php
+<?php 
+foreach ($jokes as $joke) {
+	?>
+		HTML code to output each $joke
+	<?php
+}
+?>
+```
+
+with this blend of PHP code to describe the loop and HTML code to display it, the code looks rather untidy. Because of this, it's common to use an alternative way of writing the `foreach` loop when it's used in a template:
+
+```php
+foreach ($array as $item):
+	HTML code to output each $item
+endforeach;
+```
+
+The two pieces of code are functionally identical, but the lattern looks more friendly when mixed with HTML code. Here's how this form of the code looks in a template 
+
+```php
+<?php foreach ($jokes as $joke): ?>
+	HTML code to output each $joke
+<?php endforeach; ?>
+```
+
+Another neat tool PHP offers is a shorthand way to call the `echo` command - which, as you've already seen, we need to use frequently. Our `echo` statements look like this 
+
+```php
+<?php echo $variable; ?>
+```
+
+Instead, you can use this 
+
+```php
+<?= $variable; ?>
+```
+
+DRY - Don't repeat yourself 
+
+```php
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>IJDB - Internet Joke Database</title>
+	</head>
+	<body>
+		<nav>
+			<?php include 'nav.html.php'; ?>
+		</nav>
+		<main>
+			<?php if (isset($error)): ?>
+			<p>
+				<?=$error?>
+			</p>
+			<?php else: ?>
+				Not error
+			<?php endif; ?>
+		</main>
+		<footer>
+			<?php include 'footer.html.php'; ?>
+		</footer>
+	</body>
+</html>
+```
+
+There's no way to accurately predict all the changes that might be needed over the lifetime of the website, so instead the approach I showed you at the beginning of this chapter is actually better:
+
+```php
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="jokes.css">
+		<title><?=$title?></title>
+	</head>
+	<body>
+		<header>
+			<h1>Internet Joke Database</h1>
+		</header>
+		<nav>
+			<ul>
+				<li><a href="index.php">Home</a></li>
+				<li><a href="jokes.php">Jokes List</a></li>
+			</ul>
+		</nav>
+		<main>
+			<?=$output?>
+		</main>
+		<footer>
+			&copy; IJDB 2017
+		</footer>
+	</body>
+</html>
+```
+
+If we always include this template, which we'll call `layout.html.php`, it's possible to set the `$output` variable to some HTML code and have it appear on the page with the navigation and footer.
+
+Any controller can now use `include __DIR__ . '/../templates/layout.html.php'` and provide values for `$output` and `$title`.
+
+Our `jokes.php` using `layout.html.php` looks like this:
+
+```php
+<?php 
+
+try {
+	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
+	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+	$sql = 'SELECT `joketext` FROM `joke`';
+	$results = $pdo->query($sql);
+
+	$title = 'Joke List';
+	$output = 'Database connection established';
+}
+catch (PDOException $e) {
+	// Handle exception
+	$title = 'Joke List';
+	$output = 'Error while trying to connect to the database';
+}
+
+include __DIR__ . '/../templates/output.html.php';
+```
+
+We can extract the logic to show list of `jokes` to another `template` file , called `jokes.html.php`
+
+```php
+<?php foreach ($jokes as $joke): ?>
+	<p><?= htmlspecialchars($joke, ENT_QUOTES, 'UTF-8') ?></p>
+<?php endforeach; ?>
+```
+
+Importantly, this is only the code for displaying the jokes. It doesn't contain the navigation, footer, head tag or naything we want repeated on every page; it's only the HTML code that's unique to the joke list page. 
+
+To use this template, you might try the following:
+
+```php
+while ($row = $result->fetch()) {
+	$jokes[] = $row['joketext'];
+}
+
+$title = 'Joke list';
+
+include 'jokes.html.php';
+```
+
+Or if you're very clever
+
+```php
+while ($row = $result->fetch()) {
+	$jokes[] = $row['joketext'];
+}
+
+$title = 'Joke list';
+
+$output = include 'jokes.html.php';
+```
+
+With this approach, your logic would be entirely sound. We need to include the `jokes.html.php`. Unfortunately, the `include` statement just executes the code from the included file at the point it's called. If you run the code above, the output will actually be something like this
+
+```php
+	<!-- Output from `jokes.html.php` -->
+		<p>First joke</p>
+		<p>Second joke</p>
+	<!-- Output from `jokes.html.php` -->
+
+	<!-- Output from `layout.html.php` -->
+	<!doctype html>
+	<html>
+		<head>
+			<meta charset="utf-8">
+			<title>Joke List</title>
+		</head>
+	</html>
+```
+
+Because `jokes.html.php` is included first, it's sent to the browser first. What we need to do is load `jokes.html.php`, but instead of sending the output straight to the browser, we need to capture it and store it in the `$output` variable so that it can be used later by `layout.html.php`.
+
+The `include` statement doesn't return a value, so `$output = include 'jokes.html.php'` does not have the desired effect, and PHP doesn't have an alternative statement to do that. 
+
+PHP does have a useful feature called "output buffering". It might sound complicated, but the concept is actually very simple: when you use `echo` to print something, or `include` to include a file that contains HTML, usually it's sent directly to the browser. By making use of output buffering, instead of having the output begin sent straight to the browser, the HTML code is stored on the server in a "buffer", which is basically just a string containing everything that's been printed so far.
+
+Even better, PHP lets you turn on the buffer and read its contents at any time. 
+
+There are two functions we need: 
+
+- `ob_start()`, which starts the output buffer. After calling this function, anything printed via `echo` or HTML printed via `include` will be stored in a buffer rather than sent to the browser. 
+
+- `ob_get_clean()`, which returns the contents of the buffer and clears it.
+
+as you've probably guessed, `ob` in the function names stands for `output buffer`
+
+To capture the contents of an included file, we just need to make use of these two functions 
+
+```php
+while ($row = $result->fetch()) {
+	$jokes[] = $row['joketext'];
+}
+
+$title = 'Joke list';
+
+// Start the buffer
+ob_start();
+
+// Include the template. The PHP code will be executed,
+// but the resulting HTML will be stored in the buffer 
+// rather than sent to the browser
+
+include __DIR__ . '/../templates/jokes.html.php';
+
+// Read the contents of the output buffer and store them 
+// in the $output variable for use in layout.html.php 
+
+$output = ob_get_clean();
+```
+
+When this code runs, the `$output` variable will contain the HTML that was generated in the `jokes.html.php` template. 
+
+We'll use this approach from now on. Each page will be made up of two templates:
+
+- `layout.html.php`, which contains all of the common HTML needed by every page 
+- a unique template that contains only the HTML code that's unique to that particular page
+
+### 6.6. Only Connect to the DB where neccessary 
+
+> It's good practive to only connect to the database if you need to. Databases are the most common performance 
+> bottleneck on most websites, so making as few connections as posible is preferred.
+
+Create home page, `index.php`
+
+```php
+</php 
+
+$title = 'Internet Joke Database';
+
+ob_start();
+
+include __DIR__ . '/../templates/home.html.php';
+
+$output = ob_get_clean();
+
+include __DIR__ . '/../templates/layout.html.php';
+```
+

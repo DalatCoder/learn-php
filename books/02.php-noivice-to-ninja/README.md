@@ -623,3 +623,32 @@ $output = ob_get_clean();
 include __DIR__ . '/../templates/layout.html.php';
 ```
 
+### 6.7. Inserting Data into the Database
+
+You need a form. The most important part of the `<form>` element is the `action` attribute. The `action` attribute tells the browser where to send the data once the form is submitted.
+
+However, if you leave the attribute empty by setting it to '', the data provided by the user will be sent back to the page you're currently viewing.
+
+A `prepared statement` is a special kind of SQL query that you've sent to your database server ahead of time, giving the server a chance to prepare it for execution - but not actually execute it. Think of it like writing a `.php` script. The code is there, but doesn't actually get run until you visit the page in your web browser. The SQL code in prepared statements can contain placeholders that you'll supply the values or later, when the query is to be executed. When filling in thse placehoders, PDO is smart enough to guard against 'dangerous' characters automatically.
+
+```php
+$sql = 'INSERT INTO `joke` SET
+	`joketext` = :joketext,
+	`jokedate` = "today's date"
+';
+
+$stmt = $pdo->prepare($sql);
+
+$stmt->bindValue(':joketext', $_POST['joketext']);
+$stmt->execute();
+```
+
+Once we've added the new joke to the database, instead of displaying the PHP template as previously, we want to redirect the user's browser back to the list of jokes.
+
+The way to answer the browser's form submission with an HTTP redirect - s special response that tells the browser to navigate to a different page.
+
+The PHP `header` function provides the means of sending special server responses like this one, by letting you insert specific headers into the response sent to the browser. In order to signal a redirect, you must send a `Location` header with the `URL` of the page to which you wish to direct the browser 
+
+```php
+header('Location: URL')
+```

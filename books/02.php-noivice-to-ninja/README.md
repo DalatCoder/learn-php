@@ -94,3 +94,25 @@ Passing a single variable in the query string was nice, but it turns out you can
 ```
 
 This time, our link passes two variables: `firstname` and `lastname`. The variables are separated in the query string by an ampersand (`&`, which should be written as `&amp;`)
+
+### 4.2. Passing Variables in Forms
+
+```html
+<form action="name.php" method="post">
+	<label for="firstname">FirstName:</label>
+	<input type="text" name="firstname" id="firstname" />
+
+	<label for="lastname">LastName:</label>
+	<input type="text" name="lastname" id="lastname" />
+
+	<input type="submit" value="Submit" />
+</form>
+```
+
+The `method` attribute of the form tag is used to tell the browser how to send the variables and their values along with the request.
+
+### 4.3. GET or POST?
+
+As a rule of thumb, you should only use `GET` forms if, when the form is submitted, nothing on the server `changes` - such as when you're requesting a list of search results. Because the search terms are in the URL, the user can bookmark the search results page and get back to it without having to type in the search term again. Buf if, after submitting the form, a file is deleted, or a database is updated, or a record is inserted, you should use `POST`. The primary reason for this is that if a user bookmarks the page (or presses back in their browser) it won't trigger the form submission again and potentially create a duplicate record.
+
+### 4.4. PHP Templates

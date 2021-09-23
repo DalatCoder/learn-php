@@ -179,3 +179,39 @@ PHP provides a constant called `__DIR__`, which will always contain the path tha
 This approach will work on any server, because `__DIR__` will differ depending on where the file is stored, and it doesn't depend on the changing `current working directory`. I'll be using this approach for including files throughout this book.
 
 From now on, we'll only write files to the `public` directory that we actually want users to be able to access directly from theri web browser. The `public` directory will contain any PHP scripts the user needs to access directly along with any images, JS and CSS files required by the browser. Any files only referenced by an `include` statement will be placed outside the `public` directory so users can't access them directly.
+
+### 4.6. Many Templates, One Controller
+
+A PHP script that responds to a browser request by selecting one of several PHP templates to fill in and send back is commonly called a `controller`. A `controller` contains the logic that controls which template is sent to the browser.
+
+```php
+<?php 
+
+<form method="POST" action=""></form>
+```
+
+The `action` attribute is blank. This tells the browser to submit the form back to the same URL it received it from - in this case, the `URL` of the controller that included this template file.
+
+Example controller 
+
+```php
+<?php 
+
+if (!isset($_POST['firstname'])) {
+	include __DIR__ . '/../templates/form.html.php';
+}
+else {
+	$firstname = $_POST['firstname'];
+	$firstname = htmlspecialchars($firstname);
+
+	include __DIR__ . '/../templates/welcome.html.php';
+}
+```
+
+The `index.php` is because it has a special meaning. `Index.php` is known as a `directory index`. If you don't specify a filename when you visit the `URL` in your browser, the server will look for a file named `index.php` and display that. 
+
+### 4.7. Bring on the Database
+
+As you may have gegun to suspect, the real powser of PHP is in its hundreds (even thousands) of built-in functions that let you access data in a MySQL database, send email, dynamically generate images, and even create Adobe Acrobat PDF files on the fly.
+
+## 5. Introducing MySQL

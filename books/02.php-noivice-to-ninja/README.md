@@ -230,3 +230,118 @@ This is what happens when there's a visitor to a page on your website:
 - The web server sends the HTML to the web browser as it would a plain HTML files, except that instead of coming directly rom an HTML file, the page is the output provided by the PHP interpreter. The browser has no way of knowing this, however. As far as the browser is concerned, it's requesting and receiving a web page like any other.
 
 ### 6.1. Connecting to MySQL with PHP
+
+There are three methods of connecting to a MySQL Server from PHP 
+
+- The MySQL library
+- The MySQLi library 
+- The PDO library 
+
+The MySQL library is the oldest method of connecting to the database and was introduced in PHP 2.0. The features it contains are minial, and it was superseded by MySQLi as of PHP 5.0
+
+`mysql_connect()` and `mysql_query()` have been `deprecated` - meaning they should be avoided - since PHP 5.5, and have been removed from PHP entirely since PHP 7.0
+
+In PHP 5.0, the MySQLi library, standing for `MySQL Improved`, was released to address some of the limitations in the original MySQL library. Use the functions such as `mysqli_connect` and `mysqli_query`.
+
+There are a few differences between PDO and MySQLi, but the main one is that you can use the PDO library to connect to almost any database server.
+
+After that little history lesson, you're probably eager to get back to writing code. here's how you use PDO to establish a connection to a MySQL server 
+
+```php
+<?php 
+
+$pdo = new PDO('mysql:host=hostname;dbname=database', 'username', 'password')
+```
+
+It better to catch exception 
+
+```php
+<?php 
+
+try {
+	$pdo = new PDO('mysql:host=hostname;dbname=database', 'username', 'password')
+	$output = 'Database connection established';
+}
+catch (PDOException $e) {
+	// Handle exception
+	$output = 'Unable to connect to the database server';
+}
+
+include __DIR__ . '/../templates/output.html.php';
+```
+
+### 6.2. A crash course in OOP
+
+So far, we've written our PHP code in a simpler style called `procedural programming`.
+
+We'd like our DPO object to throw a `PDOException` any time it fails to do what we ask. we configure it do to so by calling the PDO object's `setAttribute` method:
+
+```php
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+```
+
+We can instruct PHP to use UTF-8 when querying the database by appending `;charset=utf8` to the connection string. 
+Setting the charset as part of the connection string is the preferred option.
+
+```php
+<?php 
+
+try {
+	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
+	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+	$output = 'Database connection established';
+}
+catch (PDOException $e) {
+	// Handle exception
+	$output = 'Unable to connect to the database server';
+}
+
+include __DIR__ . '/../templates/output.html.php';
+```
+
+### 6.3. What happens after the script has finished?
+
+You might be wondering what happens to the connection with the MySQL server after the script has finished executing. If you really want to, you can force PHP to disconnect from the server by discarding the PDO object that represents your connection. You do this by setting the variable containing the object to `null`.
+
+```php
+$pdo = null; // disconnect from the database server
+```
+
+That said, PHP will automatically close any open database connections when it finishes running your script, so you can usually just let PHP clean up after you.
+
+### 6.4. Sending SQL Queries with PHP
+
+```php
+$pdo->exec($query);
+```
+
+Here, `$query` is a string containing whatever SQL query you want to execute.
+
+```php
+<?php 
+
+try {
+	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
+	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+	$sql = 'CREATE TABLE joke (
+				id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+				joketext TEXT,
+				jokedate DATE NOT NULL
+			) DEFAULT CHARACTER SET utf8 ENGINE=InnoDB';
+
+	$pdo->execute($sql);
+
+	$output = 'Database connection established';
+}
+catch (PDOException $e) {
+	// Handle exception
+	$output = 'Unable to connect to the database server';
+}
+
+include __DIR__ . '/../templates/output.html.php';
+```
+
+### 6.5. Handling SELECT Result Sets
+
+The query method looks just like `exec` in that it accepts an `SQL` query as an argument to be sent to the database server. What it returns, however, is a `PDOStatement` object, which represents a `result set` containing a list of all the rows (entries) returned from the query.

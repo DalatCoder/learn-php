@@ -216,3 +216,17 @@ As you may have gegun to suspect, the real powser of PHP is in its hundreds (eve
 
 ## 5. Introducing MySQL
 ## 6. Publishing MySQL data on the Web
+
+![Relation](assets/relation.png)
+
+This is what happens when there's a visitor to a page on your website:
+
+- The visitor's web browser requests the web page form your web server.
+- The web server software (typically Apache or NGINX) recognizes that the requested file is a PHP script, so the server fires up the PHP interpreter to execute the code contained in the file.
+- Certain PHP commands (which will be the focus of this chapter) connect to the MySQL database and request the content that belongs in the web page. 
+- The MySQL database responds by sending the requested content to the PHP script
+- The PHP script stores the content into one or more PHP variables, then uses `echo` statements to ouput the content as part of the web page. 
+- The PHP interpreter finishes up by handing a copy of the HTML it has created to the web server.
+- The web server sends the HTML to the web browser as it would a plain HTML files, except that instead of coming directly rom an HTML file, the page is the output provided by the PHP interpreter. The browser has no way of knowing this, however. As far as the browser is concerned, it's requesting and receiving a web page like any other.
+
+### 6.1. Connecting to MySQL with PHP

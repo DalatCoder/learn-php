@@ -652,3 +652,7 @@ The PHP `header` function provides the means of sending special server responses
 ```php
 header('Location: URL')
 ```
+
+### 6.8. Don't Use Hyperlinks to Perform Action 
+
+In short, hyperlinks should never be used to perform actions (such as deleting a joke); they must only be used to provide a link to some related content. The same gose for forms with `method='get'`, which should only be used to perform quires of existing data. Actions must only ever be performed as a result of a form with `method='post'` being submitted.

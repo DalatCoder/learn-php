@@ -693,3 +693,67 @@ $output = ob_get_clean();
 
 The correct way to represent a many-to-many relationship is by using a `lookup table`. This is a table that contains no actual data, but lists pairs of entries that are related. 
 
+## 8. Structured PHP Programming 
+
+In this chapter, I'll explore some methods of keeping your PHP code manageable and maintainable. 
+
+Programmers are lazy, and we don't want to have to make the same change in multiple locations. By placing code in one place, and using it with the `include` statement, it allows us to avoid repetition. If you ever find yourself copying and pasting code, you're almost certainly better off moving that repeated code into its own file and using it in both locations with an `include` statement.
+
+### 8.1. Include Files 
+
+`Include files` (also known just as `includes`) also contain snippets of PHP code that you can load into your other PHP scripts instead of having to retype them.
+
+#### 8.1.2. Including HTML content 
+
+In PHP, include files most commonly contain either pure PHP code or a mixture of HTML and PHP code. If you like, an include file can contain strictly static HTML. This is most useful for sharing common design elements across your site, such as a copyright notice at the bottom of every page
+
+```php
+<footer>
+	The contents of this web page are copyright &copy; 2021
+</footer>
+```
+
+This file is a `template partial` - an include file to be used by PHP templates. I recommend giving it a name ending with `.html.php`, to differentiate from non-template pages.
+
+#### 8.1.3. Including PHP Code 
+
+Instead of repeating the code fragment in every file that needs it, write it just once in a separate file - known as the include file. That file can then be included in any other PHP files that need to use it.
+
+We'll create a directory called `DatabaseConnection.php` and place the database connection code inside it:
+
+```php
+$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'tronghieu', 'tronghieu');
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+```
+
+Now you can put this `DatabaseConnection.php` file to use in your controllers. 
+
+The updated `controller` file looks like this
+
+```php
+<?php 
+
+try {
+	include __DIR__ . '/../includes/DatabaseConnection.php';
+
+	$sql = '';
+	$jokes = $pdo->query($sql);
+
+	ob_start();
+
+	include __DIR__ . '/../templates/jokes.html.php';
+
+	$output = ob_get_clean();
+}
+catch (PDOException $e) {
+
+}
+
+include __DIR__ . '/../templates/layout.html.php';
+```
+
+When PHP encounters an include statement, it puts the current script on hold and runs the specified PHP script. When it's finished, it returns to the original script and picks up where it left off.
+
+Include files are the simplest way to structure PHP code. Because of their simplicity, they're also the most widely used method. Even very simple web applications can benefit greatly from using include files.
+
+An `include` statement can be thought of as an automated copy-and-paste. When PHP encounters the line `include __DIR__ . '/../includes/DatabaseConnection.php'`; it effectively reads the code from the file and copies/pastes it into the current code at the position of the `include` statement.

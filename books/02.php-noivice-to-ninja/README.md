@@ -813,3 +813,297 @@ Exceptions bubble up.
 Whenever you spot repeated code, it's usually a good idea to take the repeated code and place it in its own function. This is commonly referred to as the DRY principle.
 
 Being able to pass arrays into functions is a nice trick when you don't always know how many arguments there will be.
+
+### 8.5. Improving functions  
+
+Insert function 
+
+```php
+function insertJoke($pdo, $fields) {
+	$query = 'INSERT INTO `joke` (';
+
+	foreach ($fields as $key => $value) {
+		$query .= '`' . $key . '`,';
+	}
+
+	$query = rtrim(query, ',');
+
+	$query .= ') VALUES (';
+
+	foreach ($fields as $key => $value) {
+		$query .= ':' . $key . ',';
+	}
+
+	$query = rtrim($query, ',');
+
+	$query .= ')';
+
+	query($pdo, $query);
+}
+```
+
+### 8.6. Generic Functions   
+
+You may have realized that this method is going  to be slower, because more quires are sent to the database. This is a common issue with these kinds of generic functions, and it's called the `N+1 problem`. There are several methods for reducing this performance issue, but for smaller sites, where we're dealing with hundreds of thousands of records rather than millions, it's unlikely cause any real problems. The difference will likely be in the region of milliseconds.
+
+## 9. Objects And Classes   
+
+### 9.1. Time for class
+
+You can think of a `class` as a collection of functions and data (variables). Each class will contain a set of functions and some data that the functions can access.
+
+As a first step, move all the database functions into a class wrapper 
+
+```php
+<?php 
+
+class DatabseTable
+{
+	private function query($pdo, $sql, $parameters = [])
+	{
+		$query = $pdo->prepare($sql);
+		$query->execute($parameters);
+		return $query;
+	}
+
+	public function total($pdo, $table)
+	{
+		$query = $this->query($pdo, 'SELECT COUNT(*) FROM `' . $table . '`');
+		$row = $query->fetch();
+		return $row[0];
+	}
+
+	public function findById($pdo, $table, $primaryKey, $value)
+	{
+		$query = 'SELECT * FROM `' . $table . '` WHERE `' . primaryKey . '` = :value';
+
+		$parameters = [
+			'value' => $value
+		];
+
+		$query = $this->query($pdo, $query, $parameters);
+
+		return $query->fetch();
+	}
+
+	private function insert($pdo, $table, $fields)
+	{
+		$query = 'INSERT INTO `' . $table . '` (';
+
+		foreach ($fields as $key => $value) {
+			$query .= '`' . $key . '`,';
+		}
+
+		$query = rtrim($query, ',');
+
+		$query .= ') VALUES (';
+
+		foreach ($fields as $key => $value) {
+			$query .= ':' . $key . ',';
+		}
+
+		$query = rtrim($query, ',');
+
+		$query .= ')';
+
+		$fields = $this->processDates($fields);
+		$this->query($pdo, $query, $fields);
+	}
+
+	private function update($pdo, $table, $primaryKey, $fields)
+	{
+
+	}
+
+	public function delete($pdo, $table, $primaryKey, $id)
+	{
+
+	}
+
+	public function findAll($pdo, $table)
+	{
+
+	}
+
+	private function processDates($fields)
+	{
+		foreach ($fields as $key => $value) {
+			if ($value instanceof DateTime) {
+				$fields[$key] = $value->format('Y-m-d');
+			}
+		}
+
+		return $fields;
+	}
+
+	public function save($pdo, $table, $primaryKey, record)
+	{
+
+	}
+}
+```
+
+Like templates and include files, it's good practive to store classes outside the `public` directory. Create a new directory called `classes` inside your `Project` directory and save the code above as `DatabaseTable.php`
+
+#### 9.1.1. Naming Your Class Files
+
+It's good practice to name your class files exactly the same as your classes. The class `DatabaseTable` would be placed in `DatabaseTable.php`, a class called `User` would be stored in `User.php` and so on. Althought it doesn't matter at the moment, later on I'll introduce something called an `autoloader`, and it will be difficult to use without this convention.
+
+### 9.2. Constructors 
+
+As the author of a class, you get to tell anyone who uses it how it works. (If you want to get technical, this is called the `Application Programming Interface` or `API`). You can make sure that ny required variables are set before any functions are run.
+
+### 9.3. Magic Methods 
+
+That's two underscores in front of the word `construct`. If you use just one, it won't work!
+
+In PHP, any method prefixed by two undersocres is a `magic method`. These are generally called automatically in different cases. As the language evolves, more of these magic methods may be added, so it's a good idea to avoid giving your own methods names beginning with two underscores. 
+
+### 9.4. Type Hinting 
+
+PHP is loosely typed, meaning that a variable can be any type - such as a string, a number, an array, or an object.
+
+`Type inting` allows you to specify the type of an argument. The type can be a class name, or one of the basic types, such as stirng, array or integer. 
+
+Type hinting for basic types (numbers, strings, arrays - anything that isn't an object) was only introduced in PHP 7. It's possible your web host is still on PHP 5, so be careful when using this feature!
+
+to provide a type hint for an argument, prefix the variable name with the type that the variable should be 
+
+```php
+public function __construct(PDO $pdo, string $table, string $primaryKey)
+{
+}
+```
+
+This is known as `defensive programming`, and it's a very useful way of preventing bugs. By stopping variables being set to the wrong type, you can rule out the possibility of many potential bugs.
+
+### 9.5. Using the DatabaseTable Class 
+
+```php
+<?php
+class DatabaseTable
+{
+	private $pdo;
+	private $table;
+	private $primaryKey;
+
+	public function __construct(PDO $pdo, string $table, string $primaryKey)
+	{
+		$this->pdo = $pdo;
+		$this->table = $table;
+		$this->primaryKey = $primaryKey;
+	}
+
+	private function query($sql, $parameters = [])
+	{
+		$query = $this->pdo->prepare($sql);
+		$query->execute($parameters);
+		return $query;
+	}
+
+	public function total()
+	{
+		$query = $this->query('SELECT COUNT(*) FROM
+		`' . $this->table . '`');
+		$row = $query->fetch();
+		return $row[0];
+	}
+
+	public function findById($value)
+	{
+		$query = 'SELECT * FROM `' . $this->table . '` WHERE `' .
+		$this->primaryKey . '` = :value';
+		$parameters = [
+		'value' => $value
+		];
+		$query = $this->query($query, $parameters);
+		return $query->fetch();
+	}
+
+	private function insert($fields)
+	{
+		$query = 'INSERT INTO `' . $this->table . '` (';
+		foreach ($fields as $key => $value) {
+			$query .= '`' . $key . '`,';
+		}
+
+		$query = rtrim($query, ',');
+		$query .= ') VALUES (';
+
+		foreach ($fields as $key => $value) {
+			$query .= ':' . $key . ',';
+		}
+
+		$query = rtrim($query, ',');
+		$query .= ')';
+		$fields = $this->processDates($fields);
+		$this->query($query, $fields);
+	}
+
+	private function update($fields)
+	{
+		$query = ' UPDATE `' . $this->table .'` SET ';
+
+		foreach ($fields as $key => $value) {
+			$query .= '`' . $key . '` = :' . $key . ',';
+		}
+
+		$query = rtrim($query, ',');
+		$query .= ' WHERE `' . $this->primaryKey . '` =
+		:primaryKey';
+		// Set the :primaryKey variable
+
+		$fields['primaryKey'] = $fields['id'];
+		$fields = $this->processDates($fields);
+		$this->query($query, $fields);
+	}
+
+	public function delete($id)
+	{
+		$parameters = [':id' => $id];
+		$this->query('DELETE FROM `' . $this->table . '` WHERE
+		`' . $this->primaryKey . '` = :id', $parameters);
+	}
+
+	public function findAll()
+	{
+		$result = $this->query('SELECT * FROM ' .
+		$this->table);
+		return $result->fetchAll();
+	}
+
+	private function processDates($fields)
+	{
+		foreach ($fields as $key => $value) {
+			if ($value instanceof DateTime) {
+				$fields[$key] = $value->format('Y-m-d');
+			}
+		}
+	return $fields;
+	}
+
+	public function save($record)
+	{
+		try {
+			if ($record[$this->primaryKey] == '') {
+				$record[$this->primaryKey] = null;
+			}
+			$this->insert($record);
+		} 
+		catch (PDOException $e) {
+			$this->update($record);
+		}
+	}
+}
+
+```
+
+### 9.6. Omitting the Closing Tag from your files 
+
+Whenever you create a PHP file, you need to remember to put the PHP code inside PHP tags. However, the closing tag is optional, and it's actually better to omit it if the file only contains PHP code. 
+
+This is because, if there are any whitespace characters (blank lines, tabs or spaces) at the end of the file after the closing PHP tag ?>, they'll be sent to the browser, which isn't what you want to happen. Instead, it's better to prevent this from happening by omitting the ?> tag entirely. By leaving out the closing PHP tag, the whitepsace will be interpreted on the server by PHP, and ignored, rather than being sent as part of the HTML code to the browser.
+
+### 9.7. Updating the Contrller to Use the Class 
+
+Rather than having different files for each controller, it's possible to write a single controller that handles each `action` as a method. That way, we can have one file that handles all the parts that are common to each page, and methods in a class that handle the individual parts.

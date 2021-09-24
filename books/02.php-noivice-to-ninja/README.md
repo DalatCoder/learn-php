@@ -656,3 +656,40 @@ header('Location: URL')
 ### 6.8. Don't Use Hyperlinks to Perform Action 
 
 In short, hyperlinks should never be used to perform actions (such as deleting a joke); they must only be used to provide a link to some related content. The same gose for forms with `method='get'`, which should only be used to perform quires of existing data. Actions must only ever be performed as a result of a form with `method='post'` being submitted.
+
+## 7. Relational Database Design
+
+SQL Queries fall into two categories:
+
+- Data definition language (DDL) queries. These are the queries that describe `how` the data will be stored. Sthese are the `CREATE TABLE` and `CREATE DATABASE` queries...
+
+- Data manipulation language (DML) quires. These are the queries that you use to manipulate the data in the database.
+
+### 7.1. Rule of Thumb: Keep Entities Separate
+
+> Each type of entity (or "thing") about which you want to be able to store information should be given its own table.
+
+### 7.2. Select data on multiple tables 
+
+```php
+$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'tronghieu', 'tronghieu');
+$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+$sql = 'SELECT `joke`.`id`, `joketext`, `name`, `email`
+FROM `joke` INNER JOIN `author`
+	ON `authorid` = `author`.`id`';
+
+$jokes = $pdo->query($sql);
+$title = 'Joke List';
+
+ob_start();
+
+include __DIR__ . '/../templates/jokes.html.php';
+
+$output = ob_get_clean();
+```
+
+### 7.3. Many-to-many 
+
+The correct way to represent a many-to-many relationship is by using a `lookup table`. This is a table that contains no actual data, but lists pairs of entries that are related. 
+

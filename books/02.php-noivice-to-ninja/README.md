@@ -777,3 +777,39 @@ I do recommend using `include` whenever possible, however. Even if the `Database
 `include_once` and `required_once` work just like `include` and `require`, respectively - but if the specified file has already been included at least once for the current page request (using any of the four statements described here), the statement will be ignored. This is handy for include files performing a task that only needs to be done once, like connecting to the dabase.
 
 `include_once` and `required_once` are also useful for loading function libraries, as we'll see in the following section.
+
+### 8.2. Custom Functions and Function Libraries 
+
+Avoid using `include` or `require` to load include files that contain functions.
+
+It's standard practive (but not required) to include your function libraries at the top of the script, so that you can quickly see which include files containing functions are used by any particular script.
+
+### 8.3. Variable Scope 
+
+On big difference between custom functions and include files is the concept of `variable scope`.
+
+Any variable that exists in the main script will also be available and can be changed in the include file.
+To avoid rewrite the same variable, you need to remember the variable names in the script that you're working on, as well as any that exist in the include files your script uses.
+
+Functions protect you from such problems. Variables created inside a function exist only within that function, and disappear when the function has run its course. In addition, variables created outside the function are completely inaccessible inside it. The only variables a function has access to are the ones provided to it as arguments.
+
+Global variables are a very bad idea and lead to problems that are very difficult to track down and fix. You should avoid global variables at any cost.
+
+Exceptions bubble up. 
+
+On big difference between custom functions and include files is the concept of `variable scope`.
+
+Any variable that exists in the main script will also be available and can be changed in the include file.
+To avoid rewrite the same variable, you need to remember the variable names in the script that you're working on, as well as any that exist in the include files your script uses.
+
+Functions protect you from such problems. Variables created inside a function exist only within that function, and disappear when the function has run its course. In addition, variables created outside the function are completely inaccessible inside it. The only variables a function has access to are the ones provided to it as arguments.
+
+Global variables are a very bad idea and lead to problems that are very difficult to track down and fix. You should avoid global variables at any cost.
+
+Exceptions bubble up. 
+
+### 8.4. Breaking Up Your Code Into Reusable Functions 
+
+Whenever you spot repeated code, it's usually a good idea to take the repeated code and place it in its own function. This is commonly referred to as the DRY principle.
+
+Being able to pass arrays into functions is a nice trick when you don't always know how many arguments there will be.

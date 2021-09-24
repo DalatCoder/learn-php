@@ -757,3 +757,23 @@ When PHP encounters an include statement, it puts the current script on hold and
 Include files are the simplest way to structure PHP code. Because of their simplicity, they're also the most widely used method. Even very simple web applications can benefit greatly from using include files.
 
 An `include` statement can be thought of as an automated copy-and-paste. When PHP encounters the line `include __DIR__ . '/../includes/DatabaseConnection.php'`; it effectively reads the code from the file and copies/pastes it into the current code at the position of the `include` statement.
+
+#### 8.1.4. Types of includes 
+
+- `include`
+- `require`
+- `include_once`
+- `require_once`
+
+The only difference between them is what happens when the specified file is unable to be included (that is, if it doesn't exist, or if the web server doesn't have permission to read it)
+
+- `include`: a warning is displayed and the script continues to run 
+- `require`: an error is displayed and the script stops
+
+In general, you should use `require` whenever your application simply wouldn't work without the required code being successfully loaded.
+
+I do recommend using `include` whenever possible, however. Even if the `DatabaseConnection.php` file for your site is unable to load, for example, you might still want to let the script for your front page continue to load. None of the content from the database will display, but the user might be able to use the `Contact Us` link at the bottom of the page to let you know about the problem.
+
+`include_once` and `required_once` work just like `include` and `require`, respectively - but if the specified file has already been included at least once for the current page request (using any of the four statements described here), the statement will be ignored. This is handy for include files performing a task that only needs to be done once, like connecting to the dabase.
+
+`include_once` and `required_once` are also useful for loading function libraries, as we'll see in the following section.

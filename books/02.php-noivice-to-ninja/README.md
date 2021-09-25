@@ -1104,6 +1104,32 @@ Whenever you create a PHP file, you need to remember to put the PHP code inside 
 
 This is because, if there are any whitespace characters (blank lines, tabs or spaces) at the end of the file after the closing PHP tag ?>, they'll be sent to the browser, which isn't what you want to happen. Instead, it's better to prevent this from happening by omitting the ?> tag entirely. By leaving out the closing PHP tag, the whitepsace will be interpreted on the server by PHP, and ignored, rather than being sent as part of the HTML code to the browser.
 
-### 9.7. Updating the Contrller to Use the Class 
+### 9.7. Updating the Controller to Use the Class 
 
 Rather than having different files for each controller, it's possible to write a single controller that handles each `action` as a method. That way, we can have one file that handles all the parts that are common to each page, and methods in a class that handle the individual parts.
+
+```php
+<?php 
+
+try {
+
+	// Include some required files
+	include __DIR__ . '/../includes/DatabaseConnection.php';
+	include __DIR__ . '/../classes/DatabaseTable.php';
+
+	// Create one or more database table instances 
+	$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+
+	// Do something that's unique to this particular page and create the $title and $output variables
+}
+catch (PDOException $e) {
+
+	// Handle errors if they occur 
+	$title = 'An error has occurred';
+
+	$output = 'Database error: ' . $e->getMessage() . 'in ' . $e->getFile() . ': ' . $e->getLine();
+}
+
+// Load the template file 
+include __DIR__ . '/../templates/layout.html.php';
+```

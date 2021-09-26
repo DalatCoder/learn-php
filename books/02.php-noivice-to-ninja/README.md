@@ -1133,3 +1133,54 @@ catch (PDOException $e) {
 // Load the template file 
 include __DIR__ . '/../templates/layout.html.php';
 ```
+
+Using this approach, if you wanted to rename the `DatabaseConnection.php` file, you'd have to go through each controller to use the new name. Similarly, if you wanted to change the layout file, you'd need to edit each controller separately.
+
+All that really changes for each controller is the middle section that creates the `$output` and `$title` variables for the layout to use.
+
+Rather than having different files for each controller, it's possible to write a single controller that handles each `action` as a method. That way, we can have one file that handles all the parts that are common to each page, and methods in a class that handle the individual parts.
+
+## 10. Creating an Extensible Framework 
+
+One controller in `index.php`
+
+```php
+<?php
+
+function loadTemplate($templateFileName, $variables = [])
+{
+	extract($variables);
+	ob_start();
+	include __DIR__ . '/../templates/' . $templateFileName;
+	return ob_get_clean();
+}
+
+try {
+	include __DIR__ . '/../includes/DatabaseConnection.php';
+	include __DIR__ . '/../classes/DatabaseTable.php';
+	include __DIR__ . '/../controllers/JokeController.php';
+
+	$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+	$authorsTable = new DatabaseTable($pdo, 'author', 'id');
+	$jokeController = new JokeController($jokesTable, $authorsTable);
+	$action = $_GET['action'] ?? 'home';
+	$page = $jokeController->$action();
+	$title = $page['title'];
+
+	if (isset($page['variables'])) {
+		$output = loadTemplate($page['template'],
+		$page['variables']);
+	} 
+	else {
+		$output = loadTemplate($page['template']);
+	}
+} 
+catch (PDOException $e) {
+	$title = 'An error has occurred';
+	$output = 'Database error: ' . $e->getMessage() . ' in '
+	354 PHP & MySQL: Novice to Ninja, 6th Edition
+	. $e->getFile() . ':' . $e->getLine();
+}
+
+include __DIR__ . '/../templates/layout.html.php';
+```

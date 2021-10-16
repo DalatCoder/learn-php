@@ -2,9 +2,9 @@
 
 > Build your own powerful web applications
 
-## 1. Setup Local Development 
+## 1. Setup Local Development
 
-PHP is a server-side scripting language. You can think of it as a plugin for your web server that enables it to do more than just send exact copies of the files requested by web browsers. With PHP installed, your web server will be able to run little programs (called PHP scripts) that can do tasks like retrieve up-to-the-minute information from a database and use it to generate a web page on the fly, before sending it to the browser that requested it. Much of this book will focus on writing PHP scripts to do exactly that. 
+PHP is a server-side scripting language. You can think of it as a plugin for your web server that enables it to do more than just send exact copies of the files requested by web browsers. With PHP installed, your web server will be able to run little programs (called PHP scripts) that can do tasks like retrieve up-to-the-minute information from a database and use it to generate a web page on the fly, before sending it to the browser that requested it. Much of this book will focus on writing PHP scripts to do exactly that.
 
 MySQL is a `relational database management system`, or `RDBMS`. We'll discuss the exact role it plays and how it works later, but brefly, it's a software program that's able to organize and manage many pieces of information efficiently while keeping track of how all those pieces of information are related to each other. MySQL also makes that information really easy to access with server-side scripting languages such as PHP. And, like PHP, it's completely free for most uses.
 
@@ -12,7 +12,7 @@ When developing static websites, you can simply load your HTML files directly fr
 
 However, when it comes to dynamic websites built using PHP and MySQL, your web browser needs some help. Web browsers are unable to understand PHP scripts. Instead, PHP scripts contain instructions for a PHP-savvy web server to execute in order to generate the HTML code that browsers can understand.
 
-## 2. Introducing PHP 
+## 2. Introducing PHP
 
 PHP is a server-side language.
 
@@ -24,16 +24,16 @@ Once the web server has executed the PHP code embedded in a web page, the result
 
 Server advantages of server-side scripting
 
-- `No browser compatibility issues.`: PHP scripts are interpreted by the web server alone, so there's no need to worry about whether the language features you're using are supported by the visitor's browser. 
+- `No browser compatibility issues.`: PHP scripts are interpreted by the web server alone, so there's no need to worry about whether the language features you're using are supported by the visitor's browser.
 
 - `Access to server-side resources`
 - `Reduced load on the client`
 
-Quotes 
+Quotes
 
 PHP supports both single quotes ' and double quotes " to encase strings. For most purposes, they're interchangeable. PHP developers tend to favor single quotes, because we deal with HTML code a lot, which tends to contain a lot of double quotes.
 
-### 2.1. Variables, Operators and Comments 
+### 2.1. Variables, Operators and Comments
 
 Variables in PHP are identical to variables in most other programming languages. For the uninitiated, a `variable` can be thought of as a name given to an imaginary box into which any value may be placed.
 
@@ -41,11 +41,11 @@ PHP is a `loosely typed` language. This means that a single variable may contain
 
 ### 2.2. PSR-2
 
-PHP doesn't mind how you format your code and whitespace is ignored. The script will execute in the exact same way. Different programmers have different preferred styles, such as using tabs or spaces for indentation, or placing the opening brace on the same line as the statement or after it. Throughout this book I'll be using a convention known as `PSR-2` but use whatever style you feel most comfortable with. 
+PHP doesn't mind how you format your code and whitespace is ignored. The script will execute in the exact same way. Different programmers have different preferred styles, such as using tabs or spaces for indentation, or placing the opening brace on the same line as the statement or after it. Throughout this book I'll be using a convention known as `PSR-2` but use whatever style you feel most comfortable with.
 
 ## 3. Arrays
 
-An `array` is a special kind of variable that contains multiple values. If you think of a variable as a box that contains a value, an array can be thought of as a box with compartments where each compartment is able to store an individual value. 
+An `array` is a special kind of variable that contains multiple values. If you think of a variable as a box that contains a value, an array can be thought of as a box with compartments where each compartment is able to store an individual value.
 
 To access a value stored in an array, you need to know its `index`. Typically, arrays use numbers as indices to point to the values they contain, starting with zero.
 
@@ -78,7 +78,7 @@ It turns out that `$_GET` is one of a number of variables that PHP automatically
 
 The user can type any `HTML` code into the `URL`, and your PHP script includes it in the code of the generated page without question. The malicious user could include sophisticated JavaScript code that performs some low action like stealing the user's password. All the attacker would have to do is publish the modified link on some other site under the attacker's control, and then entice one of your users to click it. The attacker could even embed the link in an email and send it to your users. If one of your users clicked the link, the attacker's code would be included in your page and the trap would be sprung!
 
-Perform security 
+Perform security
 
 ```php
 $name = $_GET['name'];
@@ -99,13 +99,13 @@ This time, our link passes two variables: `firstname` and `lastname`. The variab
 
 ```html
 <form action="name.php" method="post">
-	<label for="firstname">FirstName:</label>
-	<input type="text" name="firstname" id="firstname" />
+  <label for="firstname">FirstName:</label>
+  <input type="text" name="firstname" id="firstname" />
 
-	<label for="lastname">LastName:</label>
-	<input type="text" name="lastname" id="lastname" />
+  <label for="lastname">LastName:</label>
+  <input type="text" name="lastname" id="lastname" />
 
-	<input type="submit" value="Submit" />
+  <input type="submit" value="Submit" />
 </form>
 ```
 
@@ -126,7 +126,7 @@ the key to doing this is the PHP `include` statement. With an `include` statemen
 In `count.php`
 
 ```php
-<?php 
+<?php
 
 $output = 'Hello World';
 
@@ -170,7 +170,7 @@ There are other potential security issues introduced by making all your files ac
 
 None of the files outside the `public` directory are accessible via a `URL` (by someone typing the file name into their web browser).
 
-So the question is, when the include files is in a `different` directory, how does a PHP script find it? The most obvious method is to specify the location of the include file as an absolute path. 
+So the question is, when the include files is in a `different` directory, how does a PHP script find it? The most obvious method is to specify the location of the include file as an absolute path.
 
 A better method is to use a `relative` path. That is, the location of a file relative to the current file. When you use `include 'count.html.php'` this is actually a relative path, `count.html.php` is being included from the same directory as the script that was executed.
 
@@ -185,17 +185,17 @@ From now on, we'll only write files to the `public` directory that we actually w
 A PHP script that responds to a browser request by selecting one of several PHP templates to fill in and send back is commonly called a `controller`. A `controller` contains the logic that controls which template is sent to the browser.
 
 ```php
-<?php 
+<?php
 
 <form method="POST" action=""></form>
 ```
 
 The `action` attribute is blank. This tells the browser to submit the form back to the same URL it received it from - in this case, the `URL` of the controller that included this template file.
 
-Example controller 
+Example controller
 
 ```php
-<?php 
+<?php
 
 if (!isset($_POST['firstname'])) {
 	include __DIR__ . '/../templates/form.html.php';
@@ -208,13 +208,14 @@ else {
 }
 ```
 
-The `index.php` is because it has a special meaning. `Index.php` is known as a `directory index`. If you don't specify a filename when you visit the `URL` in your browser, the server will look for a file named `index.php` and display that. 
+The `index.php` is because it has a special meaning. `Index.php` is known as a `directory index`. If you don't specify a filename when you visit the `URL` in your browser, the server will look for a file named `index.php` and display that.
 
 ### 4.7. Bring on the Database
 
 As you may have gegun to suspect, the real powser of PHP is in its hundreds (even thousands) of built-in functions that let you access data in a MySQL database, send email, dynamically generate images, and even create Adobe Acrobat PDF files on the fly.
 
 ## 5. Introducing MySQL
+
 ## 6. Publishing MySQL data on the Web
 
 ![Relation](assets/relation.png)
@@ -223,19 +224,19 @@ This is what happens when there's a visitor to a page on your website:
 
 - The visitor's web browser requests the web page form your web server.
 - The web server software (typically Apache or NGINX) recognizes that the requested file is a PHP script, so the server fires up the PHP interpreter to execute the code contained in the file.
-- Certain PHP commands (which will be the focus of this chapter) connect to the MySQL database and request the content that belongs in the web page. 
+- Certain PHP commands (which will be the focus of this chapter) connect to the MySQL database and request the content that belongs in the web page.
 - The MySQL database responds by sending the requested content to the PHP script
-- The PHP script stores the content into one or more PHP variables, then uses `echo` statements to ouput the content as part of the web page. 
+- The PHP script stores the content into one or more PHP variables, then uses `echo` statements to ouput the content as part of the web page.
 - The PHP interpreter finishes up by handing a copy of the HTML it has created to the web server.
 - The web server sends the HTML to the web browser as it would a plain HTML files, except that instead of coming directly rom an HTML file, the page is the output provided by the PHP interpreter. The browser has no way of knowing this, however. As far as the browser is concerned, it's requesting and receiving a web page like any other.
 
 ### 6.1. Connecting to MySQL with PHP
 
-There are three methods of connecting to a MySQL Server from PHP 
+There are three methods of connecting to a MySQL Server from PHP
 
 - The MySQL library
-- The MySQLi library 
-- The PDO library 
+- The MySQLi library
+- The PDO library
 
 The MySQL library is the oldest method of connecting to the database and was introduced in PHP 2.0. The features it contains are minial, and it was superseded by MySQLi as of PHP 5.0
 
@@ -245,18 +246,18 @@ In PHP 5.0, the MySQLi library, standing for `MySQL Improved`, was released to a
 
 There are a few differences between PDO and MySQLi, but the main one is that you can use the PDO library to connect to almost any database server.
 
-After that little history lesson, you're probably eager to get back to writing code. here's how you use PDO to establish a connection to a MySQL server 
+After that little history lesson, you're probably eager to get back to writing code. here's how you use PDO to establish a connection to a MySQL server
 
 ```php
-<?php 
+<?php
 
 $pdo = new PDO('mysql:host=hostname;dbname=database', 'username', 'password')
 ```
 
-It better to catch exception 
+It better to catch exception
 
 ```php
-<?php 
+<?php
 
 try {
 	$pdo = new PDO('mysql:host=hostname;dbname=database', 'username', 'password')
@@ -280,11 +281,11 @@ We'd like our DPO object to throw a `PDOException` any time it fails to do what 
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 ```
 
-We can instruct PHP to use UTF-8 when querying the database by appending `;charset=utf8` to the connection string. 
+We can instruct PHP to use UTF-8 when querying the database by appending `;charset=utf8` to the connection string.
 Setting the charset as part of the connection string is the preferred option.
 
 ```php
-<?php 
+<?php
 
 try {
 	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
@@ -318,7 +319,7 @@ $pdo->exec($query);
 Here, `$query` is a string containing whatever SQL query you want to execute.
 
 ```php
-<?php 
+<?php
 
 try {
 	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
@@ -347,7 +348,7 @@ include __DIR__ . '/../templates/output.html.php';
 The query method looks just like `exec` in that it accepts an `SQL` query as an argument to be sent to the database server. What it returns, however, is a `PDOStatement` object, which represents a `result set` containing a list of all the rows (entries) returned from the query.
 
 ```php
-<?php 
+<?php
 
 try {
 	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
@@ -366,7 +367,7 @@ catch (PDOException $e) {
 include __DIR__ . '/../templates/output.html.php';
 ```
 
-We could use a `while` loop here to process the rows in the result set one at a time 
+We could use a `while` loop here to process the rows in the result set one at a time
 
 ```php
 while ($row = $result->fetch()) {
@@ -379,7 +380,7 @@ The `fetch` method of the `PDOStatement` object returns the next row in the resu
 It's common to use a `foreach` loop in a PHP template to display each item of an array in turn. Here's how this might look for our `$jokes` array
 
 ```php
-<?php 
+<?php
 foreach ($jokes as $joke) {
 	?>
 		HTML code to output each $joke
@@ -396,7 +397,7 @@ foreach ($array as $item):
 endforeach;
 ```
 
-The two pieces of code are functionally identical, but the lattern looks more friendly when mixed with HTML code. Here's how this form of the code looks in a template 
+The two pieces of code are functionally identical, but the lattern looks more friendly when mixed with HTML code. Here's how this form of the code looks in a template
 
 ```php
 <?php foreach ($jokes as $joke): ?>
@@ -404,19 +405,19 @@ The two pieces of code are functionally identical, but the lattern looks more fr
 <?php endforeach; ?>
 ```
 
-Another neat tool PHP offers is a shorthand way to call the `echo` command - which, as you've already seen, we need to use frequently. Our `echo` statements look like this 
+Another neat tool PHP offers is a shorthand way to call the `echo` command - which, as you've already seen, we need to use frequently. Our `echo` statements look like this
 
 ```php
 <?php echo $variable; ?>
 ```
 
-Instead, you can use this 
+Instead, you can use this
 
 ```php
 <?= $variable; ?>
 ```
 
-DRY - Don't repeat yourself 
+DRY - Don't repeat yourself
 
 ```php
 <!doctype html>
@@ -482,7 +483,7 @@ Any controller can now use `include __DIR__ . '/../templates/layout.html.php'` a
 Our `jokes.php` using `layout.html.php` looks like this:
 
 ```php
-<?php 
+<?php
 
 try {
 	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
@@ -511,7 +512,7 @@ We can extract the logic to show list of `jokes` to another `template` file , ca
 <?php endforeach; ?>
 ```
 
-Importantly, this is only the code for displaying the jokes. It doesn't contain the navigation, footer, head tag or naything we want repeated on every page; it's only the HTML code that's unique to the joke list page. 
+Importantly, this is only the code for displaying the jokes. It doesn't contain the navigation, footer, head tag or naything we want repeated on every page; it's only the HTML code that's unique to the joke list page.
 
 To use this template, you might try the following:
 
@@ -557,21 +558,21 @@ With this approach, your logic would be entirely sound. We need to include the `
 
 Because `jokes.html.php` is included first, it's sent to the browser first. What we need to do is load `jokes.html.php`, but instead of sending the output straight to the browser, we need to capture it and store it in the `$output` variable so that it can be used later by `layout.html.php`.
 
-The `include` statement doesn't return a value, so `$output = include 'jokes.html.php'` does not have the desired effect, and PHP doesn't have an alternative statement to do that. 
+The `include` statement doesn't return a value, so `$output = include 'jokes.html.php'` does not have the desired effect, and PHP doesn't have an alternative statement to do that.
 
 PHP does have a useful feature called "output buffering". It might sound complicated, but the concept is actually very simple: when you use `echo` to print something, or `include` to include a file that contains HTML, usually it's sent directly to the browser. By making use of output buffering, instead of having the output begin sent straight to the browser, the HTML code is stored on the server in a "buffer", which is basically just a string containing everything that's been printed so far.
 
-Even better, PHP lets you turn on the buffer and read its contents at any time. 
+Even better, PHP lets you turn on the buffer and read its contents at any time.
 
-There are two functions we need: 
+There are two functions we need:
 
-- `ob_start()`, which starts the output buffer. After calling this function, anything printed via `echo` or HTML printed via `include` will be stored in a buffer rather than sent to the browser. 
+- `ob_start()`, which starts the output buffer. After calling this function, anything printed via `echo` or HTML printed via `include` will be stored in a buffer rather than sent to the browser.
 
 - `ob_get_clean()`, which returns the contents of the buffer and clears it.
 
 as you've probably guessed, `ob` in the function names stands for `output buffer`
 
-To capture the contents of an included file, we just need to make use of these two functions 
+To capture the contents of an included file, we just need to make use of these two functions
 
 ```php
 while ($row = $result->fetch()) {
@@ -584,33 +585,33 @@ $title = 'Joke list';
 ob_start();
 
 // Include the template. The PHP code will be executed,
-// but the resulting HTML will be stored in the buffer 
+// but the resulting HTML will be stored in the buffer
 // rather than sent to the browser
 
 include __DIR__ . '/../templates/jokes.html.php';
 
-// Read the contents of the output buffer and store them 
-// in the $output variable for use in layout.html.php 
+// Read the contents of the output buffer and store them
+// in the $output variable for use in layout.html.php
 
 $output = ob_get_clean();
 ```
 
-When this code runs, the `$output` variable will contain the HTML that was generated in the `jokes.html.php` template. 
+When this code runs, the `$output` variable will contain the HTML that was generated in the `jokes.html.php` template.
 
 We'll use this approach from now on. Each page will be made up of two templates:
 
-- `layout.html.php`, which contains all of the common HTML needed by every page 
+- `layout.html.php`, which contains all of the common HTML needed by every page
 - a unique template that contains only the HTML code that's unique to that particular page
 
-### 6.6. Only Connect to the DB where neccessary 
+### 6.6. Only Connect to the DB where neccessary
 
-> It's good practive to only connect to the database if you need to. Databases are the most common performance 
+> It's good practive to only connect to the database if you need to. Databases are the most common performance
 > bottleneck on most websites, so making as few connections as posible is preferred.
 
 Create home page, `index.php`
 
 ```php
-</php 
+</php
 
 $title = 'Internet Joke Database';
 
@@ -647,13 +648,13 @@ Once we've added the new joke to the database, instead of displaying the PHP tem
 
 The way to answer the browser's form submission with an HTTP redirect - s special response that tells the browser to navigate to a different page.
 
-The PHP `header` function provides the means of sending special server responses like this one, by letting you insert specific headers into the response sent to the browser. In order to signal a redirect, you must send a `Location` header with the `URL` of the page to which you wish to direct the browser 
+The PHP `header` function provides the means of sending special server responses like this one, by letting you insert specific headers into the response sent to the browser. In order to signal a redirect, you must send a `Location` header with the `URL` of the page to which you wish to direct the browser
 
 ```php
 header('Location: URL')
 ```
 
-### 6.8. Don't Use Hyperlinks to Perform Action 
+### 6.8. Don't Use Hyperlinks to Perform Action
 
 In short, hyperlinks should never be used to perform actions (such as deleting a joke); they must only be used to provide a link to some related content. The same gose for forms with `method='get'`, which should only be used to perform quires of existing data. Actions must only ever be performed as a result of a form with `method='post'` being submitted.
 
@@ -669,7 +670,7 @@ SQL Queries fall into two categories:
 
 > Each type of entity (or "thing") about which you want to be able to store information should be given its own table.
 
-### 7.2. Select data on multiple tables 
+### 7.2. Select data on multiple tables
 
 ```php
 $pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'tronghieu', 'tronghieu');
@@ -689,21 +690,21 @@ include __DIR__ . '/../templates/jokes.html.php';
 $output = ob_get_clean();
 ```
 
-### 7.3. Many-to-many 
+### 7.3. Many-to-many
 
-The correct way to represent a many-to-many relationship is by using a `lookup table`. This is a table that contains no actual data, but lists pairs of entries that are related. 
+The correct way to represent a many-to-many relationship is by using a `lookup table`. This is a table that contains no actual data, but lists pairs of entries that are related.
 
-## 8. Structured PHP Programming 
+## 8. Structured PHP Programming
 
-In this chapter, I'll explore some methods of keeping your PHP code manageable and maintainable. 
+In this chapter, I'll explore some methods of keeping your PHP code manageable and maintainable.
 
 Programmers are lazy, and we don't want to have to make the same change in multiple locations. By placing code in one place, and using it with the `include` statement, it allows us to avoid repetition. If you ever find yourself copying and pasting code, you're almost certainly better off moving that repeated code into its own file and using it in both locations with an `include` statement.
 
-### 8.1. Include Files 
+### 8.1. Include Files
 
 `Include files` (also known just as `includes`) also contain snippets of PHP code that you can load into your other PHP scripts instead of having to retype them.
 
-#### 8.1.2. Including HTML content 
+#### 8.1.2. Including HTML content
 
 In PHP, include files most commonly contain either pure PHP code or a mixture of HTML and PHP code. If you like, an include file can contain strictly static HTML. This is most useful for sharing common design elements across your site, such as a copyright notice at the bottom of every page
 
@@ -715,7 +716,7 @@ In PHP, include files most commonly contain either pure PHP code or a mixture of
 
 This file is a `template partial` - an include file to be used by PHP templates. I recommend giving it a name ending with `.html.php`, to differentiate from non-template pages.
 
-#### 8.1.3. Including PHP Code 
+#### 8.1.3. Including PHP Code
 
 Instead of repeating the code fragment in every file that needs it, write it just once in a separate file - known as the include file. That file can then be included in any other PHP files that need to use it.
 
@@ -726,12 +727,12 @@ $pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'tronghieu', 
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 ```
 
-Now you can put this `DatabaseConnection.php` file to use in your controllers. 
+Now you can put this `DatabaseConnection.php` file to use in your controllers.
 
 The updated `controller` file looks like this
 
 ```php
-<?php 
+<?php
 
 try {
 	include __DIR__ . '/../includes/DatabaseConnection.php';
@@ -758,7 +759,7 @@ Include files are the simplest way to structure PHP code. Because of their simpl
 
 An `include` statement can be thought of as an automated copy-and-paste. When PHP encounters the line `include __DIR__ . '/../includes/DatabaseConnection.php'`; it effectively reads the code from the file and copies/pastes it into the current code at the position of the `include` statement.
 
-#### 8.1.4. Types of includes 
+#### 8.1.4. Types of includes
 
 - `include`
 - `require`
@@ -767,7 +768,7 @@ An `include` statement can be thought of as an automated copy-and-paste. When PH
 
 The only difference between them is what happens when the specified file is unable to be included (that is, if it doesn't exist, or if the web server doesn't have permission to read it)
 
-- `include`: a warning is displayed and the script continues to run 
+- `include`: a warning is displayed and the script continues to run
 - `require`: an error is displayed and the script stops
 
 In general, you should use `require` whenever your application simply wouldn't work without the required code being successfully loaded.
@@ -778,13 +779,13 @@ I do recommend using `include` whenever possible, however. Even if the `Database
 
 `include_once` and `required_once` are also useful for loading function libraries, as we'll see in the following section.
 
-### 8.2. Custom Functions and Function Libraries 
+### 8.2. Custom Functions and Function Libraries
 
 Avoid using `include` or `require` to load include files that contain functions.
 
 It's standard practive (but not required) to include your function libraries at the top of the script, so that you can quickly see which include files containing functions are used by any particular script.
 
-### 8.3. Variable Scope 
+### 8.3. Variable Scope
 
 On big difference between custom functions and include files is the concept of `variable scope`.
 
@@ -795,7 +796,7 @@ Functions protect you from such problems. Variables created inside a function ex
 
 Global variables are a very bad idea and lead to problems that are very difficult to track down and fix. You should avoid global variables at any cost.
 
-Exceptions bubble up. 
+Exceptions bubble up.
 
 On big difference between custom functions and include files is the concept of `variable scope`.
 
@@ -806,17 +807,17 @@ Functions protect you from such problems. Variables created inside a function ex
 
 Global variables are a very bad idea and lead to problems that are very difficult to track down and fix. You should avoid global variables at any cost.
 
-Exceptions bubble up. 
+Exceptions bubble up.
 
-### 8.4. Breaking Up Your Code Into Reusable Functions 
+### 8.4. Breaking Up Your Code Into Reusable Functions
 
 Whenever you spot repeated code, it's usually a good idea to take the repeated code and place it in its own function. This is commonly referred to as the DRY principle.
 
 Being able to pass arrays into functions is a nice trick when you don't always know how many arguments there will be.
 
-### 8.5. Improving functions  
+### 8.5. Improving functions
 
-Insert function 
+Insert function
 
 ```php
 function insertJoke($pdo, $fields) {
@@ -842,20 +843,20 @@ function insertJoke($pdo, $fields) {
 }
 ```
 
-### 8.6. Generic Functions   
+### 8.6. Generic Functions
 
-You may have realized that this method is going  to be slower, because more quires are sent to the database. This is a common issue with these kinds of generic functions, and it's called the `N+1 problem`. There are several methods for reducing this performance issue, but for smaller sites, where we're dealing with hundreds of thousands of records rather than millions, it's unlikely cause any real problems. The difference will likely be in the region of milliseconds.
+You may have realized that this method is going to be slower, because more quires are sent to the database. This is a common issue with these kinds of generic functions, and it's called the `N+1 problem`. There are several methods for reducing this performance issue, but for smaller sites, where we're dealing with hundreds of thousands of records rather than millions, it's unlikely cause any real problems. The difference will likely be in the region of milliseconds.
 
-## 9. Objects And Classes   
+## 9. Objects And Classes
 
 ### 9.1. Time for class
 
 You can think of a `class` as a collection of functions and data (variables). Each class will contain a set of functions and some data that the functions can access.
 
-As a first step, move all the database functions into a class wrapper 
+As a first step, move all the database functions into a class wrapper
 
 ```php
-<?php 
+<?php
 
 class DatabseTable
 {
@@ -949,25 +950,25 @@ Like templates and include files, it's good practive to store classes outside th
 
 It's good practice to name your class files exactly the same as your classes. The class `DatabaseTable` would be placed in `DatabaseTable.php`, a class called `User` would be stored in `User.php` and so on. Althought it doesn't matter at the moment, later on I'll introduce something called an `autoloader`, and it will be difficult to use without this convention.
 
-### 9.2. Constructors 
+### 9.2. Constructors
 
 As the author of a class, you get to tell anyone who uses it how it works. (If you want to get technical, this is called the `Application Programming Interface` or `API`). You can make sure that ny required variables are set before any functions are run.
 
-### 9.3. Magic Methods 
+### 9.3. Magic Methods
 
 That's two underscores in front of the word `construct`. If you use just one, it won't work!
 
-In PHP, any method prefixed by two undersocres is a `magic method`. These are generally called automatically in different cases. As the language evolves, more of these magic methods may be added, so it's a good idea to avoid giving your own methods names beginning with two underscores. 
+In PHP, any method prefixed by two undersocres is a `magic method`. These are generally called automatically in different cases. As the language evolves, more of these magic methods may be added, so it's a good idea to avoid giving your own methods names beginning with two underscores.
 
-### 9.4. Type Hinting 
+### 9.4. Type Hinting
 
 PHP is loosely typed, meaning that a variable can be any type - such as a string, a number, an array, or an object.
 
-`Type inting` allows you to specify the type of an argument. The type can be a class name, or one of the basic types, such as stirng, array or integer. 
+`Type inting` allows you to specify the type of an argument. The type can be a class name, or one of the basic types, such as stirng, array or integer.
 
 Type hinting for basic types (numbers, strings, arrays - anything that isn't an object) was only introduced in PHP 7. It's possible your web host is still on PHP 5, so be careful when using this feature!
 
-to provide a type hint for an argument, prefix the variable name with the type that the variable should be 
+to provide a type hint for an argument, prefix the variable name with the type that the variable should be
 
 ```php
 public function __construct(PDO $pdo, string $table, string $primaryKey)
@@ -977,7 +978,7 @@ public function __construct(PDO $pdo, string $table, string $primaryKey)
 
 This is known as `defensive programming`, and it's a very useful way of preventing bugs. By stopping variables being set to the wrong type, you can rule out the possibility of many potential bugs.
 
-### 9.5. Using the DatabaseTable Class 
+### 9.5. Using the DatabaseTable Class
 
 ```php
 <?php
@@ -1040,97 +1041,97 @@ class DatabaseTable
 		$this->query($query, $fields);
 	}
 
-	private function update($fields)
-	{
-		$query = ' UPDATE `' . $this->table .'` SET ';
+ private function update($fields)
+ {
+  $query = ' UPDATE `' . $this->table .'` SET ';
 
-		foreach ($fields as $key => $value) {
-			$query .= '`' . $key . '` = :' . $key . ',';
-		}
+  foreach ($fields as $key => $value) {
+   $query .= '`' . $key . '` = :' . $key . ',';
+  }
 
-		$query = rtrim($query, ',');
-		$query .= ' WHERE `' . $this->primaryKey . '` =
-		:primaryKey';
-		// Set the :primaryKey variable
+  $query = rtrim($query, ',');
+  $query .= ' WHERE `' . $this->primaryKey . '` =
+  :primaryKey';
+  // Set the :primaryKey variable
 
-		$fields['primaryKey'] = $fields['id'];
-		$fields = $this->processDates($fields);
-		$this->query($query, $fields);
-	}
+  $fields['primaryKey'] = $fields['id'];
+  $fields = $this->processDates($fields);
+  $this->query($query, $fields);
+ }
 
-	public function delete($id)
-	{
-		$parameters = [':id' => $id];
-		$this->query('DELETE FROM `' . $this->table . '` WHERE
-		`' . $this->primaryKey . '` = :id', $parameters);
-	}
+ public function delete($id)
+ {
+  $parameters = [':id' => $id];
+  $this->query('DELETE FROM `' . $this->table . '` WHERE
+  `' . $this->primaryKey . '` = :id', $parameters);
+ }
 
-	public function findAll()
-	{
-		$result = $this->query('SELECT * FROM ' .
-		$this->table);
-		return $result->fetchAll();
-	}
+ public function findAll()
+ {
+  $result = $this->query('SELECT * FROM ' .
+  $this->table);
+  return $result->fetchAll();
+ }
 
-	private function processDates($fields)
-	{
-		foreach ($fields as $key => $value) {
-			if ($value instanceof DateTime) {
-				$fields[$key] = $value->format('Y-m-d');
-			}
-		}
-	return $fields;
-	}
+ private function processDates($fields)
+ {
+  foreach ($fields as $key => $value) {
+   if ($value instanceof DateTime) {
+    $fields[$key] = $value->format('Y-m-d');
+   }
+  }
+ return $fields;
+ }
 
-	public function save($record)
-	{
-		try {
-			if ($record[$this->primaryKey] == '') {
-				$record[$this->primaryKey] = null;
-			}
-			$this->insert($record);
-		} 
-		catch (PDOException $e) {
-			$this->update($record);
-		}
-	}
+ public function save($record)
+ {
+  try {
+   if ($record[$this->primaryKey] == '') {
+    $record[$this->primaryKey] = null;
+   }
+   $this->insert($record);
+  }
+  catch (PDOException $e) {
+   $this->update($record);
+  }
+ }
 }
 
 ```
 
-### 9.6. Omitting the Closing Tag from your files 
+### 9.6. Omitting the Closing Tag from your files
 
-Whenever you create a PHP file, you need to remember to put the PHP code inside PHP tags. However, the closing tag is optional, and it's actually better to omit it if the file only contains PHP code. 
+Whenever you create a PHP file, you need to remember to put the PHP code inside PHP tags. However, the closing tag is optional, and it's actually better to omit it if the file only contains PHP code.
 
 This is because, if there are any whitespace characters (blank lines, tabs or spaces) at the end of the file after the closing PHP tag ?>, they'll be sent to the browser, which isn't what you want to happen. Instead, it's better to prevent this from happening by omitting the ?> tag entirely. By leaving out the closing PHP tag, the whitepsace will be interpreted on the server by PHP, and ignored, rather than being sent as part of the HTML code to the browser.
 
-### 9.7. Updating the Controller to Use the Class 
+### 9.7. Updating the Controller to Use the Class
 
 Rather than having different files for each controller, it's possible to write a single controller that handles each `action` as a method. That way, we can have one file that handles all the parts that are common to each page, and methods in a class that handle the individual parts.
 
 ```php
-<?php 
+<?php
 
 try {
 
-	// Include some required files
-	include __DIR__ . '/../includes/DatabaseConnection.php';
-	include __DIR__ . '/../classes/DatabaseTable.php';
+ // Include some required files
+ include __DIR__ . '/../includes/DatabaseConnection.php';
+ include __DIR__ . '/../classes/DatabaseTable.php';
 
-	// Create one or more database table instances 
-	$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+ // Create one or more database table instances
+ $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
 
-	// Do something that's unique to this particular page and create the $title and $output variables
+ // Do something that's unique to this particular page and create the $title and $output variables
 }
 catch (PDOException $e) {
 
-	// Handle errors if they occur 
-	$title = 'An error has occurred';
+ // Handle errors if they occur
+ $title = 'An error has occurred';
 
-	$output = 'Database error: ' . $e->getMessage() . 'in ' . $e->getFile() . ': ' . $e->getLine();
+ $output = 'Database error: ' . $e->getMessage() . 'in ' . $e->getFile() . ': ' . $e->getLine();
 }
 
-// Load the template file 
+// Load the template file
 include __DIR__ . '/../templates/layout.html.php';
 ```
 
@@ -1140,7 +1141,7 @@ All that really changes for each controller is the middle section that creates t
 
 Rather than having different files for each controller, it's possible to write a single controller that handles each `action` as a method. That way, we can have one file that handles all the parts that are common to each page, and methods in a class that handle the individual parts.
 
-## 10. Creating an Extensible Framework 
+## 10. Creating an Extensible Framework
 
 One controller in `index.php`
 
@@ -1149,38 +1150,40 @@ One controller in `index.php`
 
 function loadTemplate($templateFileName, $variables = [])
 {
-	extract($variables);
-	ob_start();
-	include __DIR__ . '/../templates/' . $templateFileName;
-	return ob_get_clean();
+ extract($variables);
+ ob_start();
+ include __DIR__ . '/../templates/' . $templateFileName;
+ return ob_get_clean();
 }
 
 try {
-	include __DIR__ . '/../includes/DatabaseConnection.php';
-	include __DIR__ . '/../classes/DatabaseTable.php';
-	include __DIR__ . '/../controllers/JokeController.php';
+ include __DIR__ . '/../includes/DatabaseConnection.php';
+ include __DIR__ . '/../classes/DatabaseTable.php';
+ include __DIR__ . '/../controllers/JokeController.php';
 
-	$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
-	$authorsTable = new DatabaseTable($pdo, 'author', 'id');
-	$jokeController = new JokeController($jokesTable, $authorsTable);
-	$action = $_GET['action'] ?? 'home';
-	$page = $jokeController->$action();
-	$title = $page['title'];
+ $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+ $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+ $jokeController = new JokeController($jokesTable, $authorsTable);
+ $action = $_GET['action'] ?? 'home';
+ $page = $jokeController->$action();
+ $title = $page['title'];
 
-	if (isset($page['variables'])) {
-		$output = loadTemplate($page['template'],
-		$page['variables']);
-	} 
-	else {
-		$output = loadTemplate($page['template']);
-	}
-} 
+ if (isset($page['variables'])) {
+  $output = loadTemplate($page['template'],
+  $page['variables']);
+ }
+ else {
+  $output = loadTemplate($page['template']);
+ }
+}
 catch (PDOException $e) {
-	$title = 'An error has occurred';
-	$output = 'Database error: ' . $e->getMessage() . ' in '
-	354 PHP & MySQL: Novice to Ninja, 6th Edition
-	. $e->getFile() . ':' . $e->getLine();
+ $title = 'An error has occurred';
+ $output = 'Database error: ' . $e->getMessage() . ' in '
+ 354 PHP & MySQL: Novice to Ninja, 6th Edition
+ . $e->getFile() . ':' . $e->getLine();
 }
 
 include __DIR__ . '/../templates/layout.html.php';
 ```
+
+## 11. Project the beginner

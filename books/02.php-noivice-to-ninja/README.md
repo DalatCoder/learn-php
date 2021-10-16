@@ -140,11 +140,11 @@ In `count.html.php`
 ```php
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-	</head>
-	<body>
-		<p><?php echo $output; ?></p>
-	</body>
+ <head>
+ </head>
+ <body>
+  <p><?php echo $output; ?></p>
+ </body>
 </html>
 ```
 
@@ -162,7 +162,7 @@ It's better not to let people run code in a manner you're not expecting. Dependi
 
 ```php
 if ($_POST['password'] == 'secret') {
-	include 'protected.html.php';
+ include 'protected.html.php';
 }
 ```
 
@@ -198,13 +198,13 @@ Example controller
 <?php
 
 if (!isset($_POST['firstname'])) {
-	include __DIR__ . '/../templates/form.html.php';
+ include __DIR__ . '/../templates/form.html.php';
 }
 else {
-	$firstname = $_POST['firstname'];
-	$firstname = htmlspecialchars($firstname);
+ $firstname = $_POST['firstname'];
+ $firstname = htmlspecialchars($firstname);
 
-	include __DIR__ . '/../templates/welcome.html.php';
+ include __DIR__ . '/../templates/welcome.html.php';
 }
 ```
 
@@ -260,12 +260,12 @@ It better to catch exception
 <?php
 
 try {
-	$pdo = new PDO('mysql:host=hostname;dbname=database', 'username', 'password')
-	$output = 'Database connection established';
+ $pdo = new PDO('mysql:host=hostname;dbname=database', 'username', 'password')
+ $output = 'Database connection established';
 }
 catch (PDOException $e) {
-	// Handle exception
-	$output = 'Unable to connect to the database server';
+ // Handle exception
+ $output = 'Unable to connect to the database server';
 }
 
 include __DIR__ . '/../templates/output.html.php';
@@ -288,13 +288,13 @@ Setting the charset as part of the connection string is the preferred option.
 <?php
 
 try {
-	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-	$output = 'Database connection established';
+ $pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
+ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ $output = 'Database connection established';
 }
 catch (PDOException $e) {
-	// Handle exception
-	$output = 'Unable to connect to the database server';
+ // Handle exception
+ $output = 'Unable to connect to the database server';
 }
 
 include __DIR__ . '/../templates/output.html.php';
@@ -322,22 +322,22 @@ Here, `$query` is a string containing whatever SQL query you want to execute.
 <?php
 
 try {
-	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ $pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
+ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-	$sql = 'CREATE TABLE joke (
-				id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-				joketext TEXT,
-				jokedate DATE NOT NULL
-			) DEFAULT CHARACTER SET utf8 ENGINE=InnoDB';
+ $sql = 'CREATE TABLE joke (
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    joketext TEXT,
+    jokedate DATE NOT NULL
+   ) DEFAULT CHARACTER SET utf8 ENGINE=InnoDB';
 
-	$pdo->execute($sql);
+ $pdo->execute($sql);
 
-	$output = 'Database connection established';
+ $output = 'Database connection established';
 }
 catch (PDOException $e) {
-	// Handle exception
-	$output = 'Unable to connect to the database server';
+ // Handle exception
+ $output = 'Unable to connect to the database server';
 }
 
 include __DIR__ . '/../templates/output.html.php';
@@ -351,17 +351,17 @@ The query method looks just like `exec` in that it accepts an `SQL` query as an 
 <?php
 
 try {
-	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ $pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
+ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-	$sql = 'SELECT `joketext` FROM `joke`';
-	$results = $pdo->query($sql);
+ $sql = 'SELECT `joketext` FROM `joke`';
+ $results = $pdo->query($sql);
 
-	$output = 'Database connection established';
+ $output = 'Database connection established';
 }
 catch (PDOException $e) {
-	// Handle exception
-	$output = 'Unable to connect to the database server';
+ // Handle exception
+ $output = 'Unable to connect to the database server';
 }
 
 include __DIR__ . '/../templates/output.html.php';
@@ -371,7 +371,7 @@ We could use a `while` loop here to process the rows in the result set one at a 
 
 ```php
 while ($row = $result->fetch()) {
-	// Process the row
+ // Process the row
 }
 ```
 
@@ -382,9 +382,9 @@ It's common to use a `foreach` loop in a PHP template to display each item of an
 ```php
 <?php
 foreach ($jokes as $joke) {
-	?>
-		HTML code to output each $joke
-	<?php
+ ?>
+  HTML code to output each $joke
+ <?php
 }
 ?>
 ```
@@ -393,7 +393,7 @@ with this blend of PHP code to describe the loop and HTML code to display it, th
 
 ```php
 foreach ($array as $item):
-	HTML code to output each $item
+ HTML code to output each $item
 endforeach;
 ```
 
@@ -401,7 +401,7 @@ The two pieces of code are functionally identical, but the lattern looks more fr
 
 ```php
 <?php foreach ($jokes as $joke): ?>
-	HTML code to output each $joke
+ HTML code to output each $joke
 <?php endforeach; ?>
 ```
 
@@ -422,27 +422,27 @@ DRY - Don't repeat yourself
 ```php
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>IJDB - Internet Joke Database</title>
-	</head>
-	<body>
-		<nav>
-			<?php include 'nav.html.php'; ?>
-		</nav>
-		<main>
-			<?php if (isset($error)): ?>
-			<p>
-				<?=$error?>
-			</p>
-			<?php else: ?>
-				Not error
-			<?php endif; ?>
-		</main>
-		<footer>
-			<?php include 'footer.html.php'; ?>
-		</footer>
-	</body>
+ <head>
+  <meta charset="utf-8">
+  <title>IJDB - Internet Joke Database</title>
+ </head>
+ <body>
+  <nav>
+   <?php include 'nav.html.php'; ?>
+  </nav>
+  <main>
+   <?php if (isset($error)): ?>
+   <p>
+    <?=$error?>
+   </p>
+   <?php else: ?>
+    Not error
+   <?php endif; ?>
+  </main>
+  <footer>
+   <?php include 'footer.html.php'; ?>
+  </footer>
+ </body>
 </html>
 ```
 
@@ -451,28 +451,28 @@ There's no way to accurately predict all the changes that might be needed over t
 ```php
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<link rel="stylesheet" href="jokes.css">
-		<title><?=$title?></title>
-	</head>
-	<body>
-		<header>
-			<h1>Internet Joke Database</h1>
-		</header>
-		<nav>
-			<ul>
-				<li><a href="index.php">Home</a></li>
-				<li><a href="jokes.php">Jokes List</a></li>
-			</ul>
-		</nav>
-		<main>
-			<?=$output?>
-		</main>
-		<footer>
-			&copy; IJDB 2017
-		</footer>
-	</body>
+ <head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="jokes.css">
+  <title><?=$title?></title>
+ </head>
+ <body>
+  <header>
+   <h1>Internet Joke Database</h1>
+  </header>
+  <nav>
+   <ul>
+    <li><a href="index.php">Home</a></li>
+    <li><a href="jokes.php">Jokes List</a></li>
+   </ul>
+  </nav>
+  <main>
+   <?=$output?>
+  </main>
+  <footer>
+   &copy; IJDB 2017
+  </footer>
+ </body>
 </html>
 ```
 
@@ -486,19 +486,19 @@ Our `jokes.php` using `layout.html.php` looks like this:
 <?php
 
 try {
-	$pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
-	$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ $pdo = new PDO('mysql:host=hostname;dbname=database;charset=utf8', 'username', 'password')
+ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-	$sql = 'SELECT `joketext` FROM `joke`';
-	$results = $pdo->query($sql);
+ $sql = 'SELECT `joketext` FROM `joke`';
+ $results = $pdo->query($sql);
 
-	$title = 'Joke List';
-	$output = 'Database connection established';
+ $title = 'Joke List';
+ $output = 'Database connection established';
 }
 catch (PDOException $e) {
-	// Handle exception
-	$title = 'Joke List';
-	$output = 'Error while trying to connect to the database';
+ // Handle exception
+ $title = 'Joke List';
+ $output = 'Error while trying to connect to the database';
 }
 
 include __DIR__ . '/../templates/output.html.php';
@@ -508,7 +508,7 @@ We can extract the logic to show list of `jokes` to another `template` file , ca
 
 ```php
 <?php foreach ($jokes as $joke): ?>
-	<p><?= htmlspecialchars($joke, ENT_QUOTES, 'UTF-8') ?></p>
+ <p><?= htmlspecialchars($joke, ENT_QUOTES, 'UTF-8') ?></p>
 <?php endforeach; ?>
 ```
 
@@ -518,7 +518,7 @@ To use this template, you might try the following:
 
 ```php
 while ($row = $result->fetch()) {
-	$jokes[] = $row['joketext'];
+ $jokes[] = $row['joketext'];
 }
 
 $title = 'Joke list';
@@ -530,7 +530,7 @@ Or if you're very clever
 
 ```php
 while ($row = $result->fetch()) {
-	$jokes[] = $row['joketext'];
+ $jokes[] = $row['joketext'];
 }
 
 $title = 'Joke list';
@@ -541,19 +541,19 @@ $output = include 'jokes.html.php';
 With this approach, your logic would be entirely sound. We need to include the `jokes.html.php`. Unfortunately, the `include` statement just executes the code from the included file at the point it's called. If you run the code above, the output will actually be something like this
 
 ```php
-	<!-- Output from `jokes.html.php` -->
-		<p>First joke</p>
-		<p>Second joke</p>
-	<!-- Output from `jokes.html.php` -->
+ <!-- Output from `jokes.html.php` -->
+  <p>First joke</p>
+  <p>Second joke</p>
+ <!-- Output from `jokes.html.php` -->
 
-	<!-- Output from `layout.html.php` -->
-	<!doctype html>
-	<html>
-		<head>
-			<meta charset="utf-8">
-			<title>Joke List</title>
-		</head>
-	</html>
+ <!-- Output from `layout.html.php` -->
+ <!doctype html>
+ <html>
+  <head>
+   <meta charset="utf-8">
+   <title>Joke List</title>
+  </head>
+ </html>
 ```
 
 Because `jokes.html.php` is included first, it's sent to the browser first. What we need to do is load `jokes.html.php`, but instead of sending the output straight to the browser, we need to capture it and store it in the `$output` variable so that it can be used later by `layout.html.php`.
@@ -576,7 +576,7 @@ To capture the contents of an included file, we just need to make use of these t
 
 ```php
 while ($row = $result->fetch()) {
-	$jokes[] = $row['joketext'];
+ $jokes[] = $row['joketext'];
 }
 
 $title = 'Joke list';
@@ -634,8 +634,8 @@ A `prepared statement` is a special kind of SQL query that you've sent to your d
 
 ```php
 $sql = 'INSERT INTO `joke` SET
-	`joketext` = :joketext,
-	`jokedate` = "today's date"
+ `joketext` = :joketext,
+ `jokedate` = "today's date"
 ';
 
 $stmt = $pdo->prepare($sql);
@@ -678,7 +678,7 @@ $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 $sql = 'SELECT `joke`.`id`, `joketext`, `name`, `email`
 FROM `joke` INNER JOIN `author`
-	ON `authorid` = `author`.`id`';
+ ON `authorid` = `author`.`id`';
 
 $jokes = $pdo->query($sql);
 $title = 'Joke List';
@@ -710,7 +710,7 @@ In PHP, include files most commonly contain either pure PHP code or a mixture of
 
 ```php
 <footer>
-	The contents of this web page are copyright &copy; 2021
+ The contents of this web page are copyright &copy; 2021
 </footer>
 ```
 
@@ -735,16 +735,16 @@ The updated `controller` file looks like this
 <?php
 
 try {
-	include __DIR__ . '/../includes/DatabaseConnection.php';
+ include __DIR__ . '/../includes/DatabaseConnection.php';
 
-	$sql = '';
-	$jokes = $pdo->query($sql);
+ $sql = '';
+ $jokes = $pdo->query($sql);
 
-	ob_start();
+ ob_start();
 
-	include __DIR__ . '/../templates/jokes.html.php';
+ include __DIR__ . '/../templates/jokes.html.php';
 
-	$output = ob_get_clean();
+ $output = ob_get_clean();
 }
 catch (PDOException $e) {
 
@@ -821,25 +821,25 @@ Insert function
 
 ```php
 function insertJoke($pdo, $fields) {
-	$query = 'INSERT INTO `joke` (';
+ $query = 'INSERT INTO `joke` (';
 
-	foreach ($fields as $key => $value) {
-		$query .= '`' . $key . '`,';
-	}
+ foreach ($fields as $key => $value) {
+  $query .= '`' . $key . '`,';
+ }
 
-	$query = rtrim(query, ',');
+ $query = rtrim(query, ',');
 
-	$query .= ') VALUES (';
+ $query .= ') VALUES (';
 
-	foreach ($fields as $key => $value) {
-		$query .= ':' . $key . ',';
-	}
+ foreach ($fields as $key => $value) {
+  $query .= ':' . $key . ',';
+ }
 
-	$query = rtrim($query, ',');
+ $query = rtrim($query, ',');
 
-	$query .= ')';
+ $query .= ')';
 
-	query($pdo, $query);
+ query($pdo, $query);
 }
 ```
 
@@ -860,87 +860,87 @@ As a first step, move all the database functions into a class wrapper
 
 class DatabseTable
 {
-	private function query($pdo, $sql, $parameters = [])
-	{
-		$query = $pdo->prepare($sql);
-		$query->execute($parameters);
-		return $query;
-	}
+ private function query($pdo, $sql, $parameters = [])
+ {
+  $query = $pdo->prepare($sql);
+  $query->execute($parameters);
+  return $query;
+ }
 
-	public function total($pdo, $table)
-	{
-		$query = $this->query($pdo, 'SELECT COUNT(*) FROM `' . $table . '`');
-		$row = $query->fetch();
-		return $row[0];
-	}
+ public function total($pdo, $table)
+ {
+  $query = $this->query($pdo, 'SELECT COUNT(*) FROM `' . $table . '`');
+  $row = $query->fetch();
+  return $row[0];
+ }
 
-	public function findById($pdo, $table, $primaryKey, $value)
-	{
-		$query = 'SELECT * FROM `' . $table . '` WHERE `' . primaryKey . '` = :value';
+ public function findById($pdo, $table, $primaryKey, $value)
+ {
+  $query = 'SELECT * FROM `' . $table . '` WHERE `' . primaryKey . '` = :value';
 
-		$parameters = [
-			'value' => $value
-		];
+  $parameters = [
+   'value' => $value
+  ];
 
-		$query = $this->query($pdo, $query, $parameters);
+  $query = $this->query($pdo, $query, $parameters);
 
-		return $query->fetch();
-	}
+  return $query->fetch();
+ }
 
-	private function insert($pdo, $table, $fields)
-	{
-		$query = 'INSERT INTO `' . $table . '` (';
+ private function insert($pdo, $table, $fields)
+ {
+  $query = 'INSERT INTO `' . $table . '` (';
 
-		foreach ($fields as $key => $value) {
-			$query .= '`' . $key . '`,';
-		}
+  foreach ($fields as $key => $value) {
+   $query .= '`' . $key . '`,';
+  }
 
-		$query = rtrim($query, ',');
+  $query = rtrim($query, ',');
 
-		$query .= ') VALUES (';
+  $query .= ') VALUES (';
 
-		foreach ($fields as $key => $value) {
-			$query .= ':' . $key . ',';
-		}
+  foreach ($fields as $key => $value) {
+   $query .= ':' . $key . ',';
+  }
 
-		$query = rtrim($query, ',');
+  $query = rtrim($query, ',');
 
-		$query .= ')';
+  $query .= ')';
 
-		$fields = $this->processDates($fields);
-		$this->query($pdo, $query, $fields);
-	}
+  $fields = $this->processDates($fields);
+  $this->query($pdo, $query, $fields);
+ }
 
-	private function update($pdo, $table, $primaryKey, $fields)
-	{
+ private function update($pdo, $table, $primaryKey, $fields)
+ {
 
-	}
+ }
 
-	public function delete($pdo, $table, $primaryKey, $id)
-	{
+ public function delete($pdo, $table, $primaryKey, $id)
+ {
 
-	}
+ }
 
-	public function findAll($pdo, $table)
-	{
+ public function findAll($pdo, $table)
+ {
 
-	}
+ }
 
-	private function processDates($fields)
-	{
-		foreach ($fields as $key => $value) {
-			if ($value instanceof DateTime) {
-				$fields[$key] = $value->format('Y-m-d');
-			}
-		}
+ private function processDates($fields)
+ {
+  foreach ($fields as $key => $value) {
+   if ($value instanceof DateTime) {
+    $fields[$key] = $value->format('Y-m-d');
+   }
+  }
 
-		return $fields;
-	}
+  return $fields;
+ }
 
-	public function save($pdo, $table, $primaryKey, record)
-	{
+ public function save($pdo, $table, $primaryKey, record)
+ {
 
-	}
+ }
 }
 ```
 
@@ -984,62 +984,62 @@ This is known as `defensive programming`, and it's a very useful way of preventi
 <?php
 class DatabaseTable
 {
-	private $pdo;
-	private $table;
-	private $primaryKey;
+ private $pdo;
+ private $table;
+ private $primaryKey;
 
-	public function __construct(PDO $pdo, string $table, string $primaryKey)
-	{
-		$this->pdo = $pdo;
-		$this->table = $table;
-		$this->primaryKey = $primaryKey;
-	}
+ public function __construct(PDO $pdo, string $table, string $primaryKey)
+ {
+  $this->pdo = $pdo;
+  $this->table = $table;
+  $this->primaryKey = $primaryKey;
+ }
 
-	private function query($sql, $parameters = [])
-	{
-		$query = $this->pdo->prepare($sql);
-		$query->execute($parameters);
-		return $query;
-	}
+ private function query($sql, $parameters = [])
+ {
+  $query = $this->pdo->prepare($sql);
+  $query->execute($parameters);
+  return $query;
+ }
 
-	public function total()
-	{
-		$query = $this->query('SELECT COUNT(*) FROM
-		`' . $this->table . '`');
-		$row = $query->fetch();
-		return $row[0];
-	}
+ public function total()
+ {
+  $query = $this->query('SELECT COUNT(*) FROM
+  `' . $this->table . '`');
+  $row = $query->fetch();
+  return $row[0];
+ }
 
-	public function findById($value)
-	{
-		$query = 'SELECT * FROM `' . $this->table . '` WHERE `' .
-		$this->primaryKey . '` = :value';
-		$parameters = [
-		'value' => $value
-		];
-		$query = $this->query($query, $parameters);
-		return $query->fetch();
-	}
+ public function findById($value)
+ {
+  $query = 'SELECT * FROM `' . $this->table . '` WHERE `' .
+  $this->primaryKey . '` = :value';
+  $parameters = [
+  'value' => $value
+  ];
+  $query = $this->query($query, $parameters);
+  return $query->fetch();
+ }
 
-	private function insert($fields)
-	{
-		$query = 'INSERT INTO `' . $this->table . '` (';
-		foreach ($fields as $key => $value) {
-			$query .= '`' . $key . '`,';
-		}
+ private function insert($fields)
+ {
+  $query = 'INSERT INTO `' . $this->table . '` (';
+  foreach ($fields as $key => $value) {
+   $query .= '`' . $key . '`,';
+  }
 
-		$query = rtrim($query, ',');
-		$query .= ') VALUES (';
+  $query = rtrim($query, ',');
+  $query .= ') VALUES (';
 
-		foreach ($fields as $key => $value) {
-			$query .= ':' . $key . ',';
-		}
+  foreach ($fields as $key => $value) {
+   $query .= ':' . $key . ',';
+  }
 
-		$query = rtrim($query, ',');
-		$query .= ')';
-		$fields = $this->processDates($fields);
-		$this->query($query, $fields);
-	}
+  $query = rtrim($query, ',');
+  $query .= ')';
+  $fields = $this->processDates($fields);
+  $this->query($query, $fields);
+ }
 
  private function update($fields)
  {

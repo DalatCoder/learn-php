@@ -1215,3 +1215,185 @@ $db_password = '';
 $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=$charset", $db_username, $db_password);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 ```
+
+### 11.2. Utility functions for making Database query
+
+Vanilla functions for making query
+
+```php
+function getTotalJokes($database)
+{
+    $sql = 'SELECT COUNT(*) FROM `joke`';
+
+    $stmt = $database->prepare($sql);
+    $stmt->execute();
+
+    $row = $stmt->fetch();
+
+    return $row[0];
+}
+
+function getJoke($database, $joke_id)
+{
+    $sql = 'SELECT * FROM `joke` WHERE `id` = :id';
+
+    $stmt = $database->prepare($sql);
+    $stmt->bindValue(':id', $joke_id);
+    $stmt->execute();
+
+    return $stmt->fetch();
+}
+```
+
+Extract the duplicated code to the `query` function
+
+```php
+function query($pdo, $sql, $parameters = [])
+{
+    $query = $pdo->prepare($sql);
+
+    foreach ($parameters as $name => $value) {
+        $query->bindValue($name, $value);
+    }
+
+    $query->execute();
+    // $query->execute($parameters);
+    return $query;
+}
+```
+
+Making use of the `query` function
+
+```php
+function getTotalJokes($pdo)
+{
+    $query = query($pdo, 'SELECT COUNT(*) FROM `joke`');
+    $row = $query->fetch();
+    return $row[0];
+}
+
+function getJoke($pdo, $id)
+{
+    $parameters = [
+        ':id' => $id
+    ];
+    $sql = 'SELECT * FROM `joke` WHERE `id` = :id';
+
+    $query = query($pdo, $sql, $parameters);
+    return $query->fetch();
+}
+
+function insertJoke($pdo, $joketext, $authorId)
+{
+    $sql = 'INSERT INTO `joke` (`joketext`, `jokedate`, `authorId`)
+            VALUES (:joketext, CURDATE(), :authorId)';
+
+    $parameters = [
+        ':joketext' => $joketext,
+        ':authorId' => $authorId
+    ];
+
+    query($pdo, $sql, $parameters);
+}
+
+function updateJoke($pdo, $jokeId, $joketext, $authorId)
+{
+    $sql = 'UPDATE `joke`
+            SET `authorId` = :authorId, `joketext` = :joketext
+            WHERE `id` = :id';
+
+    $parameters = [
+        ':joketext' => $joketext,
+        ':authorId' => $authorId,
+        ':id' => $jokeId
+    ];
+
+    query($pdo, $sql, $parameters);
+}
+
+function deleteJoke($pdo, $id)
+{
+    $sql = 'DELETE FROM `joke` WHERE `id` = :id';
+    $parameters = [
+        ':id' => $id
+    ];
+
+    query($pdo, $sql, $parameters);
+}
+```
+
+### 11.3. Controller
+
+Make use of these utility function in `controller`
+
+In `public/jokes.php`
+
+```php
+<?php
+
+try {
+    include __DIR__ . '/../includes/DatabaseConnection.php';
+    include __DIR__ . '/../includes/DatabaseFunctions.php';
+
+    $sql = 'SELECT `joke`.`id`, `joketext`, `name`, `email`
+            FROM `joke` INNER JOIN `author`
+                ON `authorid` = `author`.`id`';
+
+    $jokes = $pdo->query($sql);
+
+    $title = 'Joke List';
+
+    $totalJokes = getTotalJokes($pdo);
+
+    ob_start();
+
+    include __DIR__ . '/../templates/jokes.html.php';
+
+    $output = ob_get_clean();
+} catch (PDOException $e) {
+    $title = 'An error has occurred';
+    $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
+}
+
+include __DIR__ . '/../templates/layout.html.php';
+```
+
+### 11.4. Base template
+
+In `templates/layout.html.php`
+
+```php
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="jokes.css">
+    <title><?= $title ?></title>
+</head>
+
+<body>
+    <nav>
+        <header>
+            <h1>Internet Joke Database</h1>
+        </header>
+        <ul>
+            <li> <a href="index.php">Home</a> </li>
+            <li> <a href="jokes.php">Jokes List</a> </li>
+            <li> <a href="addjoke.php">Add a new Joke</a> </li>
+        </ul>
+    </nav>
+
+    <main>
+        <?= $output ?>
+    </main>
+
+    <footer>
+        &copy; IJDB 2017
+    </footer>
+</body>
+
+</html>
+```

@@ -108,3 +108,15 @@ blockquote form {
     display: table-cell;
     width: 10%;
 }
+
+.alert {
+    display: block;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 10px;
+}
+
+.alert.alert-success {
+    color: white;
+    background-color: #3cbc8d;
+}

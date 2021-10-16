@@ -1,3 +1,7 @@
+<p class="alert alert-success">
+    <?= $totalJokes ?> jokes have been submitted to the Internet Joke Database.
+</p>
+
 <?php foreach ($jokes as $joke) : ?>
 
     <blockquote>
@@ -9,6 +13,8 @@
                 <?php echo htmlspecialchars($joke['name'], ENT_QUOTES, 'UTF-8'); ?>
             </a>
             )
+
+            <a href="editjoke.php?jokeid=<?= $joke['id'] ?>">Edit</a>
 
         <form action="deletejoke.php" method="POST">
             <input type="hidden" name="id" value="<?= $joke['id'] ?>">

@@ -1187,3 +1187,15 @@ include __DIR__ . '/../templates/layout.html.php';
 ```
 
 ## 11. Project the beginner
+
+Project Structure
+
+- `inclues`: for utilility functions
+- `public`: for serving
+- `templates`: for `.html.php` templates
+
+Run project
+
+```sh
+php -S localhost:8000 -t public
+```

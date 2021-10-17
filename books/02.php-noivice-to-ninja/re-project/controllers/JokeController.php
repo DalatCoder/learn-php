@@ -15,15 +15,10 @@ class JokeController
     {
         $title = 'Internet Joke Database';
 
-        ob_start();
-
-        include __DIR__ . '/../templates/home.html.php';
-
-        $output = ob_get_clean();
-
         return [
+            'template' => 'home.html.php',
             'title' => $title,
-            'output' => $output
+            'variables' => []
         ];
     }
 
@@ -50,15 +45,13 @@ class JokeController
 
         $totalJokes = $this->jokesTable->total();
 
-        ob_start();
-
-        include __DIR__ . '/../templates/jokes.html.php';
-
-        $output = ob_get_clean();
-
         return [
+            'template' => 'jokes.html.php',
             'title' => $title,
-            'output' => $output
+            'variables' => [
+                'totalJokes' => $totalJokes,
+                'jokes' => $jokes
+            ]
         ];
     }
 
@@ -67,6 +60,7 @@ class JokeController
         $this->jokesTable->delete($_POST['id']);
 
         header('Location: index.php?action=list');
+        exit();
     }
 
     public function edit()
@@ -89,15 +83,12 @@ class JokeController
                 $title = 'Edit Joke';
             }
 
-            ob_start();
-
-            include __DIR__ . '/../templates/editjoke.html.php';
-
-            $output = ob_get_clean();
-
             return [
+                'template' => 'editjoke.html.php',
                 'title' => $title,
-                'output' => $output
+                'variables' => [
+                    'joke' => $joke ?? null
+                ]
             ];
         }
     }

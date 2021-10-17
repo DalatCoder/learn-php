@@ -2545,3 +2545,189 @@ If you try this, the jokes list page will work as expected. However, as soon as 
 A very messy solution would be to have each method in the `controller return every single variable that’s needed`, but leave the array values `blank` when they’re not needed.
 
 This is obviously not a viable solution. Each time we add a `template` that requires a variable with a new name, we’d need to amend every single controller method to provide an empty string for that variable and then amend `index.php` to set it!
+
+### 11.14. Template Variables
+
+Instead, we'll solve the problem in the same way we did for the `return` statement. Each method will supply an array of variables
+
+The `list` return statement will now look like this
+
+```php
+public function list() {
+  return [
+    'template' => 'jokes.html.php',
+    'title' => $title,
+    'variables' => [
+      'totalJokes' => $totalJokes,
+      'jokes' => $jokes
+    ]
+  ];
+}
+```
+
+Although the code is slightly more difficult to read, the advantage of this approach is that each `controller method` can provide a different array in the variables key. The `editJoke` page can use this return statement:
+
+```php
+public function edit() {
+  return [
+    'template' => 'editjoke.html.php',
+    'title' => $title,
+    'variables' => [
+      'joke' => $joke ?? null
+    ]
+  ];
+}
+
+```
+
+We can now use the `variables` array in `index.php`. The simplest way to achieve this would be to create a variable called `$variables` inside `index.php`, in the same way we did with `$title`:
+
+```php
+$title = $page['title'];
+$variables = $page['variables'];
+
+ob_start();
+
+include __DIR__ . '/../templates/' . $page['template'];
+
+$output = ob_get_clean();
+```
+
+Now, we can get access to the return `variable` inside our template.
+
+In `jokes.html.php`
+
+```php
+<p>
+  <?= $variables['totalJokes'] ?> jokes have been submitted to the Internet Joke Database.
+</p>
+```
+
+This solution works, but it means opening up and changing every template file. A simpler alternavitve is to create the variables that are required.
+
+Luckily, PHP provides a method of doing exactly that. The `extract` function can be used to create variables from an array:
+
+```php
+$array = ['hello' => 'world'];
+extract($array);
+echo $hello; // prints 'world'
+```
+
+A `variable` is created for `any key` in the `array`, and `its value` is set to the `corresponding value`. We can use extract to create the relevant template variables in `index.php`:
+
+```php
+$action = $_GET['action'] ?? 'home';
+
+$page = $jokeController->$action();
+$title = $page['title'];
+
+if (isset($page['variables'])) {
+  extract($page['variables']);
+}
+
+ob_start();
+
+include __DIR__ . '/../templates/' . $page['template'];
+
+$output = ob_get_clean();
+```
+
+Now, the `JokeController` look like this
+
+```php
+<?php
+
+class JokeController
+{
+    private DatabaseTable $authorsTable;
+    private DatabaseTable $jokesTable;
+
+    public function __construct(DatabaseTable $authorsTable, DatabaseTable $jokesTable)
+    {
+        $this->authorsTable = $authorsTable;
+        $this->jokesTable = $jokesTable;
+    }
+
+    public function home()
+    {
+        $title = 'Internet Joke Database';
+
+        return [
+            'template' => 'home.html.php',
+            'title' => $title,
+            'variables' => []
+        ];
+    }
+
+    public function list()
+    {
+        $result = $this->jokesTable->findAll();
+
+        $jokes = [];
+        foreach ($result as $joke) {
+            if (isset($joke['authorid'])) {
+                $author = $this->authorsTable->findById($joke['authorid']);
+
+                $jokes[] = [
+                    'id' => $joke['id'],
+                    'joketext' => $joke['joketext'],
+                    'jokedate' => $joke['jokedate'],
+                    'name' => $author['name'],
+                    'email' => $author['email']
+                ];
+            }
+        }
+
+        $title = 'Joke List';
+
+        $totalJokes = $this->jokesTable->total();
+
+        return [
+            'template' => 'jokes.html.php',
+            'title' => $title,
+            'variables' => [
+                'totalJokes' => $totalJokes,
+                'jokes' => $jokes
+            ]
+        ];
+    }
+
+    public function delete()
+    {
+        $this->jokesTable->delete($_POST['id']);
+
+        header('Location: index.php?action=list');
+        exit();
+    }
+
+    public function edit()
+    {
+        if (isset($_POST['joke'])) {
+            $joke = $_POST['joke'];
+
+            $joke['jokedate'] = new DateTime();
+            $joke['authorid'] = 1;
+
+            $this->jokesTable->save($joke);
+
+            header('Location: index.php?action=list');
+            exit();
+        } else {
+            $title = 'Create New Joke';
+
+            if (isset($_GET['jokeid'])) {
+                $joke = $this->jokesTable->findById($_GET['jokeid']);
+                $title = 'Edit Joke';
+            }
+
+            return [
+                'template' => 'editjoke.html.php',
+                'title' => $title,
+                'variables' => [
+                    'joke' => $joke ?? null
+                ]
+            ];
+        }
+    }
+}
+```

@@ -15,7 +15,17 @@ try {
     $page = $jokeController->$action();
 
     $title = $page['title'];
-    $output = $page['output'];
+    $template = $page['template'];
+
+    if (isset($page['variables'])) {
+        extract($page['variables']);
+    }
+
+    ob_start();
+
+    include __DIR__ . '/../templates/' . $template;
+
+    $output = ob_get_clean();
 } catch (PDOException $e) {
     $title = 'An error has occurred';
 

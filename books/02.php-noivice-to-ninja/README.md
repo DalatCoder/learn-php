@@ -2731,3 +2731,63 @@ class JokeController
     }
 }
 ```
+
+### 11.15. Be careful with `extract`
+
+Everything is working perfectly, and we’ve managed to remove the repeated code
+from the controller’s methods. Unfortunately, we’re not quite done yet.
+
+One of the biggest problems with extract is that it creates variables in the
+**current scope**.
+
+What would happen if the array `$page['variables']` contained the keys `page`
+and `title`? The `$title` and `$page` variables would be **overwritten**! It’s likely the
+overwritten $page variable would not be an array with a key called template that
+contains the name of a template file.
+
+A very simple solution to this is moving the code that loads the template into `its
+own function` (limit the `extract` function `scope`). Amend `index.php` to this:
+
+```php
+<?php
+
+function loadTemplate($templateFileName, $variables = [])
+{
+  extract($variables);
+
+  ob_start();
+
+  include __DIR__ . '/../templates/' . $templateFileName;
+
+  return ob_get_clean();
+}
+
+try {
+  include __DIR__ . '/../includes/DatabaseConnection.php';
+  include __DIR__ . '/../classes/DatabaseTable.php';
+  include __DIR__ . '/../controllers/JokeController.php';
+
+  $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+  $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+  $jokeController = new JokeController($jokesTable, $authorsTable);
+
+  $action = $_GET['action'] ?? 'home';
+
+  $page = $jokeController->$action();
+
+  $title = $page['title'];
+
+  if (isset($page['variables'])) {
+    $output = loadTemplate($page['template'], $page['variables']);
+  } 
+  else {
+    $output = loadTemplate($page['template']);
+  }
+
+} catch (PDOException $e) {
+  $title = 'An error has occurred';
+  $output = 'Database error: ' . $e->getMessage() . ' in '. $e->getFile() . ':' . $e->getLine();
+}
+ 
+include __DIR__ . '/../templates/layout.html.php';
+```

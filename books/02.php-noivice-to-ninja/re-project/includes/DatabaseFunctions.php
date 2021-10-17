@@ -157,7 +157,7 @@ function deleteJoke($pdo, $id)
 
 function allJokes($pdo)
 {
-    $sql = 'SELECT `joke`.`id`, `joketext`, `name`, `email`
+    $sql = 'SELECT `joke`.`id`, `joketext`, `jokedate`, `name`, `email`
             FROM `joke`
             INNER JOIN `author`
                 ON `author`.`id` = `authorid`';

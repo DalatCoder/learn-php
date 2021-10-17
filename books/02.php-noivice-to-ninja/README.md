@@ -1551,3 +1551,29 @@ function processDate($fields)
     return $fields;
 }
 ```
+
+### 11.6. Displaying `jokedate`
+
+Edit `allJokes` function to get the date
+
+```php
+function allJokes($pdo)
+{
+    $sql = 'SELECT `joke`.`id`, `joketext`, `jokedate`, `name`, `email`
+            FROM `joke`
+            INNER JOIN `author`
+                ON `author`.`id` = `authorid`';
+
+    $query = query($pdo, $sql);
+    return $query->fetchAll();
+}
+```
+
+Edit `jokes.html.php` template to display the `jokedate`
+
+```php
+<?php
+  $date = new DateTime($joke['jokedate']);
+  echo $date->format('jS F Y');
+?>
+```

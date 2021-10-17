@@ -1726,7 +1726,7 @@ But everything else is almost the same.
 
 Visiting `editjoke.php?id=12` will load the joke with the `ID` 12 from the database and allow us to edit it. When the form is submitted, it will issue the relevent `UPDATE` query, while just visiting `editjoke.php` - without an ID specified - will display an empty form and, when submitted, perform an `INSERT` query.
 
-### 11.9.1. Creating a Page for Adding and Editting
+#### 11.9.1. Creating a Page for Adding and Editting
 
 Edit `editjoke.php` controller to get `joke` if only the `$_GET['jokeid']` is specified.
 
@@ -1838,3 +1838,112 @@ Finally, you can delete the controller `addjoke.php` and the template `addjoke.h
 <li><a href="jokes.php">Jokes List</a></li>
 <li><a href="editjoke.php">Add a new Joke</a></li>
 ```
+
+#### 11.9.2. Further Polishing
+
+There's a little repettion here
+
+```php
+[
+  'id' => $_POST['jokeid'],
+  'authorid' => 1,
+  'jokedate' => new DateTime(),
+  'joketext' => $_POST['joketext']
+]
+```
+
+Each field in the `$_POST` array is mapped to a key in the `$joke` array with the same name.
+
+Solution #1
+
+```php
+$joke = $_POST;
+
+unset($joke['submit']);
+
+$joke['authorid'] = 1;
+$joke['jokedate'] = new DateTime();
+
+save($pdo, 'joke', 'id', $joke);
+```
+
+Although this work, the problem with this approach is that you'd have to remove
+any form elements you don't want inserted into the database.
+
+Solution #2
+
+```html
+<form action="" method="POST">
+  <input type="hidden" name="joke[id]" value="<?= $joke['id'] ?? '' ?>" />
+  <label for="joketext">Type your joke here: </label>
+  <textarea name="joke[joketext]" id="joketext" cols="40" rows="3">
+<?= $joke['joketext'] ?? '' ?></textarea
+  >
+  <input
+    type="submit"
+    value="<?= isset($joke) && $joke['id'] ? 'Update' : 'Create' ?>"
+  />
+</form>
+```
+
+If submit the form, the $_POST array will store two values: `submit` and `joke`.
+`$\_POST['joke']`is itself an array from which you can read the`id`value using `$\_POST['joke']['id']`
+
+In the controller
+
+```php
+if (isset($_POST['joke'])) {
+  $joke = $_POST['joke'];
+  $joke['jokedate'] = new DateTime();
+  $joke['authorid'] = 1;
+
+  save($pdo, 'joke', 'id', $joke);
+}
+```
+
+If we wanted add a field to the `joke` table and alter the form now, it would only
+require two changes: adding the field to the database and then editing the HTML
+form. A single update to `editjoke.html.php` will let us add a form field that
+works for both the `edit` and `add` pages.
+
+### 11.10.Objects and Classes
+
+Each time one of the functions is called, it must be passed the $pdo instance.
+With up to four arguments for each function, it can be difficult to remember the
+order they need to be provided in.
+
+A good method for avoiding this problem is putting the functions inside a class.
+
+You can think of a class as a collection of functions and data (variables). Each
+class will contain a set of functions and some data that the functions can access.
+Our DatabaseTable class needs to contain all the functions we created for
+interacting with the database, along with any functions that those functions need
+to call.
+
+As a first step, move all the database functions into a class wrapper:
+
+```php
+<?php
+
+class DatabaseTable
+{
+  private function query($pdo, $sql, $parameters = []) {}
+
+  public function total($pdo, $table) {}
+  public function findById($pdo, $table, $primaryKey, $value) {}
+
+  private function insert($pdo, $table, $fields) {}
+  private function update($pdo, $table, $primaryKey, $value) {}
+
+  public function save($pdo, $table, $primaryKey, $value) {}
+
+  public function delete($pdo, $table, $primaryKey, $value) {}
+  public function findAll($pdo, $table) {}
+
+  private function processDate($fields) {}
+}
+```
+
+Like templates and include files, it's good practice to store classes outside the
+`public` directory. Create a new directory called `classes` inside your project
+directory and save the code above as `DatabaseTable.php`

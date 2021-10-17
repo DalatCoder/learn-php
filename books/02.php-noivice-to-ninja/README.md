@@ -2177,3 +2177,31 @@ try {
     }
 } catch (PDOException $e) {}
 ```
+
+#### 11.10.3. DRY
+
+Each of the controllers follow this basic pattern
+
+```php
+<?php 
+
+try {
+  // Include some required files
+
+  // Create one or more database table instances
+
+  // Do something that's unique to this particular page and create 
+  // the $title and $output variable
+}
+catch (PDOException $e) {
+  // Handle error
+}
+
+// Load the template file
+
+```
+
+Rather than having different files for each `controller`, it’s possible to write a single
+controller that handles each `action` as a `method`. That way, we can have one file
+that handles all the parts that are common to each page, and methods in a class
+that handle the individual parts.

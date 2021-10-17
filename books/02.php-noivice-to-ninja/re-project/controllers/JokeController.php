@@ -66,7 +66,7 @@ class JokeController
     {
         $this->jokesTable->delete($_POST['id']);
 
-        header('Location: jokes.php');
+        header('Location: index.php?action=list');
     }
 
     public function edit()
@@ -79,7 +79,7 @@ class JokeController
 
             $this->jokesTable->save($joke);
 
-            header('Location: jokes.php');
+            header('Location: index.php?action=list');
             exit();
         } else {
             $title = 'Create New Joke';

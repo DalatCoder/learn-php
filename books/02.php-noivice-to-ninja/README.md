@@ -2335,3 +2335,77 @@ To access our website
 - `create page`: `localhost:8000/index.php?edit`
 
 This is called a **single entry point** or **front controller**
+
+I already called the new `index.php` crude, because it's not very efficient. Every time you want to add a page to the website, you'll need to do two things:
+
+- add the method in `JokeController`
+- add the relevant `else if` block in `index.php`
+
+You've probably already noticed that the `GET` variable name maps exactly to the name of the function 
+
+- when `$_GET['edit']` is set, the `edit` function is called
+- when `$_GET['list']` is set, the `list` function is called
+
+This seems a bit redundant. PHP allows some cool stuff. For example, you can do this
+
+```php
+$function = 'edit';
+$jokeController->$function();
+```
+
+$this will evaluate `$function` to `edit` and actually call `$jokeController->edit()`. We can utilize this feature to read the `GET` variable and call the method with that name.
+
+Commonly, a function in a controller is called an **action**. We could use the `GET` vaiable `action` to call the relevant function on the controller.
+
+- `index.php?action=edit` would call the edit function
+- `index.php?action=delete` would call delete, and so on
+
+The code for this is remarkably simple
+
+```php
+<?php
+
+try {
+    include __DIR__ . '/../includes/DatabaseConnection.php';
+    include __DIR__ . '/../classes/DatabaseTable.php';
+    include __DIR__ . '/../controllers/JokeController.php';
+
+    $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+    $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+    $jokeController = new JokeController($authorsTable, $jokesTable);
+
+    $action = $_GET['action'] ?? 'home';
+
+    $page = $jokeController->$action();
+
+    $title = $page['title'];
+    $output = $page['output'];
+} catch (PDOException $e) {
+    $title = 'An error has occurred';
+
+    $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
+}
+
+include __DIR__ . '/../templates/layout.html.php';
+```
+
+The advantage of this approach is that, to add a **new page** to the website, all we need to do is **add a method** to the `JokeController` class and link to `index.php`, supplying the relevant `action` variable.
+
+Now that the **URL structure** of the website has changed completely, we’ll need to go through each page and update any links, form actions, or redirects.
+
+In `layout.html.php`
+
+```html
+<li> <a href="index.php">Home</a> </li>
+<li> <a href="jokes.php?action=list">Jokes List</a> </li>
+<li> <a href="editjoke.php?action=edit">Add a new Joke</a> </li>
+```
+
+In `jokesController.php`
+
+```php
+header('Location: index.php?action=list');
+```
+
+In `jokes.html.php`

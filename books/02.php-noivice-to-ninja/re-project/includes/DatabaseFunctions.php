@@ -24,7 +24,8 @@ function findById($pdo, $table, $primaryKey, $value)
 function total($pdo, $table)
 {
     $sql = "SELECT COUNT(*) FROM `$table`";
-    $row = query($pdo, $sql);
+    $query = query($pdo, $sql);
+    $row = $query->fetch();
     return $row[0];
 }
 
@@ -69,6 +70,19 @@ function update($pdo, $table, $primaryKey, $fields)
     $fields['primaryKey'] = $fields['id'];
 
     query($pdo, $sql, $fields);
+}
+
+function save($pdo, $table, $primaryKey, $record)
+{
+    try {
+        if ($record[$primaryKey] == '') {
+            $record[$primaryKey] = null;
+        }
+
+        insert($pdo, $table, $record);
+    } catch (PDOException $e) {
+        update($pdo, $table, $primaryKey, $record);
+    }
 }
 
 function delete($pdo, $table, $primaryKey, $id)

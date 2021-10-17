@@ -5,16 +5,19 @@ include __DIR__ . '/../includes/DatabaseFunctions.php';
 
 try {
     if (isset($_POST['joketext'])) {
-        updateJoke($pdo, [
+        save($pdo, 'joke', 'id', [
             'id' => $_POST['jokeid'],
             'joketext' => $_POST['joketext'],
-            'jokedate' => new DateTime()
+            'jokedate' => new DateTime(),
+            'authorid' => 1
         ]);
 
         header('Location: jokes.php');
         exit();
     } else {
-        $joke = getJoke($pdo, $_GET['jokeid']);
+        if (isset($_GET['jokeid'])) {
+            $joke = findById($pdo, 'joke', 'id', $_GET['jokeid']);
+        }
 
         $title = 'Edit Joke';
 

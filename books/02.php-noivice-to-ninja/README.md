@@ -1661,3 +1661,180 @@ function query($pdo, $sql, $parameters = []) {}
 function processDate($fields) {}
 function total($pdo, $table) {}
 ```
+
+Using these new functions
+
+```php
+insert($pdo, 'joke', [
+    'joketext' => $_POST['joketext'],
+    'jokedate' => new DateTime(),
+    'authorId' => 1
+]);
+
+update($pdo, 'joke', 'id', [
+    'id' => $_POST['jokeid'],
+    'joketext' => $_POST['joketext'],
+    'jokedate' => new DateTime()
+]);
+
+$joke = findById($pdo, 'joke', 'id', $_GET['jokeid']);
+
+delete($pdo, 'joke', 'id', $_POST['id']);
+```
+
+The next part is the list of jokes. Currently, it uses the `allJokes` function, which also retrieves information about the author of each joke. There's no simple way to write a generic function that retrieves information from two tables.
+
+Instead, we can use the generic `findAll` and `findById` functions to achieve this
+
+```php
+$result = findAll($pdo, 'joke');
+
+$jokes = [];
+foreach ($result as $joke) {
+  $author = findById($pdo, 'author', 'id', $joke['authorId']);
+
+  $jokes[] = [
+    'id' => $joke['id'],
+    'joketext' => $joke['joketext'],
+    'name' => $author['name'],
+    'email' => $author['email']
+  ]
+}
+```
+
+This works by fetching the list of jokes (without the author information), then looping over each joke and finding the corresponding author by their `id`, then writing the complete joke with the information from both tables into the `$jokes` array.
+
+This is essentially what an `INNER JOIN` does in `MySQL`
+
+You may have realized that this method is going to be slower, because more queries are sent to the database. This is a common issue with these kind of generic functions, and it's called the `N+1 problem`. There are several methods for reducing this performance issue, but for smaller sites, where we're dealing with hundreds or thousands of records rather than miliions, it's unlikely to cause any real problems.
+
+### 11.9. Repeated Code Is the Enemy
+
+By creating the generic functions `insert, update, delete, findAll and findById`, it's now very quick and easy for us to create a website that deals with any kind of database operation.
+
+But there's still room for improvement. The files `addjoke.php` and `editjoke.php` do very similar jobs: they display a form, and when the form is submitted, they send the submitted data off to the database.
+
+If you ever find yourself in a situation like this, where you havev to make similar changes in multiple files, it's a good sign that you should combine both sets of code into one. Of course, the new code needs to handle both cases.
+
+There are a couple of differences between `addjoke.php` and `editjoke.php`:
+
+- `addjoke.php` issues an `INSERT` query, while `editjoke.php` issues an `UPDATE` query.
+
+- `editjoke.php`'s template file has a hidden input that stores the `ID` of the joke being edited.
+
+But everything else is almost the same.
+
+Visiting `editjoke.php?id=12` will load the joke with the `ID` 12 from the database and allow us to edit it. When the form is submitted, it will issue the relevent `UPDATE` query, while just visiting `editjoke.php` - without an ID specified - will display an empty form and, when submitted, perform an `INSERT` query.
+
+### 11.9.1. Creating a Page for Adding and Editting
+
+Edit `editjoke.php` controller to get `joke` if only the `$_GET['jokeid']` is specified.
+
+```php
+try {
+    if (isset($_POST['joketext'])) {
+        update($pdo, 'joke', 'id', [
+            'id' => $_POST['jokeid'],
+            'joketext' => $_POST['joketext'],
+            'jokedate' => new DateTime()
+        ]);
+
+        header('Location: jokes.php');
+        exit();
+    } else {
+        if (isset($_GET['jokeid'])) {
+            $joke = findById($pdo, 'joke', 'id', $_GET['jokeid']);
+        }
+
+        $title = 'Edit Joke';
+
+        ob_start();
+
+        include __DIR__ . '/../templates/editjoke.html.php';
+
+        $output = ob_get_clean();
+    }
+} catch (PDOException $e) {
+```
+
+In the `editjoke.html.php`, we edit so it only tries to print the existing data into the textarea and hidden input if the joke variable is set
+
+```php
+<form action="" method="POST">
+    <input type="hidden" name="jokeid" value="<?= $joke['id'] ?? '' ?>">
+    <label for="joketext">Type your joke here: </label>
+    <textarea name="joketext" id="joketext" cols="40" rows="3"><?= $joke['joketext'] ?? '' ?></textarea>
+    <input type="submit" value="Update">
+</form>
+```
+
+To complete this page, we need to change what happens when the form is submitted. Either an `update` or `insert` query will need to be run.
+
+```php
+<?php
+
+if (isset($_POST['id']) && $_POST['id'] != '') {
+  update(...);
+}
+else {
+  insert(...);
+}
+```
+
+Although this would work, once again there's an oopportunity to make this more generic. This logic for `if the ID is set, update, otherwise insert` is going to be the same for any form.
+
+Instead, we can try to insert a record, and if it's unsuccessful, update instead using a `trycatch` statement.
+
+```php
+try {
+  insert();
+}
+catch(PDOException $e) {
+  update();
+}
+```
+
+Now an insert will be sent to the database, but it may cause an error - "Duplicate key" - when a record with the supplied ID is already set. If an error does occur, an `UPDATE` query is issued instead to update the existing record.
+
+```php
+function save($pdo, $table, $primaryKey, $record)
+{
+  try {
+    if ($record[$primaryKey] == '') {
+      $record[$primaryKey] = null;
+    }
+    insert($pdo, $table, $primaryKey, $record);
+  }
+  catch (PDOExcpetion $e) {
+    update($pdo, $table, $primaryKey, $record);
+  }
+}
+```
+
+This will work for any record in any table. If there's an error when trying to insert, it will issue the corresponding update query instead.
+
+By replace the empty string in `ID` with `NULL`, it will trigger `MySQL`'s auto_increment feature and generate a new ID.
+
+Using this new function in `editjoke.php`
+
+```php
+if (isset($_POST['joketext'])) {
+    save($pdo, 'joke', 'id', [
+        'id' => $_POST['jokeid'],
+        'joketext' => $_POST['joketext'],
+        'jokedate' => new DateTime(),
+        'authorid' => 1
+    ]);
+
+    header('Location: jokes.php');
+    exit();
+}
+```
+
+Finally, you can delete the controller `addjoke.php` and the template `addjoke.html.php`, as they're no longer needed. Both add and edit are now handled by `editjoke.php`.
+
+```html
+<li><a href="index.php">Home</a></li>
+<li><a href="jokes.php">Jokes List</a></li>
+<li><a href="editjoke.php">Add a new Joke</a></li>
+```

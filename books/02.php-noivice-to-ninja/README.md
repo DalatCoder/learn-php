@@ -1906,7 +1906,7 @@ require two changes: adding the field to the database and then editing the HTML
 form. A single update to `editjoke.html.php` will let us add a form field that
 works for both the `edit` and `add` pages.
 
-### 11.10.Objects and Classes
+### 11.10. Objects and Classes
 
 Each time one of the functions is called, it must be passed the $pdo instance.
 With up to four arguments for each function, it can be difficult to remember the
@@ -2046,3 +2046,33 @@ class DatabaseTable
 
 This kind of check ensures the code is robust. It also helps anyone who uses the
 class, because they’ll see an error as soon as they do something wrong.
+
+#### 11.10.1. Type Hinting
+
+If we’re trying to make the class foolproof, there’s still a problem. What happens
+if the person using your `DatabaseTable` class gets the order of the arguments
+wrong? Consider these two examples:
+
+```php
+$jokesTable = new DatabaseTable('jokes', $pdo, 'id');
+$jokesTable = new DatabaseTable($pdo, 'jokes', 'id');
+```
+
+To help them out, it’s better to ensure that the arguments are the correct `type`. PHP
+is `loosely typed`, meaning that a variable can be any type—such as a string, a
+number, an array, or an object. 
+
+`Type hinting` allows you to specify the type of an argument. The type can be a
+class name, or one of the basic types, such as string, array or integer. This feature 
+was introduced in `PHP 7`
+
+```php
+public function __construct(PDO $pdo, string $table, string $primaryKey)
+{
+
+}
+```
+
+This is known as **defensive programming**, and it’s a very useful way of
+preventing bugs. By stopping variables being set to the wrong type, you can rule
+out the possibility of many potential bugs

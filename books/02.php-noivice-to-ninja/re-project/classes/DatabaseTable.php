@@ -2,11 +2,11 @@
 
 class DatabaseTable
 {
-    public $pdo;
-    public $table;
-    public $primaryKey;
+    public PDO $pdo;
+    public string $table;
+    public string $primaryKey;
 
-    public function __construct($pdo, $table, $primaryKey)
+    public function __construct(PDO $pdo, string $table, string $primaryKey)
     {
         $this->pdo = $pdo;
         $this->table = $table;

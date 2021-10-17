@@ -1,96 +1,36 @@
 <?php
 
-#region Original Function
-/**
-function getTotalJokes($database)
+function findAll($pdo, $table)
 {
-    $sql = 'SELECT COUNT(*) FROM `joke`';
+    $sql = "SELECT * FROM `$table`";
+    $result = query($pdo, $sql);
 
-    $stmt = $database->prepare($sql);
-    $stmt->execute();
-
-    $row = $stmt->fetch();
-
-    return $row[0];
+    return $result->fetchAll();
 }
 
-function getJoke($database, $joke_id)
+function findById($pdo, $table, $primaryKey, $value)
 {
-    $sql = 'SELECT * FROM `joke` WHERE `id` = :id';
+    $sql = "SELECT * FROM `$table` WHERE `$primaryKey` = :value";
 
-    $stmt = $database->prepare($sql);
-    $stmt->bindValue(':id', $joke_id);
-    $stmt->execute();
-
-    return $stmt->fetch();
-}
- */
-#endregion
-
-#region Extract Query function for DRY
-
-/**
- * Query function for making PDO query
- *
- * @param [type] $pdo PDO Object
- * @param [type] $sql Raw SQL Statement
- * @param array $parameters Parameters for binding
- * @return object PDO Query
- */
-function query($pdo, $sql, $parameters = [])
-{
-    $query = $pdo->prepare($sql);
-
-    foreach ($parameters as $name => $value) {
-        $query->bindValue($name, $value);
-    }
-
-    $query->execute();
-    // $query->execute($parameters);
-    return $query;
-}
-
-/**
- * Get Number Of Jokes In Database
- *
- * @param [type] $pdo
- * @return int
- */
-function getTotalJokes($pdo)
-{
-    $query = query($pdo, 'SELECT COUNT(*) FROM `joke`');
-    $row = $query->fetch();
-    return $row[0];
-}
-
-/**
- * Get Specific Joke Based On $id
- *
- * @param [type] $pdo
- * @param [type] $id
- * @return Joke
- */
-function getJoke($pdo, $id)
-{
     $parameters = [
-        'id' => $id
+        'value' => $value
     ];
-    $sql = 'SELECT * FROM `joke` WHERE `id` = :id';
 
     $query = query($pdo, $sql, $parameters);
+
     return $query->fetch();
 }
 
-/**
- * Insert New Joke
- *
- * @param [type] $pdo
- * @param [type] $fields
- * @return void
- */
-function insertJoke($pdo, $fields)
+function total($pdo, $table)
 {
-    $sql = 'INSERT INTO `joke` (';
+    $sql = "SELECT COUNT(*) FROM `$table`";
+    $row = query($pdo, $sql);
+    return $row[0];
+}
+
+function insert($pdo, $table, $fields)
+{
+    $sql = 'INSERT INTO `' . $table . '` (';
 
     foreach ($fields as $key => $value) {
         $sql .= "`$key`, ";
@@ -113,41 +53,27 @@ function insertJoke($pdo, $fields)
     query($pdo, $sql, $fields);
 }
 
-/**
- * Update a joke
- *
- * @param [type] $pdo
- * @param [type] $fieldsToBeUpdated
- * @return void
- */
-function updateJoke($pdo, $fieldsToBeUpdated)
+function update($pdo, $table, $primaryKey, $fields)
 {
-    $sql = 'UPDATE `joke` SET ';
+    $sql = 'UPDATE `' . $table . '` SET ';
 
-    foreach ($fieldsToBeUpdated as $field_name => $updated_value) {
+    foreach ($fields as $field_name => $updated_value) {
         $sql .= "`$field_name` = :$field_name, ";
     }
     $sql = rtrim($sql, ', ');
 
-    $sql .= ' WHERE `id` = :primaryKey';
+    $sql .= ' WHERE `' . $primaryKey . '` = :primaryKey';
 
-    $fieldsToBeUpdated = processDate($fieldsToBeUpdated);
+    $fields = processDate($fields);
 
-    $fieldsToBeUpdated['primaryKey'] = $fieldsToBeUpdated['id'];
+    $fields['primaryKey'] = $fields['id'];
 
-    query($pdo, $sql, $fieldsToBeUpdated);
+    query($pdo, $sql, $fields);
 }
 
-/**
- * Delete a specific joke
- *
- * @param [type] $pdo
- * @param [type] $id
- * @return void
- */
-function deleteJoke($pdo, $id)
+function delete($pdo, $table, $primaryKey, $id)
 {
-    $sql = 'DELETE FROM `joke` WHERE `id` = :id';
+    $sql = "DELETE FROM `$table` WHERE `$primaryKey` = :id";
     $parameters = [
         'id' => $id
     ];
@@ -155,15 +81,26 @@ function deleteJoke($pdo, $id)
     query($pdo, $sql, $parameters);
 }
 
-function allJokes($pdo)
-{
-    $sql = 'SELECT `joke`.`id`, `joketext`, `jokedate`, `name`, `email`
-            FROM `joke`
-            INNER JOIN `author`
-                ON `author`.`id` = `authorid`';
 
-    $query = query($pdo, $sql);
-    return $query->fetchAll();
+/**
+ * Query function for making PDO query
+ *
+ * @param [type] $pdo PDO Object
+ * @param [type] $sql Raw SQL Statement
+ * @param array $parameters Parameters for binding
+ * @return object PDO Query
+ */
+function query($pdo, $sql, $parameters = [])
+{
+    $query = $pdo->prepare($sql);
+
+    foreach ($parameters as $name => $value) {
+        $query->bindValue($name, $value);
+    }
+
+    $query->execute();
+    // $query->execute($parameters);
+    return $query;
 }
 
 function processDate($fields)

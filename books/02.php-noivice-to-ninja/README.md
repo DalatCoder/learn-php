@@ -1577,3 +1577,87 @@ Edit `jokes.html.php` template to display the `jokedate`
   echo $date->format('jS F Y');
 ?>
 ```
+
+### 11.7. Making your own tools
+
+By improving the tools to be more precise and easier to use, the blackmsmith can make
+product faster, create higher-quality items, produce a wider variety of products, make
+other specialist tools, and let lesser-skilled workers such as apprentices products
+beyond their skill level.
+
+It does take time to create a tool, but once the tool is created, the blacksmith can use it
+to make thousands of products. Over the long term, the time spent making the tool
+quickly pays off.
+
+A programming language is just a tool, and you can use it to make your own tools. Every time you write a function, you're creating a new tool. You can either make tools that have many uses, which you can use over and over again, or tolls with limited use that only be used for one very specific job.
+
+### 11.8. Generic Functions
+
+Before we make any large-scale changes, let's expand the wesite and add a function for retrieving all the authors from the database in the same manner we used for the `allJokes` function
+
+```php
+function allAuthors($pdo) {
+  $authors = query($pdo, 'SELECT * FROM `author`');
+  return $authors->fetchAll();
+}
+```
+
+The `deleteAuthor` and `insertAuthor` functions are almost identical to the corresponding `joke` functions, `deleteJoke` and `insertJoke`. It would be better to create `generic` functions that could be used with any databse table.
+
+That way, we can write the function `once` and use it for any databse table. If we continued down the route of having five different functions for each database table, we'd very quickly end up with a lot of very similar code.
+
+The differences between the functions are just the names of the tables. By replacing the table name with a variable, the function can be used to retrieve all the records from any database table.
+
+```php
+function findAll($pdo, $table) {
+  $result = query($pdo, "SELECT * FROM `$table`");
+  return $result->fetchAll();
+}
+```
+
+Once the function has been written, this new tool can be used to retrieve all the records from any database table
+
+```php
+$allJokes = findAll($pdo, 'joke');
+$allAuthors = findAll($pdo, 'author');
+```
+
+The same thing can be done with delete
+
+```php
+function delete($pdo, $table, $id) {
+  $parameters = [
+    ':id' => $id
+  ];
+
+  query($pdo, "DELETE FROM `$table` WHERE id = :id", $parameters);
+}
+```
+
+This function works, but it's still a little inflexible; it assumes that the primary key field in the table is called `id`.
+
+In order for our function to work with any database table structure, the primary key can also be replaced with a variable
+
+```php
+function delete($pdo, $table, $primaryKey, $id) {
+  $parameters = [
+    ':id' => $id
+  ];
+
+  $sql = "DELETE FROM `$table` WHERE `$primaryKey` = :id";
+  query($pdo, $sql, $parameters);
+}
+```
+
+We can use this approach to refactor all other function
+
+```php
+function findAll($pdo, $table) {}
+function findById($pdo, $table, $primaryKey, $value) {}
+function insert($pdo, $table, $fields) {}
+function update($pdo, $table, $primaryKey, $fields) {}
+function delete($pdo, $table, $primaryKey, $id) {}
+function query($pdo, $sql, $parameters = []) {}
+function processDate($fields) {}
+function total($pdo, $table) {}
+```

@@ -2409,3 +2409,139 @@ header('Location: index.php?action=list');
 ```
 
 In `jokes.html.php`
+
+### 11.13. keeping it DRY
+
+You’re nearly done! A large proportion of your PHP code is now neatly organized into `methods` inside classes, and you can quickly add new pages to the website by simply creating a new method inside `JokeController`. Before we continue, let’s quickly remove some of the remaining repeated code.
+
+The duplicated code
+
+In `edit method`
+
+```php
+ob_start();
+include __DIR__ . '/../templates/editjoke.html.php';
+$output = ob_get_clean();
+return ['output' => $output, 'title' => $title];
+```
+
+In `home method`
+
+```php
+ob_start();
+include __DIR__ . '/../templates/home.html.php';
+$output = ob_get_clean();
+return ['output' => $output, 'title' => $title];
+```
+
+In `list method`
+
+```php
+ob_start();
+include __DIR__ . '/../templates/jokes.html.php';
+$output = ob_get_clean();
+return ['output' => $output, 'title' => $title];
+```
+
+Rather than having each action include this block of code, it would be simpler to have the action provide a file name - such as `home.html.php` - and then have it loaded from within `index.php`
+
+To make that change, firstly open up `index.php` and change it to this
+
+```php
+<?php
+try {
+  include __DIR__ . '/../includes/DatabaseConnection.php';
+  include __DIR__ . '/../classes/DatabaseTable.php';
+  include __DIR__ . '/../controllers/JokeController.php';
+
+  $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+  $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+  $jokeController = new JokeController($jokesTable, $authorsTable);
+
+  $action = $_GET['action'] ?? 'home';
+
+  $page = $jokeController->$action();
+
+  $title = $page['title'];
+
+  ob_start();
+
+  include __DIR__ . '/../templates/' . $page['template'];
+
+  $output = ob_get_clean();
+}
+catch (PDOException $e) {
+  $title = 'An error has occurred';
+  $output = 'Database error: ' . $e->getMessage() . ' in '. $e->getFile() . ':' . $e->getLine(); 
+}
+
+include __DIR__ . '/../templates/layout.html.php';
+```
+
+The `controller action` will no longer provide the `$output` variale, but instead just a filename for `index.php` to include
+
+```php
+public function home() {
+  $title = '..';
+
+  return [
+    'template' => 'home.html.php',
+    'title' = $title
+  ];
+}
+
+public function list() {
+  return [
+    'template' => 'jokes.html.php',
+    'title' => '...'
+  ];
+}
+
+public function edit() {
+  return [
+    'template' => 'editjoke.html.php',
+    'title' => $title
+  ];
+}
+```
+
+Each action now provides the name of a `template` that gets loaded in `index.php`. We’ve saved ourselves from needing to repeat the `output buffer` and `include` lines.
+
+Thus, we need a way to get the `$totalJokes` and `$jokes` variables into `index.php`
+
+On first glance, you might think to do it in the return statement, the same way that we did with the title, output, and later template variables:
+
+```php
+public function list() {
+  return [
+    'template' => 'jokes.html.php',
+    'title' => $title, 
+    'totalJokes' => $totalJokes,
+    'jokes' => $jokes
+  ];
+}
+```
+
+And the recreate the variables in `index.php`
+
+```php
+$action = $_GET['action'] ?? 'home';
+
+$page = $jokeController->$action();
+
+$title = $page['title'];
+$totalJokes = $page['totalJokes'];
+$jokes = $page['jokes'];
+
+ob_start();
+
+include __DIR__ . '/../templates/' . $page['template'];
+
+$output = ob_get_clean();
+```
+
+If you try this, the jokes list page will work as expected. However, as soon as you navigate to another page, you’ll get errors.
+
+A very messy solution would be to have each method in the `controller return every single variable that’s needed`, but leave the array values `blank` when they’re not needed.
+
+This is obviously not a viable solution. Each time we add a `template` that requires a variable with a new name, we’d need to amend every single controller method to provide an empty string for that variable and then amend `index.php` to set it!

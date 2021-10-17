@@ -2205,3 +2205,80 @@ Rather than having different files for each `controller`, it’s possible to wri
 controller that handles each `action` as a `method`. That way, we can have one file
 that handles all the parts that are common to each page, and methods in a class
 that handle the individual parts.
+
+### 11.11. Creating a controller class
+
+The first thing we could do is move the code for each `controller` into a method in
+a class. Firstly create a class called `JokeController`.
+
+As this is a special type of class, we won’t store it in the `classes` directory.
+Instead, create a new directory called `controllers` and save this as
+`JokeController`:
+
+```php
+class JokeController {
+
+}
+```
+
+Before moving the relevant code into methods, let’s consider what variables this
+class needs. Any variables required by the various actions will need to be class
+variables so that they can be defined once and used in any of the methods.
+
+```php
+class JokeController {
+  private $authorsTable;
+  private $jokesTable;
+
+  public function __construct(DatabaseTable $authorsTable, DatabaseTable $jokesTable) {
+    $this->authorsTable = $authorsTable;
+    $this->jokesTable = $jokesTable;
+  }
+}
+```
+
+Move `action` into the corresponding `method`
+
+```php
+class JokeController {
+  private $authorsTable;
+  private $jokesTable;
+
+  public function __construct(DatabaseTable $authorsTable, DatabaseTable $jokesTable) {
+    $this->authorsTable = $authorsTable;
+    $this->jokesTable = $jokesTable;
+  }
+
+  public function home()
+  {
+    // code from index.php
+
+    // for our template layout
+    return [ 'title' => '', 'output' => '' ];
+  }
+
+  public function list()
+  {
+    // code from jokes.php
+
+    return [ 'title' => '', 'output' => '' ];
+  }
+
+  public function edit()
+  {
+    // code from editjoke.php
+
+    return [ 'title' => '', 'output' => '' ];
+  }
+
+  public function delete()
+  {
+    // code from deletejoke.php
+
+    return [ 'title' => '', 'output' => '' ];
+  }
+}
+```
+
+Until now, we've had each different page using its own file: `index.php`,
+`jokes.php`, `editjoke.php` and `deletejoke.php`

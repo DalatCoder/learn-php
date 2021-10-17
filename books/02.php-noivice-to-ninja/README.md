@@ -1408,3 +1408,146 @@ In `templates/layout.html.php`
 
 </html>
 ```
+
+### 11.5. Improving the utility functions
+
+In the last chapter, I showed you how to break the code up into easily reusable functions.
+This has several advantages:
+
+- the code where the function is called is easier to read
+- you can re-use the same function from anywhere
+
+In this chapter, I'll take this a step further and show you how to make a function
+that could be used for any database table, and then show you how object oriented
+programming can simplify this task even further
+
+#### 11.5.1. Improving the `update` function
+
+To run the `update` function, we need
+
+- `joke ID`
+- `joke text`
+- `author ID`
+
+We might want to update the specific fields, not all, so we could improve this like so:
+
+```php
+updateJokes($pdo, [
+  'id' => 1,
+  'joketext' => '...'
+])
+```
+
+or
+
+```php
+updateJokes($pdo, [
+  'id' => 1,
+  'authorId' => 7
+])
+```
+
+The improved version
+
+```php
+function updateJoke($pdo, $fieldsToBeUpdated)
+{
+    $sql = 'UPDATE `joke` SET ';
+
+    foreach ($fieldsToBeUpdated as $field_name => $updated_value) {
+        $sql .= "`$field_name` = :$field_name, ";
+    }
+    $sql = rtrim($sql, ', ');
+
+    $sql .= ' WHERE `id` = :primaryKey';
+
+    $fieldsToBeUpdated['primaryKey'] = $fieldsToBeUpdated['id'];
+
+    query($pdo, $sql, $fieldsToBeUpdated);
+}
+```
+
+After the `foreach` loop, we have
+
+- `$sql`: `UPDATE \`joke\` SET \`id\` = :id, \`joketext\` = :joketext WHERE \`id\` = :primaryKey`;
+
+We must manually set the `primaryKey` because we cannot prepare the query with the same `variable`
+
+> When you write a funciton, it's usually easier to write some examples of how you
+> think it should be called before writing the code inside the function itself. This
+> gives you a target to work towards, and some code you can run to see whether it's
+> working correctly or not.
+
+#### 11.5.1. Improving the `insert` function
+
+Dates and times in MySQL are always stored using the format `YYYY-MM-DD HH:MM:SS`.
+
+Using `insertJoke` function
+
+```php
+$date = new DateTime();
+
+insertJoke($pdo, [
+  'authorId' => 4,
+  'joketext' => '...',
+  'jokedate' => $date->format('Y-m-d H:i:s')
+])
+```
+
+But, we can improve this function further
+
+```php
+function insertJoke($pdo, $fields)
+{
+    $sql = 'INSERT INTO `joke` (';
+
+    foreach ($fields as $key => $value) {
+        $sql .= "`$key`, ";
+    }
+
+    $sql = rtrim($sql, ', ');
+
+    $sql .= ') VALUES (';
+
+    foreach ($fields as $key => $value) {
+        $sql .= ":$key, ";
+    }
+
+    $sql = rtrim($sql, ', ');
+
+    $sql .= ')';
+
+    foreach ($fields as $key => $value) {
+        if ($value instanceof DateTime) {
+            $fields[$key] = $value->format('Y-m-d');
+        }
+    }
+
+    query($pdo, $sql, $fields);
+}
+```
+
+Now we can use this function
+
+```php
+insertJoke($pdo, [
+  'authorId' => 4,
+  'joketext' => '...',
+  'jokedate' => new DateTime()
+])
+```
+
+We can extract the logic of formatting date to it own function
+
+```php
+function processDate($fields)
+{
+    foreach ($fields as $key => $value) {
+        if ($value instanceof DateTime) {
+            $fields[$key] = $value->format('Y-m-d H:i:s');
+        }
+    }
+
+    return $fields;
+}
+```

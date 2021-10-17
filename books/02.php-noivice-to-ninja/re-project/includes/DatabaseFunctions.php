@@ -73,7 +73,7 @@ function getTotalJokes($pdo)
 function getJoke($pdo, $id)
 {
     $parameters = [
-        ':id' => $id
+        'id' => $id
     ];
     $sql = 'SELECT * FROM `joke` WHERE `id` = :id';
 
@@ -85,45 +85,57 @@ function getJoke($pdo, $id)
  * Insert New Joke
  *
  * @param [type] $pdo
- * @param [type] $joketext Joke content
- * @param [type] $authorId Joke's author
+ * @param [type] $fields
  * @return void
  */
-function insertJoke($pdo, $joketext, $authorId)
+function insertJoke($pdo, $fields)
 {
-    $sql = 'INSERT INTO `joke` (`joketext`, `jokedate`, `authorId`)
-            VALUES (:joketext, CURDATE(), :authorId)';
+    $sql = 'INSERT INTO `joke` (';
 
-    $parameters = [
-        ':joketext' => $joketext,
-        ':authorId' => $authorId
-    ];
+    foreach ($fields as $key => $value) {
+        $sql .= "`$key`, ";
+    }
 
-    query($pdo, $sql, $parameters);
+    $sql = rtrim($sql, ', ');
+
+    $sql .= ') VALUES (';
+
+    foreach ($fields as $key => $value) {
+        $sql .= ":$key, ";
+    }
+
+    $sql = rtrim($sql, ', ');
+
+    $sql .= ')';
+
+    $fields = processDate($fields);
+
+    query($pdo, $sql, $fields);
 }
 
 /**
  * Update a joke
  *
  * @param [type] $pdo
- * @param [type] $jokeId Joke ID to be updated
- * @param [type] $joketext New joke content
- * @param [type] $authorId The author
+ * @param [type] $fieldsToBeUpdated
  * @return void
  */
-function updateJoke($pdo, $jokeId, $joketext, $authorId)
+function updateJoke($pdo, $fieldsToBeUpdated)
 {
-    $sql = 'UPDATE `joke` 
-            SET `authorId` = :authorId, `joketext` = :joketext
-            WHERE `id` = :id';
+    $sql = 'UPDATE `joke` SET ';
 
-    $parameters = [
-        ':joketext' => $joketext,
-        ':authorId' => $authorId,
-        ':id' => $jokeId
-    ];
+    foreach ($fieldsToBeUpdated as $field_name => $updated_value) {
+        $sql .= "`$field_name` = :$field_name, ";
+    }
+    $sql = rtrim($sql, ', ');
 
-    query($pdo, $sql, $parameters);
+    $sql .= ' WHERE `id` = :primaryKey';
+
+    $fieldsToBeUpdated = processDate($fieldsToBeUpdated);
+
+    $fieldsToBeUpdated['primaryKey'] = $fieldsToBeUpdated['id'];
+
+    query($pdo, $sql, $fieldsToBeUpdated);
 }
 
 /**
@@ -137,7 +149,7 @@ function deleteJoke($pdo, $id)
 {
     $sql = 'DELETE FROM `joke` WHERE `id` = :id';
     $parameters = [
-        ':id' => $id
+        'id' => $id
     ];
 
     query($pdo, $sql, $parameters);
@@ -152,4 +164,15 @@ function allJokes($pdo)
 
     $query = query($pdo, $sql);
     return $query->fetchAll();
+}
+
+function processDate($fields)
+{
+    foreach ($fields as $key => $value) {
+        if ($value instanceof DateTime) {
+            $fields[$key] = $value->format('Y-m-d H:i:s');
+        }
+    }
+
+    return $fields;
 }

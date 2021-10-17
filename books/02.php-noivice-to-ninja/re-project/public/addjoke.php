@@ -5,7 +5,11 @@ if (isset($_POST['joketext'])) {
         include __DIR__ . '/../includes/DatabaseConnection.php';
         include __DIR__ . '/../includes/DatabaseFunctions.php';
 
-        insertJoke($pdo, $_POST['joketext'], 1);
+        insertJoke($pdo, [
+            'joketext' => $_POST['joketext'],
+            'jokedate' => new DateTime(),
+            'authorId' => 1
+        ]);
 
         header('Location: jokes.php');
         exit();

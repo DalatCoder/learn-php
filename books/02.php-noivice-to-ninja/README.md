@@ -2108,3 +2108,72 @@ example, what needs to be public and what needs to be private?—but in all but
 the most simple projects, it’s worth it! By eliminating the conditions for a bug to
 exist, you can save yourself a lot of bug-tracking time later on.
 
+#### 11.10.2. Using the `DatabaseTable` class
+
+In `jokes.php` controller
+
+```php
+<?php
+
+try {
+    include __DIR__ . '/../includes/DatabaseConnection.php';
+    include __DIR__ . '/../classes/DatabaseTable.php';
+
+    $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+    $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+    $jokes = [];
+
+    $result = $jokesTable->findAll();
+
+    foreach ($result as $joke) {
+        if (isset($joke['authorid'])) {
+            $author = $authorsTable->findById($joke['authorid']);
+
+            $jokes[] = [];
+        }
+    }
+
+} catch (PDOException $e) {}
+
+include __DIR__ . '/../templates/layout.html.php';
+```
+
+In `deletejoke.php` controller
+
+```php
+<?php
+
+try {
+    include __DIR__ . '/../includes/DatabaseConnection.php';
+    include __DIR__ . '/../classes/DatabaseTable.php';
+
+    $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+    $jokesTable->delete($_POST['id']);
+
+    header('Location: jokes.php');
+} catch (PDOException $e) {}
+```
+
+In `editjoke.php` controller
+
+```php
+<?php
+
+include __DIR__ . '/../includes/DatabaseConnection.php';
+include __DIR__ . '/../classes/DatabaseTable.php';
+
+try {
+    $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+
+    if (isset($_POST['joke'])) {
+        $joke = $_POST['joke'];
+        $jokesTable->save($joke);
+
+    } else {
+        if (isset($_GET['jokeid'])) {
+            $joke = $jokesTable->findById($_GET['jokeid']);
+        }
+    }
+} catch (PDOException $e) {}
+```

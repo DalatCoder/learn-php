@@ -1,22 +1,24 @@
 <?php
 
 include __DIR__ . '/../includes/DatabaseConnection.php';
-include __DIR__ . '/../includes/DatabaseFunctions.php';
+include __DIR__ . '/../classes/DatabaseTable.php';
 
 try {
+    $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+
     if (isset($_POST['joke'])) {
         $joke = $_POST['joke'];
 
         $joke['jokedate'] = new DateTime();
         $joke['authorid'] = 1;
 
-        save($pdo, 'joke', 'id', $joke);
+        $jokesTable->save($joke);
 
         header('Location: jokes.php');
         exit();
     } else {
         if (isset($_GET['jokeid'])) {
-            $joke = findById($pdo, 'joke', 'id', $_GET['jokeid']);
+            $joke = $jokesTable->findById($_GET['jokeid']);
         }
 
         $title = 'Edit Joke';

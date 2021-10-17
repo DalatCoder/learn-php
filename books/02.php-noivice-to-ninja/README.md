@@ -2282,3 +2282,56 @@ class JokeController {
 
 Until now, we've had each different page using its own file: `index.php`,
 `jokes.php`, `editjoke.php` and `deletejoke.php`
+
+### 11.12. Single Entry Point
+
+With the `controller` complete, we can now write a **single file** to handle **any page**.
+Importantly, this single file can contain all the code that was previously repeated
+in each of the files. As a starting point, here’s a very crude way of using the new
+class:
+
+```php
+<?php 
+
+try {
+  include __DIR__ . '/../includes/DatabaseConnection.php';
+  include __DIR__ . '/../classes/DatabaseTable.php';
+  include __DIR__ . '/../controllers/JokeController.php';
+
+  $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+  $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+  $jokeController = new JokeController($jokesTable, $authorsTable);
+
+  if (isset($_GET['edit'])) {
+    $page = $jokeController->edit();
+  }
+  else if (isset($_GET['delete'])) {
+    $page = $jokeController->delete();
+  }
+  else if (isset($_GET['list'])) {
+    $page = $jokeController->list();
+  }
+  else {
+    $page = $jokeController->home();
+  }
+
+  list($title, $output) = $page;
+}
+catch (PDOException $e) {
+  $title = 'An error has occurred';
+
+  $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
+}
+
+include __DIR__ . '/../templates/layout.html.php';
+```
+
+To access our website
+
+- `index page`: `localhost:8000/index.php`
+- `list page`: `localhost:8000/index.php?list`
+- `edit page`: `localhost:8000/index.php?edit&jokeid=10`
+- `create page`: `localhost:8000/index.php?edit`
+
+This is called a **single entry point** or **front controller**

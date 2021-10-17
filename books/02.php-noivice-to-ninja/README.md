@@ -1947,3 +1947,102 @@ class DatabaseTable
 Like templates and include files, it's good practice to store classes outside the
 `public` directory. Create a new directory called `classes` inside your project
 directory and save the code above as `DatabaseTable.php`
+
+Add some variables
+
+```php
+class DatabaseTable
+{
+  public $pdo;
+  public $table;
+  public $primaryKey;
+}
+```
+
+We can now rewrite those function to `OOP`
+
+```php
+class DatabaseTable
+{
+  public $pdo;
+  public $table;
+  public $primaryKey;
+
+  private function query($sql, $parameters = [])
+  {
+      $query = $this->pdo->prepare($sql);
+
+      foreach ($parameters as $name => $value) {
+          $query->bindValue($name, $value);
+      }
+
+      $query->execute();
+      // $query->execute($parameters);
+      return $query;
+  }
+
+  public function findAll()
+  {
+      $sql = "SELECT * FROM `{$this->table}`";
+      $result = $this->query($sql);
+
+      return $result->fetchAll();
+  }
+}
+```
+
+The variables in the class are accessed the same way as the functions using the
+`$this` variable. Now, when the `findAll()` function is called, it doesn’t need any
+arguments, because the `$pdo` connection and the name of the table are read from
+the class variables:
+
+```php
+$jokeTable = new DatabaseTable();
+$jokeTable->pdo = $pdo;
+$jokeTable->table = 'joke';
+
+$jokes = $jokeTable->findAll();
+```
+
+Now, to interact with the database, the common variables only need to be set once:
+
+```php
+$jokeTable = new DatabaseTable();
+$jokeTable->pdo = $pdo;
+$jokeTable->table = 'joke';
+$jokeTable->primaryKey = 'id';
+```
+
+And then, the methods can be used without repeating all the arguments
+
+```php
+$joke123 = $jokeTable->findById(123);
+
+$jokes = $jokeTable->findAll();
+
+$jokeTable->delete(123);
+
+$jokeTable->save([
+  'authorid' => 1,
+  'joketext' => '...',
+  'jokedate' => new DateTime()
+]);
+```
+
+Add class's `constructor` so that the user is required to provide all neccessary argument before using
+the class
+
+```php
+class DatabaseTable 
+{
+  public function __construct($pdo, $table, $primaryKey)
+  {
+    $this->pdo = $pdo;
+    $this->table = $table;
+    $this->primaryKey = $primaryKey;
+  }
+}
+```
+
+This kind of check ensures the code is robust. It also helps anyone who uses the
+class, because they’ll see an error as soon as they do something wrong.

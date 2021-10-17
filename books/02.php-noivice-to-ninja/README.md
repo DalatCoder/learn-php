@@ -2076,3 +2076,35 @@ public function __construct(PDO $pdo, string $table, string $primaryKey)
 This is known as **defensive programming**, and it’s a very useful way of
 preventing bugs. By stopping variables being set to the wrong type, you can rule
 out the possibility of many potential bugs
+
+Then, we change the `visibility` of properties to `private` to prevent any access from
+outside of the class
+
+```php
+class DatabaseTable
+{
+  private PDO $pdo;
+  private string $table;
+  private string $primaryKey;
+
+  public function __construct(PDO $pdo, string $table, string $primaryKey)
+  {
+    $this->pdo = $pdo;
+    $this->table = $table;
+    $this->primaryKey = $primaryKey;
+  }
+}
+```
+
+By combining type hints, constructors and private properties, several conditions 
+have been imposed on the class
+
+- It's impossible to create an instance of the `DatabaseTable` class without passing it a `$pdo` instance
+- The first argument ust be a valid `PDO` instance
+- There's no way to change the `$pdo` variable after it's been set.
+
+This type of defensive programming can take a little more thinking about—for
+example, what needs to be public and what needs to be private?—but in all but
+the most simple projects, it’s worth it! By eliminating the conditions for a bug to
+exist, you can save yourself a lot of bug-tracking time later on.
+

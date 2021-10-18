@@ -2791,3 +2791,62 @@ try {
  
 include __DIR__ . '/../templates/layout.html.php';
 ```
+
+## 12. Creating an Extensible Framework
+
+We're not going to add any new feature. Instead, I'm going to show you how the code can be organized so that
+it can be reused on each website you build.
+
+### 12.1. Search Engine
+
+In PHP, functions are not **case sensitive**. `list` is treated exactly the
+same way as `LIST`. Due to case insensitivity, visiting `index.php?action=list` will
+display the page, but so will `index.php?action=LIST` or
+`index.php?action=List`. This may seem like a good thing, as people will be able
+to mistype the URL and still see the correct page. However, this feature can also
+**cause problems for search engines**.
+
+Search engines generally **dislike “duplicate content”**, either ranking it lower or ignoring it altogether.
+
+A common way to fix this is `forcing all URLs to lowercase`.
+
+We can also use the `header` function to send all `uppercase` URLs to their `lowercase` equivalents:
+
+```php
+$action = $_GET['action'] ?? 'home';
+
+if ($action == strtolower($action)) {
+    $page = $jokeController->$action();
+} else {
+    header('Location: index.php?action=' . strtolower($action));
+    exit();
+}
+```
+
+Now anyone who visits `index.php?action=LISTJOKES` or
+`index.php?action=listJokes` will be redirected to
+`index.php?action=listjokes`. However, there’s one more thing we need to do.
+
+There are two types of redirection:
+- temporary 
+- permanent. 
+
+To tell search engines not to list the page, you need to tell them the redirection is **permanent**.
+
+This is done with an `“HTTP response code”`.
+
+Each time a page is sent to the browser, a `response code` is sent along with it to tell the
+browser and search engines how to treat the page. To tell the browser that a
+redirect is `permanent`, you need to send the code `301`.
+
+```php
+$action = $_GET['action'] ?? 'home';
+
+if ($action == strtolower($action)) {
+    $page = $jokeController->$action();
+} else {
+    http_response_code(301);
+    header('Location: index.php?action=' . strtolower($action));
+    exit();
+}
+```

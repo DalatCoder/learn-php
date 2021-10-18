@@ -2850,3 +2850,9 @@ if ($action == strtolower($action)) {
     exit();
 }
 ```
+
+### 12.2. Make things generic
+
+In PHP and any other programming language, if you can make a piece of code
+`generic` and able to cope with different use cases, it's generally considered `better`,
+because it's more flexible.

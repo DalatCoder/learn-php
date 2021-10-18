@@ -2856,3 +2856,108 @@ if ($action == strtolower($action)) {
 In PHP and any other programming language, if you can make a piece of code
 `generic` and able to cope with different use cases, it's generally considered `better`,
 because it's more flexible.
+
+### 12.3. Thinking ahead: User registration
+
+Instead of writing all to `index.php`, we'll create a new controller called `RegisterController` with some methods to handle user registration.
+
+This helps keep the code manageable, by keeping anything to do with jokes in `JokeController` and any page 
+related to user registration in `RegisterController`.
+
+We will need to write a file such as `register.php` to handle incomming request, and it looks like this
+
+```php
+try {
+  include __DIR__ . '/../includes/DatabaseConnection.php';
+  include __DIR__ . '/../classes/DatabaseTable.php';
+  include __DIR__ . '/../controllers/RegisterController.php';
+
+  $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+  $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+  $registerController = new RegisterController($authorsTable);
+
+  $action = $_GET['action'] ?? 'home';
+
+  if ($action == strtolower($action)) {
+    $page = $registerController->$action();
+  }
+  else {
+    http_response_code(301);
+    header('Location: index.php?action=' . strtolower($action));
+    exit();
+  }
+
+  $title = $page['title'];
+
+  if (isset($page['variables'])) {
+    $output = loadTemplate($page['template'], $page['variables']);
+  }
+  else {
+    $output = loadTemplate($page['template']);
+  }
+}
+catch (PDOException $e) {
+  $title = 'An error has occurred';
+  $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
+}
+
+include __DIR__ . '/../templates/layout.html.php';
+```
+
+Most of this code is identical to `index.php`. The only differences are:
+
+- `include 'JokeController.php'`; becomes `include 'RegisterController.php'`;
+- `$jokeController = new JokeController($jokesTable, $authorsTable);` becomes `$registerController = new RegisterController($authorsTable);`
+- `$jokeController->$action()` becomes `$registerController->$action()`
+
+It would be better if a `single index.php` could work with **any controller** in the
+same way it works with any action, `avoiding` the need for different PHP files for
+loading each controller.
+
+The third change is very easy to fix, so let's remove that difference first.
+
+The only reason this needs changing is because of the different variable names
+`$jokesController` and `$registerController`. If the **same variable names** were
+used throughout—such as `$controller`—then this change wouldn’t be needed.
+
+The **solution to 1**. will be simple to implement. As we saw when loading templates, the `include`
+statement can be used to include files using a string stored in a variable. 
+
+Making this change to include the correct file is fairly simple
+
+```php
+$controllerName = ucfirst($_GET['controller']) . 'Controller';
+
+include __DIR__ . '/../controllers/' . $controllerName . '.php';
+```
+
+Using the same process we used to define `$action`, it’s also
+possible to specify a URL parameter for controller, like so:
+`index.php?controller=jokes&action=listJokes`. We could use this to load
+`JokesController` and call the action `listJokes`.
+
+The complete block of code looks like this 
+
+```php
+$action = $_GET['action'] ?? 'home';
+
+$controllerName = $_GET['controller'] ?? 'joke'; 
+
+if ($action == strtolower($action) && $controllerName == strtolower($controllerName))  {
+  $className = ucfirst($controllerName) . 'Controller';
+
+  include __DIR__ . '/../controllers/' . $className . '.php';
+
+  $controller = new $className($jokesTable, $authorsTable);
+  $page = $controller->$action();
+}
+else {
+  http_response_code(301);
+  header('location: index.php?controller=' . strtolower($controllerName) . '&action=' . strtolower($action));
+  exit();
+}
+```
+
+But the `Constructors` is required for 2 parameters. In the other hand, the `RegisterController` class
+will only require `$authorTable`.

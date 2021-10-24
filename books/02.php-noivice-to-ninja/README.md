@@ -3775,3 +3775,90 @@ class ShopActions {
   }
 }
 ```
+
+### 12.10. Autoloading and Namespaces
+One line of code we're repeating often is the `include` line to include a relevant class each time a 
+class is required.
+
+Any time we use one of the classes we’ve created, it must be `referenced` with an
+`include` statement. This can get tricky to manage, as you need to ensure the class
+file has been `included before you use the class`. On top of that, if you accidentally
+issue the include statement `twice` for the same class, you’ll see an `error`.
+
+A very inefficient but easy-to-organize method of managing loading classes would be to include every 
+single class at the top of the `index.php` file, so that any class that might be needed has already been loaded. 
+
+Using this method, we'll never have to write an `include` statement for a class outside `index.php`
+
+A major drawback of this approach is that each time you add a new class to the
+project, you’ll have to open up `index.php` and add the relevant `include`
+statement. This is time consuming, and will use an `unnecessary amount` of
+memory on the server, as all `classes` would be loaded whether they’re needed or
+not.
+
+I’ve advised placing `classes` in their `own files` throughout this book, as well as
+`naming files` to match identically the name of the classes they contain. The class
+`DatabaseTable` is inside the file `DatabaseTable.php`, `JokeController` is stored
+in `JokeController.php`, and `EntryPoint` is stored in a file called
+`EntryPoint.php`.
+
+One of the reasons I've advised structuring files this way is that it's considered good practice.
+It helps someone reading the code to find the classes that are referenced.
+
+One other advantage of a `standardized file structure` is that PHP contains a feature called `autoloading`.
+Autoloading is used to `automatically load` PHP files that store classes. As long as your file names are 
+`consistent` with the class names, it's easy to write an `autoloader` to load the relevant PHP file.
+
+Once we've written an `autoloader`, we'll never need to write an `include` line for a class anywhere 
+in the project.
+
+When we use the statement `new ClassName()`, if the class `ClassName` doesn't exist (because it hasn't been 
+included), `PHP` can trigger an `autoloader` that can then load the file `ClassName.php`, and the rest of the 
+script will continue as normal without us ever needing to manually write the line `include 'ClassName.php';`
+
+An `autoloader` is a function that takes a class name as an argument and then `includes` the file that
+contains the corresponding class. The functioni can be as simple as this
+
+```php
+function autoloader($className) {
+  $file = __DIR__ . '/../classes/' . $className . '.php';
+  include $file;
+}
+```
+
+It would be possible to use this function manually to save a little time
+
+```php
+autoloader('DatabaseTable');
+autoloader('EntryPoint');
+```
+
+This would `include` both `DatabaseTable.php` and `EntryPoint.php`. However, it's 
+possible to `instruct PHP` to call this function `automatically` whenever it can't find a class
+that's `referenced`:
+
+```php
+spl_autoload_register('autoloader');
+```
+
+The function `spl_autoload_register` is built into `PHP` and allows us to tell `PHP` to call
+the function the name we've given if it comes across a class that hasn't yet been `included`
+
+The `autoloader` function will be called automatically when a class is used for the `first time`
+
+```php
+function autoloader($className) {
+  $file = __DIR__ . '/../classes/' . $className . '.php';
+  include $file;
+}
+
+spl_autoload_register('autoloader');
+
+$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+$controller = new EntryPoint($jokesTable);
+
+```
+
+Now files will automatically be included the first time the class stored in them is
+used. `new DatabaseTable` will `trigger` the `autoloader` with `DatabaseTable`, as the
+`$className` argument and `DatabaseTable.php` will be included.

@@ -3166,3 +3166,64 @@ Before we go ahead and change `all the links throughout the website`, I want to
 introduce an approach called **URL Rewriting**, `which is another reason for using a
 single route variable instead of separate controller and action variables`.
 
+### 12.5. URL Rewriting
+
+A lot of websites are written in PHP, including Facebook and Wikipedia. If you
+visit one of these sites, you’ll see that the URLs don’t look like the ones we’ve
+been using on the joke website.
+
+The URL for SitePoint’s Wikipedia page is **https://en.wikipedia.org/wiki/SitePoint**, 
+and its Facebook page URL is **https://www.facebook.com/sitepoint**.
+
+Using the structure we’ve looked at so far, you’d probably expect to see something like 
+**https://www.facebook.com/index.php?controller=page&id=sitepoint** or 
+**https://en.wikipedia.org/index.php?route=wiki/sitepoint**
+
+Most PHP websites don't actually show you the PHP filename in the URL.
+Many years ago, search engines preferredn this approach. These days, search engines don't care about 
+URL structure, and friendly URLs are used more for aesthetic reasons.
+
+As most websites use this approach, it's useful to know how to do it.
+
+> URL Rewriting is a tool for forwarding one URL to another. 
+
+You con configure your web server so that when someone visits `/jokes/list`, it actually runs
+`index.php?route=jokes/list`, or even when someone visits `contact.php` it instead it
+runs `index.php?route=contact`.
+
+> Importantly, the original URL is still shown in the browser's address bar.
+
+**URL Rewriting** is a long and complex topic. You can set up all kinds of wonderful
+and impressive rules. However, almost all modern PHP websites use the same
+rule: `if a file requested doesn’t exist, load index.php`.
+
+#### 12.5.1. NGINX URL Rewriting
+
+If you need to configure an `NGNIX` server for `URL rewriting`, the guile on the NGINX website is 
+the first place to look for examples.
+
+However, for most setups you'll just need the configuration directive
+
+```sh
+location / {
+  try_files $uri $uri/ /index.php;
+}
+```
+
+#### 12.5.2. Apache Server
+
+For Apache servers, the same can be achived by creating a file called `.htaccess` in the `public`
+(or, more likely for `Apache`, `public_html` or `httpdocs`) directory with the following contents
+
+```.htaccess
+conf
+RewriteEngine on
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^.*$ /index.php [NC,L,QSA]
+```
+
+How this works is beyond the scope of this book, but it will have the same effect. If 
+a file doesn't exist, it will load `index.php` rather than display an error. More
+information on configuring `URL` rewriting when using `Apache` can be found in the `SitePoint`
+article `Learn Apache mod rewrite: 13 Real-world Examples`

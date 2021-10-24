@@ -3042,3 +3042,127 @@ else if ($controllerName === 'register') {
 
 $page = $controller->$action()
 ```
+
+This approach is **very flexible**. It allows us to call **any method** in **any controller** by
+specifying the **class name** in the **controller URL variable** and method name in
+the action URL variable. Although this adds some flexibility, it also opens up
+ **several security** issues. Someone can alter the URL and run any method in any
+class. Depending on what our controllers are doing, this may cause a problem.
+
+Instead, it’s more secure, and only a little extra code, to specify a `single URL
+variable that triggers a specific controller action`. This single URL variable is
+called a **route**.
+
+```php
+$route = $_GET['route'] ?? 'joke/home'; // If no route variable is set, use 'home'
+
+if ($route === 'joke/list') 
+  include __DIR__ . '/../classes/controllers/JokeController.php';
+  $controller = new JokeController($jokesTable, $authorsTable);
+  $page = $controller->list();
+}
+
+else if ($route === 'joke/home') {
+  include __DIR__ . '/../classes/controllers/JokeController.php';
+  $controller = new JokeController($jokesTable, $authorsTable);
+  $page = $controller->home();
+}
+
+else if ($route === 'register') {
+  include __DIR__ . '/../classes/controllers/RegisterController.php';
+  $controller = new RegisterController($authorsTable);
+  $page = $controller->showForm();
+}
+
+```
+
+Although thí í slightly mỏe code and we have some repeatition, it's considerably more secure. 
+Someone can only instantiate a controller and call a method if it's in this list.
+In this case, the repetition is prefereable to the potential security hole of letting anyone call any method.
+
+The complete `index.php` now looks like this:
+
+```php
+<?php 
+
+function loadTemplate($templateFileName, $variables = [])
+{
+  extract($variables);
+
+  ob_start();
+  include __DIR__ . '/../templates/' . $templateFileName;
+
+  return ob_get_clean();
+}
+
+try {
+  include __DIR__ . '/../includes/DatabaseConnection';
+  include __DIR__ . '/../classes/DatabaseTable';
+
+  $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+  $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+  // If no route variable is set, use `joke/home`
+  $route = $_GET['route'] ?? 'joke/home';
+
+  if ($route == strtolower($route)) {
+
+    if ($route === 'joke/list') {
+      include __DIR__ . '/../classes/controllers/JokeController.php';
+      $controller = new JokeController($jokesTable, $authorsTable);
+      $page = $controller->list();
+    }
+    else if ($route === 'joke/home') {
+      include __DIR__ . '/../classes/controllers/JokeController';
+      $controller = new JokeController($jokesTable, $authorsTable);
+      $page = $controller->home();
+    }
+    else if ($route === 'joke/edit') {
+      include __DIR__ . '/../classes/controllers/JokeController.php';
+      $controller = new JokeController($jokesTable, $authorsTable);
+      $page = $controller->edit();
+    }
+    else if ($route === 'joke/delete') {
+      include __DIR__ '/../classes/controllers/JokeController.php';
+      $controller = new JokeController($jokesTable, $authorsTable);
+      $page = $controller->delete();
+    }
+    else if ($route === 'register') {
+      include __DIR__ . '/../classes/controllers/RegisterController.php';
+      $controller = new RegisterController($authorsTable);
+      $page = $controller->showForm();
+    }
+
+  }
+  else {
+    http_response_code(301);
+    header('location: index.php?route=' strtolower($route));
+    exit();
+  }
+
+  $title = $page['title'];
+
+  if (isset($page['variables'])) {
+    $output = loadTemplate($page['template'], $page['variables']);
+  }
+  else {
+    $output = loadTemplate($page['template']);
+  }
+}
+```
+
+Ideally, we were looking to be able to use **any controller** without editing
+`index.php`. But for simplicity's sake, we'll stick with this approach.
+
+Change the links
+
+```html
+  <li> <a href="index.php">Home</a> </li>
+  <li> <a href="index.php?route=joke/list">Jokes List</a> </li>
+  <li> <a href="index.php?route=joke/edit">Add a new Joke</a> </li>
+```
+
+Before we go ahead and change `all the links throughout the website`, I want to
+introduce an approach called **URL Rewriting**, `which is another reason for using a
+single route variable instead of separate controller and action variables`.
+

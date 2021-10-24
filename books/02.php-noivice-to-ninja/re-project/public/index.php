@@ -11,32 +11,50 @@ function loadTemplate($templateFillName, $variables = [])
 }
 
 try {
+
     include __DIR__ . '/../includes/DatabaseConnection.php';
     include __DIR__ . '/../classes/DatabaseTable.php';
-    include __DIR__ . '/../controllers/JokeController.php';
 
     $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
     $authorsTable = new DatabaseTable($pdo, 'author', 'id');
 
-    $jokeController = new JokeController($authorsTable, $jokesTable);
+    // If no route variable is set, use 'joke/home'
+    $route = $_GET['route'] ?? 'joke/home';
 
-    $action = $_GET['action'] ?? 'home';
-
-    if ($action == strtolower($action)) {
-        $page = $jokeController->$action();
-    } else {
+    if ($route != strtolower($route)) {
         http_response_code(301);
-        header('Location: index.php?action=' . strtolower($action));
+        header('location: index.php?route=' . strtolower($route));
         exit();
     }
 
+    if ($route === 'joke/list') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->list();
+    } else if ($route === 'joke/home') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->home();
+    } else if ($route === 'joke/edit') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->edit();
+    } else if ($route === 'joke/delete') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->delete();
+    } else if ($route === 'register') {
+        include __DIR__ . '/../controllers/RegisterController.php';
+        $controller = new RegisterController($authorsTable);
+        $page = $controller->showForm();
+    }
+
     $title = $page['title'];
-    $template = $page['template'];
 
     if (isset($page['variables'])) {
-        $output = loadTemplate($template, $page['variables']);
+        $output = loadTemplate($page['template'], $page['variables']);
     } else {
-        $output = loadTemplate($template);
+        $output = loadTemplate($page['template']);
     }
 } catch (PDOException $e) {
     $title = 'An error has occurred';

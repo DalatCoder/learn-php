@@ -3285,3 +3285,169 @@ The redirects in `JokeController`
 ```php
 header('location: /joke/list');
 ```
+
+### 12.6. Tidying Up
+
+You've problably noticed that `index.php` is getting a bit long and unwieldy. Before
+we get into creating `RegisterController.php`, let's tidy up `index.php` a little.
+
+### 12.6. Tidying Up
+
+#### 12.6.1. Make it OOP
+
+One of the primary causes of overly complex code is nested `if` statements.
+With
+any long piece of code, it’s possible to break it up into a single class with a set of
+functions.
+
+This can be done by identifying unique tasks within the code. Looking at the
+code, we can see the following distinct tasks:
+
+- instantiating the `controller` and `calling` the relevant action based on `$route`
+- the `loadTemplate` function
+- redirecting to a `lowercase` version of the `URL` if required
+- loading the relevant template file and setting its variables
+
+Let’s take each of these and make it a **function** inside a class called `EntryPoint`,
+inside the `classes` directory.
+
+This class will take a single variable, `$route`, representating the route to load.
+It will then store the route in a class variable so that each function can use it.
+
+```php
+class EntryPoint
+{
+  private $route;
+
+  public function __construct($route)
+  {
+    $this->route = $route;
+  }
+}
+```  
+
+The next step is checking that the route is the correct case and redirecting to the lowercase
+version if it's not
+
+```php
+class EntryPoint
+{
+  private function checkUrl() {
+    if ($this->route !== strtolower($this->route)) {
+      http_response_code(301);
+      header('location: ' . strtolower($this->route));
+      exit();
+    }
+  }
+}
+```
+
+We will call this `method` on the `constructor` to make sure that the `route` always in valid status.
+
+```php
+class EntryPoint
+{
+  public function __construct($route)
+  {
+    $this->route = $route;
+    $this->checkUrl();
+  }
+}
+```
+
+Copied the `loadTemplate` function 
+
+```php
+class EntryPoint
+{
+  private function loadTemplate($templateFileName, $variables = []) {
+    extract($variables);
+
+    ob_start();
+    include __DIR__ . '/../templates/' . $templateFileName;
+
+    return ob_get_clean();
+  }
+}
+```
+
+Extract all logic for calling the corresponding `Controller` and `Action`
+
+```php
+class EntryPoint
+{
+  private function callAction()
+  {
+
+    include __DIR__ . '/../includes/DatabaseConnection.php';
+    include __DIR__ . '/../classes/DatabaseTable.php';
+
+    $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+    $authorsTable = new DatabaseTable($pdo, 'author', 'id');  
+
+    if ($route === 'joke/list') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->list();
+    } else if ($route === '') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->home();
+    } else if ($route === 'joke/edit') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->edit();
+    } else if ($route === 'joke/delete') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->delete();
+    } else if ($route === 'register') {
+        include __DIR__ . '/../controllers/RegisterController.php';
+        $controller = new RegisterController($authorsTable);
+        $page = $controller->showForm();
+    }
+  }
+}
+```
+
+A single point for firing up
+
+```php
+class EntryPoint
+{
+  public function run()
+  {
+    $page = $this->callAction();
+
+    $title = $page['title'];
+
+    if (isset($page['variables'])) {
+      $output = $this->loadTemplate($page['template'], $page['variables']);
+    }
+    else {
+      $output = $this->loadTemplate($page['template']);
+    }
+
+    include __DIR__ . '/../templates/layout.html.php';
+  }
+}
+```
+
+Make use of the `SingleEntrypoint`
+
+```php
+<?php
+
+try {
+    include __DIR__ . '/../classes/EntryPoint.php';
+
+    $route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
+
+    $entryPoint = new EntryPoint($route);
+    $entryPoint->run();
+} catch (PDOException $e) {
+    $title = 'An error has occurred';
+
+    $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
+}
+```

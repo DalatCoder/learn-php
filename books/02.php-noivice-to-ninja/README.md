@@ -3227,3 +3227,61 @@ How this works is beyond the scope of this book, but it will have the same effec
 a file doesn't exist, it will load `index.php` rather than display an error. More
 information on configuring `URL` rewriting when using `Apache` can be found in the `SitePoint`
 article `Learn Apache mod rewrite: 13 Real-world Examples`
+
+You know just enough about **URL rewriting** to make use of it on the site. Rather
+than using a **$_GET** variable to determine the route, you can use the URL that the
+person used to connect to the website. PHP supplies this information in the
+variable `$_SERVER['REQUEST_URI']`.
+
+Open up `index.php` and replace this
+
+```php
+$route = $_GET['route'] ?? 'joke/home';
+```
+
+...with this:
+
+```php
+$route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
+```
+
+The ltrim function removes the leading `/`. If you visit `http://192.168.10.10/joke/list`,
+ `$_SERVER['REQUEST_URI']` will store the string `/joke/list`. By
+trimming any leading slashes, we can match the request URI to our existing
+routes.
+
+Because the `$_SERVER['REQUEST_URI']` contains the `complete URL`, if the URL
+contains `$_GET variables`, the entire URL string is included in the variable. We
+don’t want these in our routes.
+
+The following code will return the entire string up to the first question mark, or
+the entire string if there’s no question mark:
+
+```php
+strtok($_SERVER['REQUEST_URI'], '?');
+```
+
+Replace link
+
+```html
+  <li> <a href="/">Home</a> </li>
+  <li> <a href="/joke/list">Jokes List</a> </li>
+  <li> <a href="/joke/edit">Add a new Joke</a> </li>
+```
+
+The edit link and delete form action in `jokes.html.php`
+
+```php
+<a href="/joke/edit?jokeid=<?= $joke['id'] ?>">Edit</a>
+
+<form action="/joke/delete" method="POST">
+  <input type="hidden" name="id" value="<?= $joke['id'] ?>">
+  <input type="submit" value="Delete">
+</form>
+```
+
+The redirects in `JokeController`
+
+```php
+header('location: /joke/list');
+```

@@ -19,7 +19,7 @@ try {
     $authorsTable = new DatabaseTable($pdo, 'author', 'id');
 
     // If no route variable is set, use 'joke/home'
-    $route = $_GET['route'] ?? 'joke/home';
+    $route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
 
     if ($route != strtolower($route)) {
         http_response_code(301);
@@ -31,7 +31,7 @@ try {
         include __DIR__ . '/../controllers/JokeController.php';
         $controller = new JokeController($authorsTable, $jokesTable);
         $page = $controller->list();
-    } else if ($route === 'joke/home') {
+    } else if ($route === '') {
         include __DIR__ . '/../controllers/JokeController.php';
         $controller = new JokeController($authorsTable, $jokesTable);
         $page = $controller->home();

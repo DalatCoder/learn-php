@@ -2961,3 +2961,23 @@ else {
 
 But the `Constructors` is required for 2 parameters. In the other hand, the `RegisterController` class
 will only require `$authorTable`.
+
+### 12.4. Dependencies
+
+Different controllers will inevitably require different dependencies.
+
+An object that's required by another object is called a **dependency**. For example, `JokeController` is 
+*dependent* on the `$jokesTable` instance, as without it, it won't work correctly.
+
+To identify a dependency in a piece of code, look for a function call on another object. For example, the 
+`delete` method in the controller depends on the `jokesTable` variable, and that variable must contain a `DatabaseTable` instance.
+
+Without a `DatabaseTable` instance, the `delete` method below can't work. It's `dependent' on functionality from another class`
+
+```php
+public function delete() {
+  $this->jokesTable->delete($_POST['id']);
+  header('Location: .');
+  exit();
+}
+```

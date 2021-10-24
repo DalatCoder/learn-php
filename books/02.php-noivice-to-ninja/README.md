@@ -3777,6 +3777,7 @@ class ShopActions {
 ```
 
 ### 12.10. Autoloading and Namespaces
+
 One line of code we're repeating often is the `include` line to include a relevant class each time a 
 class is required.
 
@@ -3862,3 +3863,32 @@ $controller = new EntryPoint($jokesTable);
 Now files will automatically be included the first time the class stored in them is
 used. `new DatabaseTable` will `trigger` the `autoloader` with `DatabaseTable`, as the
 `$className` argument and `DatabaseTable.php` will be included.
+
+### 12.11. Case Sensitivity
+
+> PHP classes are not `case sensitive`, but file names usually are.
+> This can cause a problem with autoloaders.
+
+A problem is caused in a situation lie this
+
+```php
+$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+$authorsTable = new databasetable($pdo, 'author', 'id');
+```
+
+The code above `will work` as intended, because the first time `DatabaseTable` is loaded 
+with the correct case, the file is `successfully included` and `PHP's` case 
+insensitivity allows both objects to be constructed.
+
+However, if we reverse the order of arguments - because the `autoloader` is triggered with a `lowercase name`, 
+we'll get an `error`
+
+```php
+$authorsTable = new databasetable($pdo, 'author', 'id');
+$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+```
+An `alternative` is to make `all file names lowercase` and have the `autoloader`
+`convert` the `class name to lowercase` before `loading the file`. Although this is a
+more robust approach and arguably a better technical implementation, it goes
+against `PHP community conventions`, and will cause problems if we want to
+share our code with other people in the future.

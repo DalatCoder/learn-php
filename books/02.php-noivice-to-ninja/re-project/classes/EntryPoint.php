@@ -3,10 +3,12 @@
 class EntryPoint
 {
     private $route;
+    private $routes;
 
-    public function __construct($route)
+    public function __construct($route, $routes)
     {
         $this->route = $route;
+        $this->routes = $routes;
         $this->checkUrl();
     }
 
@@ -29,42 +31,9 @@ class EntryPoint
         return ob_get_clean();
     }
 
-    private function callAction()
-    {
-        include __DIR__ . '/../includes/DatabaseConnection.php';
-        include __DIR__ . '/DatabaseTable.php';
-
-        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
-        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
-
-        if ($this->route === 'joke/list') {
-            include __DIR__ . '/../controllers/JokeController.php';
-            $controller = new JokeController($authorsTable, $jokesTable);
-            $page = $controller->list();
-        } else if ($this->route === 'joke/edit') {
-            include __DIR__ . '/../controllers/JokeController.php';
-            $controller = new JokeController($authorsTable, $jokesTable);
-            $page = $controller->edit();
-        } else if ($this->route === 'joke/delete') {
-            include __DIR__ . '/../controllers/JokeController.php';
-            $controller = new JokeController($authorsTable, $jokesTable);
-            $page = $controller->delete();
-        } else if ($this->route === 'register') {
-            include __DIR__ . '/../controllers/RegisterController.php';
-            $controller = new RegisterController($authorsTable);
-            $page = $controller->showForm();
-        } else {
-            include __DIR__ . '/../controllers/JokeController.php';
-            $controller = new JokeController($authorsTable, $jokesTable);
-            $page = $controller->home();
-        }
-
-        return $page;
-    }
-
     public function run()
     {
-        $page = $this->callAction();
+        $page = $this->routes->callAction($this->route);
 
         $title = $page['title'];
         $templateFileName = $page['template'];

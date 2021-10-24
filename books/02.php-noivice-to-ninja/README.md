@@ -3892,3 +3892,76 @@ An `alternative` is to make `all file names lowercase` and have the `autoloader`
 more robust approach and arguably a better technical implementation, it goes
 against `PHP community conventions`, and will cause problems if we want to
 share our code with other people in the future.
+
+### 12.12. Implement an `Autoloader`
+
+Let's implement an `autoloader`. To keep things organized, let's create `autoload.php` and save
+it in the `includes` directory.
+
+```php
+function autoloader($className)
+{
+  $file = __DIR__ . "/../classes/$className.php";
+  include $file;
+}
+
+spl_autoload_register('autoloader');
+```
+
+Now, we can amend `index.php` to include the `autoloader`, but remove the `include lines` that 
+explicitly include `EntryPoint.php` and `IjdbRoutes.php`
+
+```php
+try {
+    include __DIR__ . '/../includes/autoload.php';
+
+    $route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
+
+    $entryPoint = new EntryPoint($route, new IjdbRoutes());
+    $entryPoint->run();
+} catch (PDOException $e) {
+    $title = 'An error has occurred';
+
+    $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
+}
+```
+
+We can also remove the include line for `DatabaseTable` from `IjdbRoutes.php`
+
+```php
+class IjdbRoutes
+{
+    public function callAction($route)
+    {
+        include __DIR__ . '/../includes/DatabaseConnection.php';
+
+        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+        if ($route === 'joke/list') {
+            include __DIR__ . '/../controllers/JokeController.php';
+            $controller = new JokeController($authorsTable, $jokesTable);
+            $page = $controller->list();
+        } else if ($route === 'joke/edit') {
+            include __DIR__ . '/../controllers/JokeController.php';
+            $controller = new JokeController($authorsTable, $jokesTable);
+            $page = $controller->edit();
+        } else if ($route === 'joke/delete') {
+            include __DIR__ . '/../controllers/JokeController.php';
+            $controller = new JokeController($authorsTable, $jokesTable);
+            $page = $controller->delete();
+        } else if ($route === 'register') {
+            include __DIR__ . '/../controllers/RegisterController.php';
+            $controller = new RegisterController($authorsTable);
+            $page = $controller->showForm();
+        } else {
+            include __DIR__ . '/../controllers/JokeController.php';
+            $controller = new JokeController($authorsTable, $jokesTable);
+            $page = $controller->home();
+        }
+
+        return $page;
+    }
+}
+
+```

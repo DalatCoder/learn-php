@@ -3451,3 +3451,107 @@ try {
     $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
 }
 ```
+
+We just made some very substantial changes. Although none of the code is new,
+and it doesn’t produce any different output, the structure is **completely different**.
+Take a look through the completed `EntryPoint.php` to see how it works. Each
+task is now in its own method, rather than being nested inside a series of if
+statements.
+
+Our `index.php` and `EntryPoint.php` can now be used to load `any controller` class, and 
+call any method on it, by specifying the appropriate route.
+
+A controller can be easily added by creating a class in the `controllers` directory
+and adding the logic for creating the controller and calling the relevant action 
+in the `callAction` method.
+
+### 12.7. Reusing Code on Different Webistes
+
+Now that we’ve tidied up index.php, it’s worth considering what we’ve achieved
+by doing so. We’ve broken up the code into more easily manageable chunks, and
+the code is easier to read.
+
+Even though we haven’t finished our Internet Joke Database website yet, it’s
+worth thinking about your next website. You probably didn’t buy this book so
+you could make a website for people to post jokes. You likely have a real project
+in mind that you’re planning to build using the knowledge you learn from this
+book.
+
+How much of the code we’ve written so far can be used without modification on
+your next website?
+
+### 12.8. Generic or Project Specific?
+
+Besides the `DatabaseTable` class, how much of the code we’ve written so far
+would be useful on another website?
+
+No
+
+- Templates with HTML
+- Controllers would be different (`JokeController` is very specific to our website)
+
+Yes
+
+- `EntryPoint` class
+  - Load `Controllers`
+  - Load `Template files`
+
+There are two types of code files in any given website
+
+- `project-specific`: files containing code that's only relevant to that particular website
+- `generic`: reusable files containing code that can be used to build any website.
+
+The more code we can make `generic`, the bigger the foundation we have to work from when we start
+a new website.
+
+If we can use a lot of code from our previous website on our next website, we'll save ourselves a lot of time.
+
+This foundation is called a `framework` - a set of `generic code` (usually classes) that can be 
+quickly built on to any website. It doesn't contain any code that's specific to one particular project.
+
+It's important to make a distinction between `framework code` and `project-specific code`.
+
+If we can `successfully separate` them, we can `reuse` our `framework` code in
+every website we build, saving significant upfront development time. If we have
+framework code `mixed` with project-specific code, we’ll find ourselves writing
+very similar code for every website we build.
+
+When we first start out, it can be `difficult` to recognize which parts of the code
+belong specifically to that project, and which can be used across different
+projects.
+
+>> As a rule of thumb, processes are generic but data is specific.
+
+For example, adding a joke to the database is `specific` to the joke site, but adding to the
+database is a `generic` process that’s needed on most websites.
+
+In **Chapter 8**, I showed how to separate out the generic add to database process
+from the project-specific process of adding a joke. Anything related to `jokes` is in
+`JokeController.php`, but all the code related to adding to the database is stored
+in `DatabaseTable.php`.
+
+> The first step to making something `generic` is usually placing it inside a class.
+> This helps us break up the problem into smaller parts.
+> Once we've broken the problem up into individual methods, we can then see which are `generic` and which are `project sepcific`
+> A dead giveaway that something is `project specific` is a hardcoded value or variable name 
+> that alludes to something for that project only
+
+Let’s apply that to the new `EntryPoint` class. The methods `loadTemplate`,
+`checkUrl` and run don’t contain any references to `jokes`, `authors` or anything that’s
+specific the `joke website`. Indeed, we’ll need a way of loading `controllers` and
+`templates` on future websites; they just won’t be dealing with `jokes and authors`.
+
+However, the `callAction` method contains several references to `jokes` and
+`authors`. If we wanted to reuse this class on a different website, we'd need to rewrite the entire method.
+It won't have controllers or database tables dealing with `jokes` authors; it will have controllers and 
+database tables for `products`, `customers` and `orders`.
+
+Let’s imagine we do have two websites—the joke website and an online shop.
+We’ve copy/pasted the file EntryPoint.php and changed callAction to suit each
+website. If there’s a bug in the checkUrl or run methods, we’d need to fix the bug
+in two places, while being careful not to change any code specific to that website.
+
+Instead, if the file contained only the `generic` framework code, we could overwrite
+the old `EntryPoint.php` with the new one everywhere it’s being used, and fix the
+bug without worrying about undoing changes that were made specifically for one
+project.

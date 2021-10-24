@@ -2981,3 +2981,64 @@ public function delete() {
   exit();
 }
 ```
+
+Look at this example,
+
+- Create a new instance of `JokeController`
+
+```php
+$controller = new JokeController($authorsTable, $jokesTable);
+```
+
+- Create a new instance of `AuthorController`
+
+```php
+$controller = new RegisterController($authorsTable);
+```
+
+So the hard question is, how do we know what dependencies the required controller needs?
+
+I’ll warn you now, this is the most complicated topic in this book, and something
+even very experienced developers struggle with! Different people have come up
+with some potential solutions, and there are many approaches you can take.
+
+However, many are considered “bad practice” and should be avoided.
+
+I could
+write a book on this subject alone (it’s a large section of my PhD thesis!) so
+instead of telling you what not to do (creating the objects in the constructor of the
+controller, singletons or service locators), I’m going to stick with best practices
+and show you a few options for handling it in the preferred way.
+
+If we’re trying to automate creation of the
+controllers, it presents a problem: if the constructors are different, how can the
+objects be automatically created?
+
+- #1: Ensure all controllers have the same contructor. They all require access to all the possible `Databaase`
+objects. This works, but it's messy. **One major downside to this approach is that, when a new database table is added, all the controolers' constructors must be changed**.
+
+- #2. Passing an array of all the possible dependencies and pciking out the ones we need. This is essentially something known as a **Service Locator**, and it's a common approach, although it's been 
+widely considered bad practice over the last few years.
+
+The technical term for waht we're doing is **dependency injection**.
+It sounds
+complicated, but it’s just a fancy term for passing dependencies into constructors.
+You’ve been doing it all along without even knowing!
+
+The simplest way of solving the problem of different constructors needing
+different arguments is a series of if statements. This way, each controller can be
+created with the correct dependencies:
+
+```php
+$action = $_GET['action'] ?? 'home';
+
+$controllerName = $_GET['controller'] ?? 'joke';
+if ($controllerName === 'joke') {
+  $controller = new JokeController($jokesTable, $authorsTable);
+}
+else if ($controllerName === 'register') {
+  $controller = new RegisterController($authorsTable);
+}
+
+$page = $controller->$action()
+```

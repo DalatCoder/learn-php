@@ -3555,3 +3555,223 @@ Instead, if the file contained only the `generic` framework code, we could overw
 the old `EntryPoint.php` with the new one everywhere it’s being used, and fix the
 bug without worrying about undoing changes that were made specifically for one
 project.
+
+### 12.9. Making `EntryPoint` Generic
+
+The answer, then, is to remove all references to `project-specific` concepts from 
+otherwise generic classes.
+
+This process is more of an art than a science, and even experienced developers
+can struggle to work out where to draw the line between generic and projectspecific code. However, I’m going to show you a fairly simple step-by-step
+process that can be used to remove a project-specific method from a class, turning
+it into a framework class.
+
+#### 12.9.1. Identify the method you want to remove
+
+In this case, it's the `callAction` method
+
+```php
+private function callAction()
+{
+    include __DIR__ . '/../includes/DatabaseConnection.php';
+    include __DIR__ . '/DatabaseTable.php';
+
+    $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+    $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+    if ($this->route === 'joke/list') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->list();
+    } else if ($this->route === 'joke/edit') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->edit();
+    } else if ($this->route === 'joke/delete') {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->delete();
+    } else if ($this->route === 'register') {
+        include __DIR__ . '/../controllers/RegisterController.php';
+        $controller = new RegisterController($authorsTable);
+        $page = $controller->showForm();
+    } else {
+        include __DIR__ . '/../controllers/JokeController.php';
+        $controller = new JokeController($authorsTable, $jokesTable);
+        $page = $controller->home();
+    }
+
+    return $page;
+}
+```
+
+#### 12.9.2. Move the method to its own class and make it `public`
+
+Create a class called `IjdbRoutes` in `classes/IjdbRoutes.php`
+
+```php
+class IjdbRoutes
+{
+  public function callAction()
+  {
+      include __DIR__ . '/../includes/DatabaseConnection.php';
+      include __DIR__ . '/DatabaseTable.php';
+
+      $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+      $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+      if ($this->route === 'joke/list') {
+          include __DIR__ . '/../controllers/JokeController.php';
+          $controller = new JokeController($authorsTable, $jokesTable);
+          $page = $controller->list();
+      } else if ($this->route === 'joke/edit') {
+          include __DIR__ . '/../controllers/JokeController.php';
+          $controller = new JokeController($authorsTable, $jokesTable);
+          $page = $controller->edit();
+      } else if ($this->route === 'joke/delete') {
+          include __DIR__ . '/../controllers/JokeController.php';
+          $controller = new JokeController($authorsTable, $jokesTable);
+          $page = $controller->delete();
+      } else if ($this->route === 'register') {
+          include __DIR__ . '/../controllers/RegisterController.php';
+          $controller = new RegisterController($authorsTable);
+          $page = $controller->showForm();
+      } else {
+          include __DIR__ . '/../controllers/JokeController.php';
+          $controller = new JokeController($authorsTable, $jokesTable);
+          $page = $controller->home();
+      }
+
+      return $page;
+  }
+}
+```
+
+#### 12.9.3. Replace any referenced class variables with arguments
+
+Replace `$this->route` with `$route` and add the `$route` as arguments for the method.
+
+```php
+class IjdbRoutes
+{
+  public function callAction($route)
+  {
+      include __DIR__ . '/../includes/DatabaseConnection.php';
+      include __DIR__ . '/DatabaseTable.php';
+
+      $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+      $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+      if ($route === 'joke/list') {
+          include __DIR__ . '/../controllers/JokeController.php';
+          $controller = new JokeController($authorsTable, $jokesTable);
+          $page = $controller->list();
+      } else if ($route === 'joke/edit') {
+          include __DIR__ . '/../controllers/JokeController.php';
+          $controller = new JokeController($authorsTable, $jokesTable);
+          $page = $controller->edit();
+      } else if ($route === 'joke/delete') {
+          include __DIR__ . '/../controllers/JokeController.php';
+          $controller = new JokeController($authorsTable, $jokesTable);
+          $page = $controller->delete();
+      } else if ($route === 'register') {
+          include __DIR__ . '/../controllers/RegisterController.php';
+          $controller = new RegisterController($authorsTable);
+          $page = $controller->showForm();
+      } else {
+          include __DIR__ . '/../controllers/JokeController.php';
+          $controller = new JokeController($authorsTable, $jokesTable);
+          $page = $controller->home();
+      }
+
+      return $page;
+  }
+```
+
+#### 12.9.4. Remove the method from the original class
+
+Remove `callAction` from the `EntryPoint` class
+
+#### 12.9.5. Add a new constructor argument/class variable to the original class.
+
+Add `$controllerArugments` as a constructor argument/class variable to `EntryPoint`
+
+```php
+class EntryPoint {
+  private $route;
+  private $routes;
+
+  public function __construct($route, $routes) {
+    $this->route = $route;
+    $this->routes = $routes;
+    $this->checkUrl();
+  }
+}
+```
+
+We'll use the `$routes` variable to contain an instance of `IjdbRoutes`
+
+Add `$controllerArugments` as a constructor argument/class variable to `EntryPoint`
+
+```php
+class EntryPoint {
+  private $route;
+  private $routes;
+
+  public function __construct($route, $routes) {
+    $this->route = $route;
+    $this->routes = $routes;
+    $this->checkUrl();
+  }
+}
+```
+
+We'll use the `$routes` variable to contain an instance of `IjdbRoutes`
+
+#### 12.9.6. Pass in an instance of the new class when the original class is created
+
+```php
+include __DIR__ . '/../classes/EntryPoint.php';
+include __DIR__ . '/../classes/IjdbRoutes.php';
+
+$route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
+
+$entryPoint = new EntryPoint($route, new IjdbRoutes());
+$entryPoint->run();
+```
+
+#### 12.9.7. Change the method call to reference the new object and pass in any required variables
+
+```php
+class EntryPoint {
+  private $route;
+  private $routes;
+
+  public function __construct($route, $routes) {
+    $this->route = $route;
+    $this->routes = $routes;
+    $this->checkUrl();
+  }
+
+  public function callAction() {
+    $this->routes->callAction($this->route);
+  }
+}
+```
+
+With that complete, we now have a `generic` `EntryPoint.php`. There are no longer any
+references to `jokes`, `authors` or anything specific to one particular website.
+
+In future, to create a website for an online shop, we can write the relevant `ShopActions`
+class with a `callAction` method to handle the arguments for that specific website
+
+```php
+class ShopActions {
+  public function callAction($route) {
+
+    // load the controller and call the relevant action
+
+    return $controller->$action();
+  }
+}
+```

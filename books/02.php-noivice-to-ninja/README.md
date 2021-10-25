@@ -4718,3 +4718,235 @@ In this chapter you learned
 - The basics of interfaces and REST
 - Routing and URL Rewriting
 
+## 16. Allowing Users to Register Accounts
+
+First, add another column for password
+
+```mysql
+ALTER TABLE author ADD COLUMN password VARCHAR(255)
+```
+
+The first thing that's needed is the controller code. Create the file `Register.php` in 
+the `Ijdb\Controllers` directory, then create the class with the following variables, constructor 
+and a method for loading the registration form.
+
+For registering users, the only dependency needed is the `DatabaseTable` object that represents the `authors`
+table.
+
+```php
+namespace Ijdb\Controllers;
+
+use Ninja\DatabaseTable;
+
+class Register
+{
+    private DatabaseTable $authorsTable;
+
+    public function __construct(DatabaseTable $authorsTable)
+    {
+        $this->authorsTable = $authorsTable;
+    }
+
+    public function registrationForm()
+    {
+        return [
+            'template' => 'register.html.php',
+            'title' => 'Register an account',
+            'variables' => []
+        ];
+    }
+
+    public function success()
+    {
+        return [
+            'template' => 'registersuccess.html.php',
+            'title' => 'Registration Successful',
+            'variables' => []
+        ];
+    }
+
+    public function registerUser()
+    {
+        $author = $_POST['author'];
+
+        $this->authorsTable->save($author);
+
+        header('Location: /author/success');
+        exit();
+    }
+}
+```
+
+Create new `routes`
+
+```php
+namespace Ijdb;
+
+use Ninja\DatabaseTable;
+use Ijdb\Controllers\Joke;
+use Ijdb\Controllers\Register;
+
+use Ninja\Routes;
+
+class IjdbRoutes implements Routes
+{
+    public function getRoutes()
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+        $jokeController = new Joke($authorsTable, $jokesTable);
+        $authorController = new Register($authorsTable);
+
+        $routes = [
+            'author/register' => [
+                'GET' => [
+                    'controller' => $authorController,
+                    'action' => 'registrationForm'
+                ],
+                'POST' => [
+                    'controller' => $authorController,
+                    'action' => 'registerUser'
+                ]
+            ],
+            'author/success' => [
+                'GET' => [
+                    'controller' => $authorController,
+                    'action' => 'success'
+                ]
+            ]
+        ];
+
+        return $routes;
+    }
+}
+```
+
+We need some control over what's allowed in the database. 
+There are some rules we probably want to enforce on the data before allowing the 
+record to be inserted
+
+- All fields should actually contain some data, so `no blank` email or name
+- The email address should be a real email address
+- The email address entered `must not already belong to an account`
+
+We'll use `if` statements for each check and set a boolean variable `$valid` to keep track of
+whether the data is valid or not.
+
+```php
+public function registerUser()
+{
+    $author = $_POST['author'];
+
+    $valid = true;
+
+    if (empty($author['name'])) {
+        $valid = false;
+    }
+
+    if (empty($author['email'])) {
+        $valid = false;
+    }
+
+    if (empty($author['password'])) {
+        $valid = false;
+    }
+
+    if ($valid) {
+        $this->authorsTable->save($author);
+        header('Location: /author/success');
+        exit();
+    } else {
+        return [
+            'template' => 'register.html.php',
+            'title' => 'Register an account'
+        ];
+    }
+}
+```
+
+I've used `empty` instead of `$author['name'] == ''` here, because this will also catch invalid
+form submissions without causing an error.
+
+To show the user their error, we will create a second array to keep a list of error messages to show to the user
+
+```php
+    public function registerUser()
+    {
+        $author = $_POST['author'];
+
+        $valid = true;
+        $errors = [];
+
+        if (empty($author['name'])) {
+            $valid = false;
+            $errors[] = 'Name cannot be blank';
+        }
+
+        if (empty($author['email'])) {
+            $valid = false;
+            $errors[] = 'Email cannot be blank';
+        }
+
+        if (empty($author['password'])) {
+            $valid = false;
+            $errors[] = 'Password cannot be blank';
+        }
+
+        if ($valid) {
+            $this->authorsTable->save($author);
+            header('Location: /author/success');
+            exit();
+        } else {
+            return [
+                'template' => 'register.html.php',
+                'title' => 'Register an account',
+                'variables' => [
+                    'errors' => $errors,
+                ]
+            ];
+        }
+    }
+```
+
+To make things even easier, we'll re-fill the form with the data from `$_POST`
+
+```php
+  return [
+      'template' => 'register.html.php',
+      'title' => 'Register an account',
+      'variables' => [
+          'author' => $author
+      ]
+  ];
+```
+
+In template
+
+```php
+<?php if (!empty($errors)) : ?>
+    <div class="errors">
+        <p>Your account could not be created, please check the following:</p>
+        <ul>
+            <?php foreach ($errors as $error) : ?>
+                <li><?= $error ?></li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+<?php endif; ?>
+
+<form action="" method="post">
+    <label for="email">Your email address</label>
+    <input name="author[email]" id="email" type="text" value="<?= $author['email'] ?? '' ?>">
+
+    <label for="name">Your name</label>
+    <input name="author[name]" id="name" type="text" value="<?= $author['name'] ?? '' ?>">
+
+    <label for="password">Password</label>
+    <input name="author[password]" id="password" type="password" value="<?= $author['password'] ?? '' ?>">
+
+    <input type="submit" name="submit" value="Register account">
+</form>
+```

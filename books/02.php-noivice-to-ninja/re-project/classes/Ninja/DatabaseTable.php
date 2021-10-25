@@ -90,6 +90,10 @@ class DatabaseTable
     public function save($record)
     {
         try {
+            if (!array_key_exists($this->primaryKey, $record)) {
+                $record[$this->primaryKey] = null;
+            }
+
             if ($record[$this->primaryKey] == '') {
                 $record[$this->primaryKey] = null;
             }

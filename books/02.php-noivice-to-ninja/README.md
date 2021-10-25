@@ -5269,3 +5269,189 @@ if ($_SESSION['visits'] > 1) {
 For the cookie, we needed to calculate the `lifetime` and set an `expiration time`.
 `Sessions` are `simpler`: no expiration time is required, but any data stored in the
 session is `lost` when the browser is closed.
+
+### 17.3. Access Control
+
+One of the most common reasons for building a database-driven website is that it
+allows users to interact with a site from any web browser, anywhere! But in a
+world where roaming bands of jubilant hackers will fill our site with viruses and
+pornography, we need to stop and think about the security of our website.
+
+In this section, we’ll enhance our joke database site to protect sensitive features
+with `username/password-based authentication`. In order to control which users
+can do what, we’ll build a sophisticated ` role-based access control` system.
+
+#### 17.3.1. Logging In 
+
+What exactly does `log in the user` mean? There are two approaches to this, both of which involve using PHP `sessions`
+
+- We can log in the uesr by setting a `session variable` as a `flag`. On future requests, we can just 
+check if this variable is set and use it to read the `ID` of the `logged-in` user.
+
+- We can store the supplied email address and password in the session, and then on future requests, we can
+check if these variables are set. If they are, we can check the values in the `session` against the values in 
+the database.
+
+The `first option` will give `better performance`, since the `user's` credentials are only checked once - when the 
+login form is submitted.
+
+The second option offers greater security, since the user's credentials are checked against the database 
+every time a sensitive page is requested.
+
+In general, the more secure option is preferable, since it allows us to remove
+authors from the site even while they’re logged in. Otherwise, once a user is
+logged in, they’ll stay logged in for as long as their `PHP session` remains active.
+That’s a steep price to pay for a little extra performance
+
+After checking the password was correct using `password_verify`, it’s time to
+write some data to the `session`. There are various options here. We could just
+store the `user ID` or the `email address` of the person who’s been logged in.
+
+However, it’s good practice to store both the `login name` and `password` in the
+`session` and check them both on each page view. That way, if the user is logged in
+on two different computers and the password is changed, they’ll be `logged out`
+and `required to log back in`.
+
+This is a useful security feature for users, since if one of those logged in locations
+were not really the user, someone having managed to get unauthorized access to
+their account, the attacker would be logged out as soon as the password was
+changed. Without storing the password in the session, the attacker could log in
+once, and as long as the browser was left open, they’d maintain access to the
+user’s account.
+
+```php
+$_SESSION['email'] = $_POST['email'];
+$_SESSION['password'] = $_POST['password'];
+```
+
+Then, on each page view, we'd check the information in the session against the database
+
+```php
+$author = $authorsTable->find('email', strtolower($_SESSION['email']))[0];
+
+if (!empty($author) && password_verify($_SESSION['password'], $author['password'])) {
+  // Display password protected content
+}
+else {
+  // Display an error message and clear the sessioin
+  // logging the user out
+}
+```
+
+This is theoretically what we want to do. With this approach, if the password is
+changed in the database, or the author is removed from the database, the user will
+be logged out.
+
+Instead of storing the plain text password in the session, it’s better to store the
+password hash from the database in the session. If someone is able to read the
+`session` data from the server, they’ll only see the `hash`, not the real password
+
+```php
+$_SESSION['email'] = $_POST['email'];
+$_SESSION['password'] = $author['password'];
+```
+
+With the email address and hash stored, we can check the values from the
+database, and if either the email address or password stored in the database have
+changed, the user can be logged out.
+
+On each page, we’ll need to run this code:
+
+```php
+$author = $authorsTable->find(..);
+
+if (!empty($author) && $author[0]['password'] === $_SESSION['password']) {
+  ...
+}
+```
+
+As this check will need to be done on every page we want to password protect,
+let’s move it into a class for easy reuse. We’ll need two methods for now:
+
+- One that's called when the user tries to log in with an email address and password
+- One that's called on each page to check whether the uesr is logged in or not
+
+Since this is something that’s going to be useful on any website we build, we’ll
+place it in the `Ninja` framework namespace:
+
+```php
+namespace Ninja;
+
+class Authentication
+{
+    private $users;
+    private $usernameColumn;
+    private $passwordColumn;
+
+    public function __construct(DatabaseTable $users, $usernameColumn, $passwordColumn)
+    {
+        session_start();
+
+        $this->users = $users;
+        $this->usernameColumn = $usernameColumn;
+        $this->passwordColumn = $passwordColumn;
+    }
+
+    public function login($username, $password)
+    {
+        $user = $this->users->find($this->usernameColumn, strtolower($username));
+
+        if (empty($user))
+            return false;
+
+        if (!password_verify($password, $user[0][$this->passwordColumn]))
+            return false;
+
+        session_regenerate_id();
+        $_SESSION['username'] = $username;
+        $_SESSION['password'] = $user[0][$this->passwordColumn];
+
+        return true;
+    }
+
+    public function isLoggedIn()
+    {
+        if (empty($_SESSION['username'])) {
+            return false;
+        }
+
+        $user = $this->users->find($this->usernameColumn, strtolower($_SESSION['username']));
+
+        if (empty($user)) {
+            return false;
+        }
+
+        if ($user[0][$this->passwordColumn] !== $_SESSION['password']) {
+            return false;
+        }
+
+        return true;
+    }
+}
+```
+
+When the `Authentication` class is created, it starts the `session`. This avoids us
+needing to manually call `session_start` on each page. As long as the
+`Authentication` class has been instantiated, a `session` will have been started.
+When login or `isLoggedIn` are called, the `session` must have been started.
+
+Both login and `isLoggedIn` return true or false, which we can later call to
+determine whether the user has entered valid credentials or is already logged in.
+
+One final security measure that’s worth implementing is changing the `session ID`
+after a `successful login`. Earlier I mentioned that session IDs should not easily be
+`guessable`. Otherwise, hackers could pretend to be someone else, an attack
+commonly known as `session fixation`. All the hacker needs to steal someone else’s
+session is the session ID.
+
+It’s good practice to change the `session ID` after a successful login just in case
+someone managed to get hold of the `session ID` before the user logged in
+
+If you follow the logic through, you may have realized that `frequently changing
+the session ID can increase security`. In fact, it would be very secure to change the
+user’s session ID on every page load.
+
+However, doing so causes several practical problems. If someone has different
+pages open in different tabs, or the website uses a technology called Ajax, they
+effectively get logged out of one tab when they open another! These problems are
+worse than the minor security benefit of changing the session ID on every page.

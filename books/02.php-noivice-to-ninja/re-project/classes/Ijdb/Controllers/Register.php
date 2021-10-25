@@ -1,6 +1,8 @@
 <?php
 
-class RegisterController
+namespace Ijdb\Controllers;
+
+class Register
 {
     private DatabaseTable $authorsTable;
 

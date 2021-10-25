@@ -1,13 +1,15 @@
 <?php
 
+namespace Ijdb;
+
 class IjdbRoutes
 {
     public function callAction($route)
     {
         include __DIR__ . '/../../includes/DatabaseConnection.php';
 
-        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
-        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+        $jokesTable = new \Ninja\DatabaseTable($pdo, 'joke', 'id');
+        $authorsTable = new \Ninja\DatabaseTable($pdo, 'author', 'id');
 
         if ($route === 'joke/list') {
             include __DIR__ . '/../controllers/JokeController.php';

@@ -4089,3 +4089,72 @@ To solve this, we could add some logic to the `autoloader` that looks at the nam
 and loads the file form the `correct location`, or store an array of `class names mapped to file names`.
 
 Instead, we're going to use a new tool: `namespace`.
+
+### 12.14. Namespaces
+
+One feature that has revolutionized PHP and made it much easier to share code online is `namespace`.
+
+Before `namespaces` came along, PHP developers would name their classes with a 
+prefix. For examples, we might name our classes `Ninja_EntryPoint`, `Ninja_DatabaseTable` and 
+`Ijdb_JokeController`.
+
+That way, when we wanted to use `SuperLibrary_DatabaseTable`, it wouldn't clash with `Ninja_DatabaseTable`,
+and we could use both `DatabaseTable` classes on the same website.
+
+> Namespaces provide a simpler method of solving the same problem.
+> Every class we write can (and should!) be placed within a namespace
+
+Let's move our framework files into the `Ninja` namespace. At the top of `EntryPoint.php` and 
+`DatabaseTable.php`, add the following code
+
+```php
+namespace Ninja;
+```
+
+Now add the namespace `Ijdb` to `IjdbRoutes.php`
+
+```php
+namespace Ijdb;
+```
+
+Now that the classes are inside `namespaces`, this won't work. We'll need to specify the `namespace`
+when instantiating the class by using a `backslash (\)`, followed by the 
+`namespace`, another `backslash`, and then the class.
+
+This line:
+
+```php
+$entryPoint = new EntryPoint($route, new IjdbRoutes());
+```
+
+... will become this:
+
+```php
+$entryPoint = new \Ninja\EntryPoint($routes, new \Ijdb\IjdbRoutes());
+```
+
+We'll give the namespace for the controllers: `Ijdb\Controllers`.
+
+The `backslash \` in the namespace represents a `sub-namespaces` - a namespace within a namespace.
+This isn't strictly necessary, but it's a good idea to keep related 
+code together. In this case, we'll place all controllers inside the `Ijdb\Controllers` namespace 
+and the `Ijdb/Controllers` directory.
+
+While we’re changing the `JokeController.php` file to include the namespace,
+we’ll rename the class (and file) to `Joke`. That way, the class is `\Ijdb\Controllers\Joke` rather than `\Ijdb\Controllers\JokeController`, and the
+word “Controller” isn’t repeated unnecessarily in the full class name.
+
+> This parallel between directory structures and namespaces is important.
+> It allows us to write an autoloader than can use both namespaces and class names to locate the file it needs to load.
+> The combined namespace and class name now represent the `folder structure`, making 
+> it easy to `autoload` the classes.
+
+> This convention is known as **PSR-4**
+
+`PSR` stantds for `PHP Standards Recommendations`, and it's used by almost all modern `PHP projects`
+
+Each class should be contained inside a file that directly `maps` to its `namespace` and `class name`.
+The full class name including namespace should exactly match the `directory` and `file name`, including 
+`case sensitivity`. 
+
+To read more about `PSR-4` take a look at the `PHP-FIG website`.

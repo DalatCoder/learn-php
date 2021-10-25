@@ -1,5 +1,7 @@
 <?php
 
+namespace Ninja;
+
 class DatabaseTable
 {
     private PDO $pdo;

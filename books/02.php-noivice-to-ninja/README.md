@@ -5154,3 +5154,118 @@ Cookies can also be read by anyone who gains access to the computer they're stor
 as secure as the computer being used to view the website.
 
 For these reasons, we should do our best to keep the number and size of the cookies our site creates to a minimum.
+
+### 17.2. Sessions
+
+Because of the limitations I’ve just described, cookies are inappropriate for
+storing large amounts of information. If we run an ecommerce website that uses
+cookies to store items in shopping carts as users make their way through our site,
+it can be a huge problem. The bigger a customer’s order, the more likely it will
+run afoul of a browser’s cookie restrictions.
+
+`Session` were developed in PHP as the solution to this issue. Instead of storing all data 
+as cookies in our visitor's web browser, sessions let us store the data on our web server.
+
+The only value that's stored in the browser is a single cookie containing the user's `session ID` - a long 
+string of letters and numbers that serves to identify that user uniquely for the duration of their visit to our site.
+
+It’s a variable for which PHP watches on subsequent page requests, and
+uses to load the stored data that’s associated with that session.
+
+Unless configured otherwise, a PHP session automatically sets a cookie in the
+user’s browser that contains the session ID. 
+
+The browser then sends that cookie,
+along with every request for a page from our site, so that PHP can determine
+which of the potentially many current sessions the request belongs to. Using a set
+of temporary files that are stored on the web server, PHP keeps track of the
+variables that have been registered in each session, along with their values.
+
+Before you can go ahead and use the spiffy `session-management` features in PHP,
+we should ensure that the relevant section of our `php.ini` file has been set up
+properly.
+
+```php.ini
+session.save_handler    = files
+session.save_path       = "/tmp"
+session.use_cookies     = 1
+```
+
+The `php.ini` configuration applies globally to our PHP scripts, and can be stored
+on the server in various locations.
+
+To find out the location of the configuration file that’s in use, run this PHP script:
+
+```php
+echo phpinfo();
+```
+
+To tell PHP to look for a `session ID`, or start a new session if none is found,
+we simply call `session_start`. If an existing `session ID` is found when this
+function is called, PHP restores the variables that belong to that `session`. Since
+this function attempts to create a `cookie`, it must come before any page content is
+sent to the browser, just as we saw for `setcookie` above:
+
+```php
+session_start();
+```
+
+It’s useful to have an understanding of how sessions work behind the scenes.
+Once we call `session_start()`, it actually `creates` a `cookie` with a `unique ID` to
+represent each `individual` user. For example, the first person on the web page may
+be user 1, the second 2, and so on.
+
+Then, when they visit the next page, their ID is sent back to the website, and
+when the session is started, all the information stored for that user is retrieved.
+For example, all the information stored for ID 1 represents user 1, and the
+information for session ID 2 represents user 2.
+
+This allows sessions to keep track of different information for each user of the
+website. In practice, IDs aren’t simple sequential numbers like 1, 2 or 3. They’re
+complex, difficult to guess strings of seemingly random numbers and letters. If
+sessions were easy to guess, hackers could easily pretend to be each user of the
+website by changing the ID stored in their session cookie!
+
+After the session has been started, we can treat the `$_SESSION` variable like a
+normal array, reading and writing values to it:
+
+```php
+$_SESSION['password'] = 'mypassword';
+```
+
+To remove a variable from the current session, we can use PHP's `unset` functioni 
+
+```php
+unset($_SESSION['password']);
+```
+
+Finally, if we want to end the current session and delete all registered variables in
+the process, clear all the stored values and use `session_destroy`.
+
+```php
+$_SESSION = [];
+session_destroy();
+```
+
+Count visits with Sessions
+
+```php
+session_start();
+
+if (!isset($_SESSION['visits'])) {
+  $_SESSION['visits'] = 0;
+}
+
+$_SESSION['visits'] = $_SESSION['visits'] + 1;
+
+if ($_SESSION['visits'] > 1) {
+  echo 'This is visit number ' . $_SESSION['visits'];
+} else {
+  // First visit
+  echo 'Welcome to my website! Click here for a tour!';
+}
+```
+
+For the cookie, we needed to calculate the `lifetime` and set an `expiration time`.
+`Sessions` are `simpler`: no expiration time is required, but any data stored in the
+session is `lost` when the browser is closed.

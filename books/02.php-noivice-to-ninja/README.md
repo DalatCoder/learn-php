@@ -4271,3 +4271,113 @@ When you do start using `Composer`, just add this code to your `composer.json` f
   }
 }
 ```
+
+## 13. And the REST
+
+The current iteration of our router uses a very simplistic approach. Each route is a string from the URL that maps to a controller
+and calls a specific action.
+
+If we continue using this approach, we'll quickly find ourselves repeating logic in the 
+controllers.
+
+For examples, our edit joke form contains the following logic: `if the form is submitted, process 
+the submission, otherwise display the form`
+
+When the edit joke form is submitted, it uses the `POST` method. Any other request to pages
+on the website will use the `GET` method.
+
+The variable `$_SERVER['REQUEST_METHOD']` is created by PHP and will contain either the string `GET`
+or the string `POST`, depending on how the page was requested by the browser.
+
+We can use this to determine if the form was submitted, and call a different controller action if the form
+was submitted
+
+```php
+if ($route === 'joke/edit') {
+  if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    $controller = new \Ijdb\Controllers\Joke($jokesTable, $authorsTable);
+    $page = $controller->edit();
+  }
+  else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller = new \Ijdb\Controllers\Joke($jokesTable, $authorsTable);
+    $page = $controller->editSubmit();
+  }
+}
+```
+
+This approach works, but it's rather long-winded. Instead, we can use nested arrays to create a `data structure`
+that represents all of the routes in the application
+
+```php
+$routes = [
+  'joke/edit' => [
+    'POST' => [
+      'controller' => $jokeController,
+      'action' => 'saveEdit'
+    ],
+    'GET' => [
+      'controller' => $jokeController,
+      'action' => 'edit'
+    ]
+  ],
+  'home' => [
+    'GET' => [
+      'controller' => $jokeController,
+      'action' => 'home'
+    ]
+  ]
+]
+```
+
+Looking at the code for the `$routes` array, the downside of this approach is obvious: it requires
+writing out exactly which controller and action to call for every single page on the website. 
+There are ways around this by using `wildcards`, but I'll leave that as an exercise for the reader.
+
+The `$routes` variable is a standard array. It's possible to extract the nested arrays.
+If we wanted to get the `controller` and `action` for the `POST` method for the route
+`joke/edit`, we could do it like this
+
+```php
+$route = $routes['joke/edit'];
+
+$postRoute = $route['POST'];
+
+$controller = $postRoute['controller'];
+$action = $postRoute['action'];
+```
+
+We are effectively "diggin down" into the array, choosing which branch of the `data structure` to follow - 
+a bit like the file/folder structure on your computer.
+
+This can also be expressed in a much shorter way by chaining the square brackets for
+looking up each value in the arrays
+
+```php
+$controller = $routes['joke/edit']['POST']['controller'];
+$action = $routes['joke/edit']['POST']['action'];
+```
+
+By using variables in place of strings, it's possible to subsitute the hardcoded values
+with values form the `$_SERVER` variables `REQUEST_URI` and `REQUEST_METHOD`
+
+```php
+$route = $_SERVER['REQUEST_URI'];
+
+$method = $_SERVER['REQUEST_METHOD'];
+
+$controller = $routes[$route][$method]['controller'];
+$action = $routes[$route][$method]['action'];
+
+$controller->$action();
+```
+
+> This approach of having the same `URL` perform different actions 
+> depending on the request method is loosely know as 
+> **Representational State Transfer (REST)**
+
+Although REST typically supports the methods `PUT` and `DELETE` along with `GET` and `POST`,
+because web browsers only support `GET` and `POST`, `PHP developers` tend to use `POST`
+in place of both `PUT` and `DELETE` requrests. As such, it's not worth examining the differences in this book.
+
+Some PHP developers have found superficial ways of mimicking `PUT` and `DELETE`,
+but most developers just stick to using `POST` for writing data and `GET` for reading.

@@ -5149,3 +5149,8 @@ else {
   echo 'Welcome to our website! Click here for a tour';
 }
 ```
+
+Cookies can also be read by anyone who gains access to the computer they're stored on, so cookies are only 
+as secure as the computer being used to view the website.
+
+For these reasons, we should do our best to keep the number and size of the cookies our site creates to a minimum.

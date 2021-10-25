@@ -3965,3 +3965,124 @@ class IjdbRoutes
 }
 
 ```
+
+> Autoloaders can only be used to load classes, and that's one of the reasons it's 
+> a good idea to structure as much of our code as possible inside classes.
+
+Let's implement an `autoloader`. To keep things organized, let's create `autoload.php` and save
+it in the `includes` directory.
+
+```php
+function autoloader($className)
+{
+  $file = __DIR__ . "/../classes/$className.php";
+  include $file;
+}
+
+spl_autoload_register('autoloader');
+```
+
+Now, we can amend `index.php` to include the `autoloader`, but remove the `include lines` that 
+explicitly include `EntryPoint.php` and `IjdbRoutes.php`
+
+```php
+try {
+    include __DIR__ . '/../includes/autoload.php';
+
+    $route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
+
+    $entryPoint = new EntryPoint($route, new IjdbRoutes());
+    $entryPoint->run();
+} catch (PDOException $e) {
+    $title = 'An error has occurred';
+
+    $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
+}
+```
+
+We can also remove the include line for `DatabaseTable` from `IjdbRoutes.php`
+
+```php
+class IjdbRoutes
+{
+    public function callAction($route)
+    {
+        include __DIR__ . '/../includes/DatabaseConnection.php';
+
+        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+        if ($route === 'joke/list') {
+            include __DIR__ . '/../controllers/JokeController.php';
+            $controller = new JokeController($authorsTable, $jokesTable);
+            $page = $controller->list();
+        } else if ($route === 'joke/edit') {
+            include __DIR__ . '/../controllers/JokeController.php';
+            $controller = new JokeController($authorsTable, $jokesTable);
+            $page = $controller->edit();
+        } else if ($route === 'joke/delete') {
+            include __DIR__ . '/../controllers/JokeController.php';
+            $controller = new JokeController($authorsTable, $jokesTable);
+            $page = $controller->delete();
+        } else if ($route === 'register') {
+            include __DIR__ . '/../controllers/RegisterController.php';
+            $controller = new RegisterController($authorsTable);
+            $page = $controller->showForm();
+        } else {
+            include __DIR__ . '/../controllers/JokeController.php';
+            $controller = new JokeController($authorsTable, $jokesTable);
+            $page = $controller->home();
+        }
+
+        return $page;
+    }
+}
+
+```
+
+> Autoloaders can only be used to load classes, and that's one of the reasons it's 
+> a good idea to structure as much of our code as possible inside classes.
+
+### 12.13. Redecorating
+
+If we peruse the rest of the code for `include` statements, we'll see that the `autoloader` works
+for all classes that are `framework` classes, but doesn't work for `JokeController` or `RegisterController`.
+
+Because of them is placed inside the `classes/controllers`, not `classes` itself.
+
+It 's a good idea to keep these separated in different directories, so that you can easily copy/paste `framework`
+files between websites without copying files that are specific to a single project.
+
+Let's name our framework `Ninja`. Move all the framework code into a directory called `Ninja` inside the
+classes directory (`EntryPoint.php`, `DatabaseTable.php`).
+
+Similarly, let's create a new directory inside the classes directory call `Ijdb`.
+This is where we'll keep all the code that's specific to the joke site and can't be 
+reused on future websites.
+We'll move `IjdbRoutes.php` into the `Ijdb` directory and move the `controllers` directory inside as well.
+
+When we're finished, `EntryPoint.php` and `DatabaseTable.php` should be located inside 
+`classes/Ninja`, while `JokeController` should be stored inside `classes/Ijdb/Controllers` and 
+`IjdbRoutes.php` inside `classes/Ijdb`.
+
+Change the corresponding link 
+
+In `EntryPoint.php`
+
+```php
+include __DIR__ . '/../../templates/' . $templateFileName;
+include __DIR__ . '/../../templates/layout.html.php';
+```
+
+In `IjdbRoutes.php`
+
+```php
+include __DIR__ . '/../../includes/DatabaseConnection.php';
+```
+
+Now, we will fix the `autoloader`, because it currently looking in the wrong place.
+
+To solve this, we could add some logic to the `autoloader` that looks at the name of the class
+and loads the file form the `correct location`, or store an array of `class names mapped to file names`.
+
+Instead, we're going to use a new tool: `namespace`.

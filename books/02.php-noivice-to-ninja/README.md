@@ -4158,3 +4158,21 @@ The full class name including namespace should exactly match the `directory` and
 `case sensitivity`. 
 
 To read more about `PSR-4` take a look at the `PHP-FIG website`.
+
+### 12.15. Autoloading with `PSR-4`
+
+By using `PSR-4`, it's simple to convert a class name in a `namespace` to a file path.
+Let's replace `autoload.php` with this `PSR-4` version.
+
+```php
+function autoloader($className) 
+{
+  $fileName = str_replace('\\', '/', $className) . '.php';
+
+  $file = __DIR__ . '/../classes/' . $fileName;
+
+  include $file;
+}
+
+spl_autoload_register('autoloader');
+```

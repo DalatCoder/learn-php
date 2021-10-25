@@ -5004,3 +5004,63 @@ public function find($column, $value)
 }
 ```
 
+### 16.3. Securely Storing Passwords
+
+The most common method of encrypting a password is using a "one way hashing function"
+
+> A hashing function taks a string like `mypassword123` and converts it to an 
+> encrypted version of the string, known as a `hash`. For example, `mypassword123` would
+> be hashed and produce a seemingly random string of numbers and letters such as 
+> 9c87baa223f464954940f859bcf2e233
+
+We can using the function `md5` and `sha1`, using these functions is simple
+
+```php
+echo `md5('mypassword123')`;
+```
+
+However, it's not perfect. What do you know about Kevin and Tom's passwords? Lookking at the list you can 
+see that they're the same! If you can work out Kenvin's password, you'll also know Tom's
+
+And, what’s worse, we actually know what the password is, because we already
+discovered that 9c87baa223f464954940f859bcf2e233 is the hash for
+mypassword123. Because people all use the same common passwords, hackers
+will generate the hashes for common passwords in order to quickly work out
+which users are using them. 
+
+There are several methods for solving this problem with duplicated hashes, but there's a lot
+to consider, and making a truly secure password hash is more difficult than it seems.
+
+Luckily for us, PHP includes a very secure way of storing passwords. It’s at least
+as good as any solution developers will come up with, and avoids developers like
+us needing to fully understand the security problems that can occur. For this
+reason, it’s strongly recommended to use the inbuilt PHP algorithm for hashing
+passwords rather than to create your own.
+
+PHP contains two functions, `password_hash` and `password_verify`. For now,
+we’re only interested in `password_hash`. We’ll use `password_verify` in the next
+chapter when we’re checking to see whether someone entered the correct
+username and password when logging in
+
+```php
+$hash = password_hash($password, PASSWORD_DEFAULT);
+```
+
+`PASSWORD_DEFAULT` is the algorithm to use. At the time of writing, this is an algorithm known as `bcrypt`,
+but it may change overtime
+
+Each time you run the function, you'll get a different result. If two people have the same password, 
+different hashes will be stored in the database.
+
+Let's implement the `password_hash` function in the registration form. It's surprisingly easy.
+
+```php
+if ($valid) {
+    $author['password'] = password_hash($author['password'], PASSWORD_DEFAULT);
+
+    $this->authorsTable->save($author);
+    header('Location: /author/success');
+
+    exit();
+} 
+```

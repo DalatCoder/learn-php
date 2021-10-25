@@ -64,8 +64,11 @@ class Register
         }
 
         if ($valid) {
+            $author['password'] = password_hash($author['password'], PASSWORD_DEFAULT);
+
             $this->authorsTable->save($author);
             header('Location: /author/success');
+
             exit();
         } else {
             return [

@@ -4250,3 +4250,24 @@ or the `Ninja` directory for our `framework` files.
 - Given all our `classes namespaces`
 
 - Remove all `include` statements for classes by implementing a `PSR-4` compatible `autoloader`.
+
+### 12.16. A Note on `Composer`
+
+> Most modern PHP applications use a tool called Composer to handle all autoloading.
+> It's also used to quickly and easily download and install third-party libraries.
+
+If you follow the `PSR-4` convention, your `classes` are good to go when you want to start using it,
+and you can use `composer's autoloader` as a drop-in `replacement` for the `autoload.php` we just wrote.
+
+When you do start using `Composer`, just add this code to your `composer.json` file
+
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "Ninja\\": "classes/Ninja",
+      "Ijdb\\": "classes/Ijdb"
+    }
+  }
+}
+```

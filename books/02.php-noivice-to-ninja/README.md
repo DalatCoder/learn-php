@@ -4950,3 +4950,22 @@ In template
     <input type="submit" name="submit" value="Register account">
 </form>
 ```
+
+### 16.1. Validating Email Address
+
+As for most common problems, PHP includes a method of validating email addresses that's far more 
+accurate and simpler to use than building your own.
+There's no need to reinvent the wheel.
+
+To check an email address in PHP, you can use the `filter_var` function like so
+
+```php
+$email = 'tom@example.org';
+
+if (filter_var($email, FILTER_VALIDATE_EMAIL) == false) {
+  echo 'Valid email address';
+}
+else {
+  echo 'Invalid email address';
+}
+```

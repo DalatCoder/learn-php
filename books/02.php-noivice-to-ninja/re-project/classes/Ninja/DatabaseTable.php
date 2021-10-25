@@ -36,6 +36,19 @@ class DatabaseTable
         return $query->fetch();
     }
 
+    public function find($column, $value)
+    {
+        $sql = "SELECT * FROM `{$this->table}` WHERE `$column` = :value";
+
+        $parameters = [
+            'value' => $value
+        ];
+
+        $query = $this->query($sql, $parameters);
+
+        return $query->fetchAll();
+    }
+
     public function total()
     {
         $sql = "SELECT COUNT(*) FROM `{$this->table}`";

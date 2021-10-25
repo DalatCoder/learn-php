@@ -49,6 +49,13 @@ class Register
         } else if (filter_var($author['email'], FILTER_VALIDATE_EMAIL) == false) {
             $valid = false;
             $errors[] = 'Invalid email address';
+        } else {
+            $author['email'] = strtolower($author['email']);
+
+            if (count($this->authorsTable->find('email', $author['email'])) > 0) {
+                $valid = false;
+                $errors[] = 'That email address is already registered';
+            }
         }
 
         if (empty($author['password'])) {

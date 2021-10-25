@@ -4969,3 +4969,38 @@ else {
   echo 'Invalid email address';
 }
 ```
+
+### 16.2. Preventing the same person from registering twice
+
+It’s very good practice to prevent the same person from registering twice with the
+same email address. This can be enforced in the database, but it’s more consistent
+to use PHP to check this. We already have the $authorsTable object for searching
+for records in the author database table. We can make use of it to check if an
+email address already exists.
+
+Let's add another method called `find` that takes two arguments
+
+- The column to search in 
+- The value to search for
+
+```php
+$results = $authorsTable->find('email', 'tom@example.org');
+```
+
+Implement the `find` method
+
+```php
+public function find($column, $value)
+{
+    $sql = "SELECT * FROM `{$this->table}` WHERE `$column` = :value";
+
+    $parameters = [
+        'value' => $value
+    ];
+
+    $query = $this->query($sql, $parameters);
+
+    return $query->fetchAll();
+}
+```
+

@@ -1,14 +1,18 @@
 <?php
-
-use Ninja\EntryPoint;
-use Ijdb\IjdbRoutes;
-
 try {
     include __DIR__ . '/../includes/autoload.php';
 
+    // sites.local:8000/joke/list?page=1&limit=10
+    // $_SERVER['REQUEST_URI'] = '/joke/list?page=1&limit=10'
+    // strtok => '/joke/list'
+    // ltrim => 'joke/list'
     $route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
 
-    $entryPoint = new EntryPoint($route, new IjdbRoutes());
+    $method = $_SERVER['REQUEST_METHOD'];
+    $routes = new \Ijdb\IjdbRoutes();
+
+    // This index.php always be loaded first because or served folder is /public
+    $entryPoint = new \Ninja\EntryPoint($route, $method, $routes);
     $entryPoint->run();
 } catch (PDOException $e) {
     $title = 'An error has occurred';

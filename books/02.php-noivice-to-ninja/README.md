@@ -4381,3 +4381,234 @@ in place of both `PUT` and `DELETE` requrests. As such, it's not worth examining
 
 Some PHP developers have found superficial ways of mimicking `PUT` and `DELETE`,
 but most developers just stick to using `POST` for writing data and `GET` for reading.
+
+Let's go ahead and implement a router using the `REST` approach on our site.
+
+```php
+namespace Ijdb;
+
+use Ninja\DatabaseTable;
+use Ijdb\Controllers\Joke;
+
+class IjdbRoutes
+{
+    public function callAction($route)
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+        $jokeController = new Joke($jokesTable, $authorsTable);
+
+        $routes = [
+            'joke/edit' => [
+                'POST' => [
+                    'controller' => $jokeController,
+                    'action' => 'saveEdit'
+                ],
+                'GET' => [
+                    'controller' => $jokeController,
+                    'action' => 'edit'
+                ]
+            ],
+            'joke/delete' => [
+                'POST' => [
+                    'controller' => $jokeController,
+                    'action' => 'delete'
+                ]
+            ],
+            'joke/list' => [
+                'GET' => [
+                    'controller' => $jokeController,
+                    'action' => 'list'
+                ]
+            ],
+            '' => [
+                'GET' => [
+                    'controller' => $jokeController,
+                    'action' => 'home'
+                ]
+            ]
+        ];
+
+        $method = $_SERVER['REQUEST_METHOD'];
+
+        $controller = $routes[$route][$method]['controller'];
+        $action = $routes[$route][$method]['action'];
+
+        return $controller->$action();
+    }
+}
+```
+
+Now split the `edit` method in `Controllers/Joke.php` into a method for displaying the form and another for the handling the submission
+
+```php
+public function saveEdit()
+{
+    $joke = $_POST['joke'];
+
+    $joke['jokedate'] = new \DateTime();
+    $joke['authorid'] = 1;
+
+    $this->jokesTable->save($joke);
+
+    header('Location: /joke/list');
+    exit();
+}
+
+public function edit()
+{
+    $title = 'Create New Joke';
+
+    if (isset($_GET['jokeid'])) {
+        $joke = $this->jokesTable->findById($_GET['jokeid']);
+        $title = 'Edit Joke';
+    }
+
+    return [
+        'template' => 'editjoke.html.php',
+        'title' => $title,
+        'variables' => [
+            'joke' => $joke ?? null
+        ]
+    ];
+}
+```
+
+Next, we'll just use the `IjdbRoute` class to provide the `$routes` array. We'll
+rename the `callAction` method `getRoutes`, remove the argument, and have it
+return the array rather than accessing it.
+
+```php
+namespace Ijdb;
+
+use Ninja\DatabaseTable;
+use Ijdb\Controllers\Joke;
+
+class IjdbRoutes
+{
+    public function getRoutes()
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
+
+        $jokeController = new Joke($jokesTable, $authorsTable);
+
+        $routes = [
+            'joke/edit' => [
+                'POST' => [
+                    'controller' => $jokeController,
+                    'action' => 'saveEdit'
+                ],
+                'GET' => [
+                    'controller' => $jokeController,
+                    'action' => 'edit'
+                ]
+            ],
+            'joke/delete' => [
+                'POST' => [
+                    'controller' => $jokeController,
+                    'action' => 'delete'
+                ]
+            ],
+            'joke/list' => [
+                'GET' => [
+                    'controller' => $jokeController,
+                    'action' => 'list'
+                ]
+            ],
+            '' => [
+                'GET' => [
+                    'controller' => $jokeController,
+                    'action' => 'home'
+                ]
+            ]
+        ];
+
+        return $routes;
+    }
+}
+```
+
+Now we'll amend `EntryPoint` to use both `$method` and `$route`. We could hard code the `$route` and 
+`$method` variables in the `run` method by reading from the server here.
+
+```php
+public function run() {
+  $method = $_SERVER['REQUEST_METHOD'];
+  $route = $_SERVER['REQUEST_URI'];
+}
+```
+
+The problem with this approach is that it's `not very flexible`.
+
+If we ever want to use the `EntryPoint` class in an applicatioin that ins't web based, it won't work,
+because these server variables won't be set.
+
+Instead, let's create a class variable and amend the constructor to take the method along with the route
+
+```php
+class EntryPoint {
+  private $route;
+  private $method;
+  private $routes;
+  
+  public function __construct($route, $method, $routes) {
+    $this->route = $route;
+    $this->method = $method;
+    $this->routes = $routes;
+    $this->checkUrl();
+  }
+}
+```
+
+Next, we amend the `run` method to make use of both class variables
+
+```php
+public function run()
+{
+    $routes = $this->routes->getRoutes();
+
+    $controller = $routes[$this->route][$this->method]['controller'];
+    $action = $routes[$this->route][$this->method]['action'];
+
+    $page = $controller->$action();
+
+    $title = $page['title'];
+    $templateFileName = $page['template'];
+    $variables = $page['variables'] ?? [];
+
+    $output = $this->loadTemplate($templateFileName, $variables);
+
+    include __DIR__ . '/../../templates/layout.html.php';
+}
+```
+
+Then we supply the method in `index.php`
+
+```php
+try {
+    include __DIR__ . '/../includes/autoload.php';
+
+    $route = ltrim(strtok($_SERVER['REQUEST_URI'], '?'), '/');
+    $method = $_SERVER['REQUEST_METHOD'];
+    $routes = new \Ijdb\IjdbRoutes();
+
+    $entryPoint = new \Ninja\EntryPoint($route, $method, $routes);
+    $entryPoint->run();
+} catch (PDOException $e) {
+    $title = 'An error has occurred';
+
+    $output = 'Database error: ' . $e->getMessage() . ' in ' . $e->getFile() . ': ' . $e->getLine();
+}
+```
+
+Avoiding hardcoding like this is a very good habit to get into. The trend in PHP (and 
+software developmenet in general) is towards `test-driven development (TDD)`,
+and hardcoded values like `$_SERVER['REQUEST_METHOD']` make testing difficult.
+Although TDD is well beyond the scope of this book, I do want to teach you 
+practices that will make you eventual move to `TDD` as easy as possible.

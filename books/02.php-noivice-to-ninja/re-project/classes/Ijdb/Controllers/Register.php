@@ -6,7 +6,7 @@ use Ninja\DatabaseTable;
 
 class Register
 {
-    private DatabaseTable $authorsTable;
+    private $authorsTable;
 
     public function __construct(DatabaseTable $authorsTable)
     {

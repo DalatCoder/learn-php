@@ -5064,3 +5064,88 @@ if ($valid) {
     exit();
 } 
 ```
+
+## 17. Cookies, Sessions, and Access Control
+
+By its nature, HTTP is `stateless`. You connect to a website, the server gives you a file.
+
+As you’ve already seen, you can send data from the browser to the server
+using `GET` variables and `HTML forms`. However, `the information` is provided to a
+`single page`, and is `only available` when the browser provides `GET` (or `POST`)
+variables.
+
+For a `login system`, the user will need to send their `username` and `password` to the
+server `once`, and then `maintain` a “logged-in” `state` on `every subsequent page
+request`.
+
+Two technologies, `cookies` and `sessions`, can be used to store information about a particular user between pages.
+
+### 17.1. Cookies
+
+A `cookie` is a `name-value` pair, an array of sorts, associated with a given website, and 
+stored on the computer that runs the client (browser). Once a cookie is set by a 
+website, all future page requests to that same site will send the information 
+stored in the cookie back to the website until it `expires`.
+
+Other websites are unable to access the cookies set by your site, and vice versa.
+
+The life cycle of a PHP-generated cookie is as follows:
+
+1. First, a web browser requests a URL that corresponds to a PHP script. Within that script is a 
+call to the `setcookie` function that's built into PHP
+
+2. The page produced by the PHP script is sent back to the browser, along with an `HTTP set-cookie`
+header that contains the name (for example, `mycookie`) and the value of the cookie to be set.
+
+3. When it receives this HTTP header, the browser creates and stores the specified value as a cookie named
+`mycookie`
+
+4. Subsequent page requests to that website contain an `HTTP cookie` header that sends the `name-value`
+pair (`mycookie = value`) to the script requested.
+
+5. Upon receipt of a page request with a `cookie` header, PHP automatically creates an entry in the 
+`$_COOKIE` array with the name of the cookie `($_COOKIE['mycookie'])` and its value.
+
+Like the `header` function, the `setcookie` function adds HTTP headers to the page, and thus 
+`must be called before any of the actual page content is sent`.
+
+Any attempt to call `setcookie` after page content has been sent to the browser will produce a `PHP`
+error message. Typically, therefore, we'll use these functions in our controller script before any actual output is sent (by `included PHP template`, for example).
+
+By default, cookies will remain stored by the browser, and thus will continue to be sent with page requests until the browser is closed by the user. If you want the cookie to persist beyond the current browser session, you must set the `expiryTime` parameter, the value of its is known as a `unix timestamp`.
+
+For example, for a cookie set to expire in one hour: `time() + 3600`
+
+> To delete a cookie that has a preset expiry time, change this expiry time 
+> to represent a point in the past
+
+```php
+// Set a cookie to expire in 1 year
+setcookie('mycookie', 'somevalue', time() + 3600 * 24 * 365);
+
+// Delete it
+setcookie('mycookie', '', time() - 3600 * 24 * 365);
+```
+
+The secure parameter, when set to `1`, indicates that the cookie should be sent only with page requests that happen over a secure (SSL) connection (that is, with a URL that starts with `https://`)
+
+The `httpOnly` parameter, when set to `1`, tells the browser to prevent Javascript code on our site from
+seeing the cookie that we're setting.
+
+Example to count the number of times a user has been to our site.
+
+```php
+if (!isset($_COOKIE['visits'])) {
+  $_COOKIE['visits'] = 0;
+}
+
+$visits = $_COOKIE['visits'] + 1;
+setcookie('visits', $visits, time() + 3600 * 24 * 365);
+
+if ($visits > 1) {
+  echo 'This is visit number ' . $visits;
+}
+else {
+  echo 'Welcome to our website! Click here for a tour';
+}
+```

@@ -4612,3 +4612,109 @@ software developmenet in general) is towards `test-driven development (TDD)`,
 and hardcoded values like `$_SERVER['REQUEST_METHOD']` make testing difficult.
 Although TDD is well beyond the scope of this book, I do want to teach you 
 practices that will make you eventual move to `TDD` as easy as possible.
+
+## 14. Enforcing Dependency Structure with Interfaces
+
+In chapter 8, when we created the `DatabaseTable` class, we wrote the constructor so that it would check the types of its arguments
+
+```php
+public function __construct(PDO $pdo, string $table, string $primaryKey)
+```
+
+Using this approach, it's impossible to construct an instance of the `DatabaseTable`
+class without supplying an instance of `PDO` as the first argument
+
+The `EntryPoint` class has a dependency on `IjdbRoutes`, and it calles the `getRoutes` method on it
+
+```php
+$routes = $this->.routes->getRoutes();
+```
+
+However, what happens if the `$this->routes` variables is not an instance of `IjdbJokes`, or
+it's an object that doesn't have a `getRoutes` method?
+
+We can use the type hints like so
+
+```php
+public function __construct(string $route, string $method, \Ijdb\IjdbRoutes $routes)
+```
+
+But this breaks our flexibility.
+
+This can be solved by using something called an `interface`. An interface can be used to describe 
+what methods a class should contain, but doesn't contain any actual logic.
+
+> Classes can then `implement` the interface
+
+An interface can be used to describe what methods a class should contain, but doesn't contain
+any actual logic. Classes can then `implement` the `interface`.
+
+An `interface` for the routes would look like this
+
+```php
+namespace Ninja;
+
+interface Routes 
+{
+  public function getRoutes();
+}
+```
+
+Let's save the `interface` in the `Ninja` directory as `Routes.php`. Like classes,
+`interface` files can be loaded by the `autoloader`.
+
+We can now type hint the `interface` in `EntryPoint`.
+
+```php
+public function __construct(string $route, string $method, \Ninja\Routes $routes)
+```
+
+Then, we can make `IjdbRoutes` implement the interface
+
+```php
+namespace Ijdb;
+
+class IjdbRoutes implements \Ninja\Routes
+```
+
+This has two effects
+
+- The class `IjdbRoutes` `must` contain the methods described in the `interface`.
+If not, an error is displayed.
+
+- The `IjdbRoutes` class can now be type hinted using the interface.
+
+Now, when we build the online shop or any other website, we can make a new versioiin of the routes
+class by implementing the `interface`
+
+```php
+namespace Shop;
+
+class Routes implements \Ninja\Routes {
+  public function getRoutes() {
+    // Return routes for the online shop
+  }
+}
+```
+
+> Interfaces are very useful for the kind of generic framework we've built. By
+> providing a set of interfaces, each website can provide classes that implement
+> the interfaces, guaranteeing that the framework code and project-specific code fit together
+
+Intefaces, when used correctly, are very powerful tool for bridging framework 
+and project-specific code.
+
+## 15. Your Own Framework
+
+Writing a framework is a rite of passage for a `PHP developer`. Everyone does it, 
+and we've just written one! Through this book, I hope I've helped you avoid some
+of the common traps developrs fall into.
+
+In this chapter you learned
+
+- The difference between framework code and project-specific code
+- How to differentiate them by use of directory structures and namespaces
+- How to write an autoloader
+- The basics of interfaces and REST
+- Routing and URL Rewriting
+

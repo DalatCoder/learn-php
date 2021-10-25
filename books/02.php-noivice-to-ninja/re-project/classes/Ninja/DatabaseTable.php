@@ -4,11 +4,11 @@ namespace Ninja;
 
 class DatabaseTable
 {
-    private PDO $pdo;
+    private \PDO $pdo;
     private string $table;
     private string $primaryKey;
 
-    public function __construct(PDO $pdo, string $table, string $primaryKey)
+    public function __construct(\PDO $pdo, string $table, string $primaryKey)
     {
         $this->pdo = $pdo;
         $this->table = $table;
@@ -95,7 +95,7 @@ class DatabaseTable
             }
 
             $this->insert($record);
-        } catch (PDOException $e) {
+        } catch (\PDOException $e) {
             $this->update($record);
         }
     }
@@ -126,7 +126,7 @@ class DatabaseTable
     private function processDate($fields)
     {
         foreach ($fields as $key => $value) {
-            if ($value instanceof DateTime) {
+            if ($value instanceof \DateTime) {
                 $fields[$key] = $value->format('Y-m-d H:i:s');
             }
         }

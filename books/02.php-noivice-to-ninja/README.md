@@ -4176,3 +4176,77 @@ function autoloader($className)
 
 spl_autoload_register('autoloader');
 ```
+
+When the autoloader is triggered with a class inside the namespace, it's passed
+the `entire class name including the namespace`. 
+For example, when `EntryPoint` is loaded, the autoloader is given the class name `Ninja\EntryPoint`.
+
+The line `str_replace('\\', '/', $className) . '.php'` replaces `backslashes` with forward slashes
+to represent the file in the `file system`.
+
+`Ninja\EntryPoint` becomes `Ninja/EntryPoint.php`, referencing the file.
+
+With the autoloader in place, we can now remove the `include` lines from `IjdbRoutes.php`,
+which load `JokeController` and `RegisterController`;
+
+```php
+include __DIR__ . '/../classes/controllers/JokeController.php';
+```
+
+Then we should change the reference to the `controllers` to use the full classs name
+
+```php
+$controller = new \Ijdb\Controllers\Joke($jokesTable, $authorsTable);
+```
+
+Nearly there! we're close to having the site up and running again using the new file 
+and namespace structure. However, if we try to load one of the pages, we'll
+see this error.
+
+```txt
+Uncaught TypeError: Argument 1 passed to 
+  Ninja\DatabaseTable::__construct() must be an instance of 
+  Ninja\PDO, instance of PDO given
+```
+
+To fix it, we can open up `DatabaseTable.php` and change the type hint in the 
+constructor from `PDO` to `\PDO`.
+
+> We saw this error because namespaces are `relative`
+
+If you provide a reference to a class name, in a type hint or following the `new` keyword,
+`PHP` will look for a class with `that name` in the `current namespace`.
+
+We also need to replace `DateTime` with `\DateTime` and `PDOException` with `\PDOException` in this file.
+
+Because the `DatabaseTable` class is inside the `Ninja` prefix, without the backslash prefix, PHP will to 
+load the class `\Ninja\PDO` rather than the inbuilt `PHP class PDO`.
+
+The `PDO` class is in something called the `global` namespace - that is, a class that exists at the very top
+level, effectively not inside a namespace.
+
+> To reference a class in the `global namespace`, we must prefix it with a backslash.
+
+We can `import the class DatabaseTable` into the current `namespace` with the `use` keyword.
+
+```php
+namespace Ijdb\Controllers;
+use \Ninja\DatabaseTable;
+
+class Joke {
+  private $authorsTable;
+}
+```
+
+We've made a lot of changes here, but only to the structure of the code. Most of 
+the code is the same as before; we've just moved it around. To recap, we've done the following
+
+- Split our code up into `classes`, recognizing the code that's specific to the joke
+website and the code that can be used on any future website
+
+- Organized all our `classes` in either the `Ijdb` directory, for `project-specific` files, 
+or the `Ninja` directory for our `framework` files.
+
+- Given all our `classes namespaces`
+
+- Remove all `include` statements for classes by implementing a `PSR-4` compatible `autoloader`.

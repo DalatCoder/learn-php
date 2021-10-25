@@ -2,6 +2,8 @@
 
 namespace Ijdb\Controllers;
 
+use Ninja\DatabaseTable;
+
 class Register
 {
     private DatabaseTable $authorsTable;

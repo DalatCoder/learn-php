@@ -2,16 +2,19 @@
 
 namespace Ijdb;
 
+use Ninja\DatabaseTable;
+use Ijdb\Controllers\Joke;
+
 class IjdbRoutes
 {
     public function getRoutes()
     {
         include __DIR__ . '/../../includes/DatabaseConnection.php';
 
-        $jokesTable = new \Ninja\DatabaseTable($pdo, 'joke', 'id');
-        $authorsTable = new \Ninja\DatabaseTable($pdo, 'author', 'id');
+        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
 
-        $jokeController = new \Ijdb\Controllers\Joke($authorsTable, $jokesTable);
+        $jokeController = new Joke($authorsTable, $jokesTable);
 
         $routes = [
             'joke/edit' => [

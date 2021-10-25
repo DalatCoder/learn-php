@@ -4078,7 +4078,10 @@ In `IjdbRoutes.php`
 
 ```php
 include __DIR__ . '/../../includes/DatabaseConnection.php';
+
 ```
+
+![Image](assets/reproject.png)
 
 Now, we will fix the `autoloader`, because it currently looking in the wrong place.
 

@@ -29,13 +29,15 @@ class IjdbRoutes implements Routes
                 'GET' => [
                     'controller' => $jokeController,
                     'action' => 'edit'
-                ]
+                ],
+                'login' => true
             ],
             'joke/delete' => [
                 'POST' => [
                     'controller' => $jokeController,
-                    'action' => 'delete'
-                ]
+                    'action' => 'delete',
+                ],
+                'login' => true
             ],
             'joke/list' => [
                 'GET' => [

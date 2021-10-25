@@ -5455,3 +5455,47 @@ However, doing so causes several practical problems. If someone has different
 pages open in different tabs, or the website uses a technology called Ajax, they
 effectively get logged out of one tab when they open another! These problems are
 worse than the minor security benefit of changing the session ID on every page.
+
+### 17.4. Protected Pages
+
+Currently, we only have the `Joke controller`. The `listJokes` method should be
+visible without logging in, but the facility to add, edit or delete a joke should only
+be available to users who are logged in.
+
+In this case, a better approach is adjusting the router to perform the login check
+and either use the requested route or display an error page.
+
+- Open up `IjdbRoutes.php` and add `'login' => true` to each of the routes that we 
+want to secure, `joke/edit` and `joke/delete`.
+
+```php
+$routes = [
+    'joke/edit' => [
+        'POST' => [
+            'controller' => $jokeController,
+            'action' => 'saveEdit'
+        ],
+        'GET' => [
+            'controller' => $jokeController,
+            'action' => 'edit'
+        ],
+        'login' => true
+    ],
+    'joke/delete' => [
+        'POST' => [
+            'controller' => $jokeController,
+            'action' => 'delete',
+        ],
+        'login' => true
+    ],
+  ]
+```
+
+Next, we’ll add a new method, `getAuthentication`. This method will return the
+`Authentication` object used by this website. By placing this method here, it
+allows us to configure the `Authentication` class differently on different websites.
+
+This object needs to be used in the `EntryPoint` class, but we need to avoid
+constructing it there, as the table and column names will be different on each
+website we build.
+

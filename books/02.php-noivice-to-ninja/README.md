@@ -5499,5 +5499,40 @@ This object needs to be used in the `EntryPoint` class, but we need to avoid
 constructing it there, as the table and column names will be different on each
 website we build.
 
+```php
+public function getAuthentication() {
+  $authorsTable = new \Ninja\DatabaseTable($pdo, 'author', 'id');
 
+  return new \Ninja\Authentication($authorsTable, 'email', 'password');
+}
+```
+
+As the `Authentication` class requires an instance of `DatabaseTable` representating the table 
+that stores the logins, I've copied the line that creates the `$authorsTable` project.
+
+It's better to have a single instance representing the `$authors` table. To achieve that, move the construction
+of the `database` table into the constructor and store it in a class variable
+
+```php
+class IjdbRoutes implements Routes
+{
+    private $authorsTable;
+    private $jokesTable;
+    private $authentication;
+
+    public function __construct()
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $this->jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $this->authorsTable = new DatabaseTable($pdo, 'author', 'id');
+        $this->authentication = new Authentication($this->authorsTable, 'email', 'password');
+    }
+
+    public function getAuthentication()
+    {
+        return $this->authentication;
+    }
+}
+```
 

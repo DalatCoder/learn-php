@@ -5,20 +5,30 @@ namespace Ijdb;
 use Ninja\DatabaseTable;
 use Ijdb\Controllers\Joke;
 use Ijdb\Controllers\Register;
-
+use Ninja\Authentication;
 use Ninja\Routes;
 
 class IjdbRoutes implements Routes
 {
+    private $authorsTable;
+    private $jokesTable;
+    private $authentication;
+
+    public function __construct()
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $this->jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $this->authorsTable = new DatabaseTable($pdo, 'author', 'id');
+        $this->authentication = new Authentication($this->authorsTable, 'email', 'password');
+    }
+
     public function getRoutes()
     {
         include __DIR__ . '/../../includes/DatabaseConnection.php';
 
-        $jokesTable = new DatabaseTable($pdo, 'joke', 'id');
-        $authorsTable = new DatabaseTable($pdo, 'author', 'id');
-
-        $jokeController = new Joke($authorsTable, $jokesTable);
-        $authorController = new Register($authorsTable);
+        $jokeController = new Joke($this->authorsTable, $this->jokesTable);
+        $authorController = new Register($this->authorsTable);
 
         $routes = [
             'joke/edit' => [
@@ -70,5 +80,10 @@ class IjdbRoutes implements Routes
         ];
 
         return $routes;
+    }
+
+    public function getAuthentication()
+    {
+        return $this->authentication;
     }
 }

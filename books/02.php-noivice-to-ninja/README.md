@@ -5558,3 +5558,18 @@ Interfaces are a very powerful but `under-utilized` tool that act as bridge betw
 An `interface` describes some gaps in the framework code that need to be `filled` by 
 the project-specific code. Each project can then fill those gaps with code that's 
 specific to the individual website being built.
+
+### 17.6. Making use of the `Authentication` class
+
+In `EntryPoint.php`, add a check that looks for the `login` key in the route array. 
+If it's set, and it's set to true, and the user is not logged in, redirect to a login page. 
+Otherwise, display the page as normal.
+
+```php
+if (isset($routes[$this->route]['login']) && !$authentication->isLoggedIn()) {
+  header('Location: /login/error');
+}
+else {
+  //
+}
+```

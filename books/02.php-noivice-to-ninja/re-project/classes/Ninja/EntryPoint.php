@@ -40,6 +40,16 @@ class EntryPoint
     public function run()
     {
         $routes = $this->routes->getRoutes();
+        $authentication = $this->routes->getAuthentication();
+
+        $login_required = $routes[$this->route]['login'] ?? false;
+
+        if ($login_required) {
+            if (!$authentication->isLoggedIn()) {
+                header('location: /login/error');
+                exit();
+            }
+        }
 
         $controller = $routes[$this->route][$this->method]['controller'];
         $action = $routes[$this->route][$this->method]['action'];

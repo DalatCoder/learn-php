@@ -4,6 +4,7 @@ namespace Ijdb;
 
 use Ninja\DatabaseTable;
 use Ijdb\Controllers\Joke;
+use Ijdb\Controllers\Login;
 use Ijdb\Controllers\Register;
 use Ninja\Authentication;
 use Ninja\Routes;
@@ -29,6 +30,7 @@ class IjdbRoutes implements Routes
 
         $jokeController = new Joke($this->authorsTable, $this->jokesTable);
         $authorController = new Register($this->authorsTable);
+        $loginController = new Login();
 
         $routes = [
             'joke/edit' => [
@@ -75,6 +77,12 @@ class IjdbRoutes implements Routes
                 'GET' => [
                     'controller' => $authorController,
                     'action' => 'success'
+                ]
+            ],
+            'login/error' => [
+                'GET' => [
+                    'controller' => $loginController,
+                    'action' => 'error'
                 ]
             ]
         ];

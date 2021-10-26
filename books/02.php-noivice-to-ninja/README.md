@@ -5573,3 +5573,87 @@ else {
   //
 }
 ```
+
+### 17.7. Login Error Message
+
+Create new `template file` in `templates` folder 
+
+```html
+<h2>You are not logged in</h2>
+
+<p>You must be logged in to view this page.
+    <a href="/login">Click here to log in</a>
+    or
+    <a href="/author/register">Click here to register an account</a>
+</p>
+```
+
+Create new controller `Login.php` in the `Ijdb\Controllers` directory
+
+```php
+namespace Ijdb\Controllers;
+
+class Login
+{
+    public function error()
+    {
+        return [
+            'template' => 'logginerror.html.php',
+            'title' => 'You are not logged in'
+        ];
+    }
+}
+```
+
+Add new route to `IjdbRoutes.php`
+
+```php
+namespace Ijdb;
+
+use Ninja\DatabaseTable;
+use Ijdb\Controllers\Joke;
+use Ijdb\Controllers\Login;
+use Ijdb\Controllers\Register;
+use Ninja\Authentication;
+use Ninja\Routes;
+
+class IjdbRoutes implements Routes
+{
+    private $authorsTable;
+    private $jokesTable;
+    private $authentication;
+
+    public function __construct()
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $this->jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $this->authorsTable = new DatabaseTable($pdo, 'author', 'id');
+        $this->authentication = new Authentication($this->authorsTable, 'email', 'password');
+    }
+
+    public function getRoutes(): array
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $jokeController = new Joke($this->authorsTable, $this->jokesTable);
+        $authorController = new Register($this->authorsTable);
+        $loginController = new Login();
+
+        $routes = [
+            'login/error' => [
+                'GET' => [
+                    'controller' => $loginController,
+                    'action' => 'error'
+                ]
+            ]
+        ];
+
+        return $routes;
+    }
+}
+```
+
+If we visit any page where `login` is set to `true` in the `$routes` array, we'll see the 
+`error page`. By adding `'login' => true` to a route, we now have a quick and easy method
+of `restricting` access to page, and we don't need to perform this check in `every controller action`.

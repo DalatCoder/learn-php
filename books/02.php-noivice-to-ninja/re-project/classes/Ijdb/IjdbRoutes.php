@@ -23,7 +23,7 @@ class IjdbRoutes implements Routes
         $this->authentication = new Authentication($this->authorsTable, 'email', 'password');
     }
 
-    public function getRoutes()
+    public function getRoutes(): array
     {
         include __DIR__ . '/../../includes/DatabaseConnection.php';
 
@@ -82,7 +82,7 @@ class IjdbRoutes implements Routes
         return $routes;
     }
 
-    public function getAuthentication()
+    public function getAuthentication(): Authentication
     {
         return $this->authentication;
     }

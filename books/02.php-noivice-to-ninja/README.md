@@ -5536,3 +5536,25 @@ class IjdbRoutes implements Routes
 }
 ```
 
+### 17.5. Interfaces and Return Types
+
+> An interface like this is very useful if we're writing code we want others to build
+> on. The interface can act as documentation and give other developers instructions to follow.
+> By writing their code to fit our interface, it will work correctly with our class
+
+```php
+namespace Ninja;
+
+interface Routes
+{
+    public function getRoutes(): array;
+    public function getAuthentication(): \Ninja\Authentication;
+}
+```
+
+Interfaces are a very powerful but `under-utilized` tool that act as bridge between `framework` code and 
+`project-specific` code.
+
+An `interface` describes some gaps in the framework code that need to be `filled` by 
+the project-specific code. Each project can then fill those gaps with code that's 
+specific to the individual website being built.

@@ -30,7 +30,7 @@ class IjdbRoutes implements Routes
 
         $jokeController = new Joke($this->authorsTable, $this->jokesTable);
         $authorController = new Register($this->authorsTable);
-        $loginController = new Login();
+        $loginController = new Login($this->authentication);
 
         $routes = [
             'joke/edit' => [
@@ -79,11 +79,28 @@ class IjdbRoutes implements Routes
                     'action' => 'success'
                 ]
             ],
+            'login' => [
+                'GET' => [
+                    'controller' => $loginController,
+                    'action' => 'loginForm'
+                ],
+                'POST' => [
+                    'controller' => $loginController,
+                    'action' => 'processLogin'
+                ]
+            ],
             'login/error' => [
                 'GET' => [
                     'controller' => $loginController,
                     'action' => 'error'
                 ]
+            ],
+            'login/success' => [
+                'GET' => [
+                    'controller' => $loginController,
+                    'action' => 'success'
+                ],
+                'login' => true
             ]
         ];
 

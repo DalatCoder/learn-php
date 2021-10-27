@@ -5875,3 +5875,42 @@ public function saveEdit() {
   header('location: /joke/list');
 }
 ```
+
+### 17.11. User Permissions
+
+Let's add some checks to the site that prevent users from being able to add or edit 
+each other's jokes.
+
+The first thing to do is hide the `edit` and `delete` buttons from the joke list for jokes
+that don't belong to the logged-in user.
+
+Edit `list action` in `Joke controller`
+
+```php
+public function list()
+{
+
+  $author = $this->authentication->getUser()
+
+  return [
+    'template' => 'jokes.html.php',
+    'title' => $title,
+    'variables' => [
+      'totalJokes' => $totalJokes,
+      'jokes' => $jokes,
+      'userId' => $author['id'] ?? null
+    ]
+  ];
+}
+```
+
+In `jokes` template, we add condition for rendering
+
+```php
+<?php if ($userId == $joke['authorId']): ?>
+  // Display edit and delete button 
+
+<?php else: ?>
+
+<?php endif; ?>
+```

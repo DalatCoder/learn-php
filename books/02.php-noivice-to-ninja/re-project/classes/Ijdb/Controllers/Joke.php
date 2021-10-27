@@ -42,10 +42,12 @@ class Joke
                 'joketext' => $joke['joketext'],
                 'jokedate' => $joke['jokedate'],
                 'name' => $author['name'],
-                'email' => $author['email']
+                'email' => $author['email'],
+                'authorid' => $author['id']
             ];
         }
 
+        $author = $this->authentication->getUser();
         $title = 'Joke List';
 
         $totalJokes = $this->jokesTable->total();
@@ -55,7 +57,8 @@ class Joke
             'title' => $title,
             'variables' => [
                 'totalJokes' => $totalJokes,
-                'jokes' => $jokes
+                'jokes' => $jokes,
+                'userid' => $author['id'] ?? null
             ]
         ];
     }

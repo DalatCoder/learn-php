@@ -52,4 +52,14 @@ class Authentication
 
         return true;
     }
+
+    public function getUser()
+    {
+        if (!$this->isLoggedIn()) {
+            return false;
+        }
+
+        $user = $this->users->find($this->usernameColumn, strtolower($_SESSION['username']))[0];
+        return $user;
+    }
 }

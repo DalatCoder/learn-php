@@ -5833,3 +5833,45 @@ And `logout template`
 
 <p>You have been logged out</p>
 ```
+
+### 17.10. Assigning Added Jokes to the Logged-in User
+
+Add the `getUser` method to `Authentication` class
+
+```php
+public function getUser() {
+  if ($this->isLoggedIn()) {
+    return $this->users->find($this->usernameColumn, strtolower($_SESSION['username']))[0];
+  }
+  else {
+    return false;
+  }
+}
+```
+
+Edit `JokeController` and to `use` the `Authentication` class
+
+```php
+use \Ninja\Authentication;
+
+public function __construct(DatabaseTable $jokesTable, DatabaseTable $authorsTable, Authentication $authentication)
+{
+  $this->authentication = $authentication;
+}
+```
+
+Add the `saveEdit` method in the `Joke` controller currently contains this code
+
+```php
+public function saveEdit() {
+  $author = $this->authentication->getUser();
+
+  $joke = $_POST['joke'];
+  $joke['jokedate'] = new \DateTime();
+  $joke['authorid'] = $author['id'];
+
+  $this->jokesTable->save($joke);
+
+  header('location: /joke/list');
+}
+```

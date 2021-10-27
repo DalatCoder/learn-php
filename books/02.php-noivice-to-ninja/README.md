@@ -5914,3 +5914,46 @@ In `jokes` template, we add condition for rendering
 
 <?php endif; ?>
 ```
+
+### 17.12. Check User - Secured
+
+Check if user have the right in `edit` action
+
+```php
+public function edit()
+{
+    $author = $this->authentication->getUser();
+
+    $title = 'Create New Joke';
+
+    if (isset($_GET['jokeid'])) {
+        $joke = $this->jokesTable->findById($_GET['jokeid']);
+        $title = 'Edit Joke';
+    }
+
+    return [
+        'template' => 'editjoke.html.php',
+        'title' => $title,
+        'variables' => [
+            'joke' => $joke ?? null,
+            'userid' => $author['id'] ?? null
+        ]
+    ];
+}
+```
+
+Conditional rendering in `edit template`
+
+```php
+<?php if ($userid == $joke['authorid']) : ?>
+    <form action="" method="POST">
+        <input type="hidden" name="joke[id]" value="<?= $joke['id'] ?? '' ?>">
+        <label for="joketext">Type your joke here: </label>
+        <textarea name="joke[joketext]" id="joketext" cols="40" rows="3"><?= $joke['joketext'] ?? '' ?></textarea>
+        <input type="submit" value="<?= isset($joke) && $joke['id'] ? 'Update' : 'Create' ?>">
+    </form>
+<?php else : ?>
+    <p>You may only edit jokes that you posted.</p>
+<?php endif; ?>
+```
+

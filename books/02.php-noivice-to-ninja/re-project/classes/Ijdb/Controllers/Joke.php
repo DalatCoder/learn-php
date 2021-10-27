@@ -88,6 +88,8 @@ class Joke
 
     public function edit()
     {
+        $author = $this->authentication->getUser();
+
         $title = 'Create New Joke';
 
         if (isset($_GET['jokeid'])) {
@@ -99,7 +101,8 @@ class Joke
             'template' => 'editjoke.html.php',
             'title' => $title,
             'variables' => [
-                'joke' => $joke ?? null
+                'joke' => $joke ?? null,
+                'userid' => $author['id'] ?? null
             ]
         ];
     }

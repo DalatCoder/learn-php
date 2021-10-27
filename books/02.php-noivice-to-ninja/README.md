@@ -5662,3 +5662,117 @@ of `restricting` access to page, and we don't need to perform this check in `eve
 
 We already created the `Login` controller, and we'll need to add two methods - one for displaying
 the form, and one for handling the submission.
+
+As the login form will need to call the `Login` method we created in the `Authentication`
+class, it will need the `Authentication` class as a constructor argument and class variable
+
+```php
+namespace Ijdb\Controllers;
+
+class Login
+{
+    private $authentication;
+
+    public function __construct(\Ninja\Authentication $authentication)
+    {
+        $this->authentication = $authentication;
+    }
+
+    public function loginForm()
+    {
+        return [
+            'template' => 'login.html.php',
+            'title' => 'Log In'
+        ];
+    }
+
+    public function error()
+    {
+        return [
+            'template' => 'loginerror.html.php',
+            'title' => 'You are not logged in'
+        ];
+    }
+
+    public function processLogin()
+    {
+        if ($this->authentication->login($_POST['email'], $_POST['password'])) {
+            header('location: /login/success');
+            exit();
+        }
+
+        return [
+            'template' => 'login.html.php',
+            'title' => 'Log In',
+            'variables' => [
+                'error' => 'Invalid username/password'
+            ]
+        ];
+    }
+
+    public function success()
+    {
+        return [
+            'template' => 'loginsuccess.html.php',
+            'title' => 'Login Successful'
+        ];
+    }
+}
+```
+
+Add new routes 
+
+```php
+class IjdbRoutes implements Routes
+{
+    private $authorsTable;
+    private $jokesTable;
+    private $authentication;
+
+    public function __construct()
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $this->jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+        $this->authorsTable = new DatabaseTable($pdo, 'author', 'id');
+        $this->authentication = new Authentication($this->authorsTable, 'email', 'password');
+    }
+
+    public function getRoutes(): array
+    {
+        include __DIR__ . '/../../includes/DatabaseConnection.php';
+
+        $jokeController = new Joke($this->authorsTable, $this->jokesTable);
+        $authorController = new Register($this->authorsTable);
+        $loginController = new Login($this->authentication);
+
+        $routes = [
+            'login' => [
+                'GET' => [
+                    'controller' => $loginController,
+                    'action' => 'loginForm'
+                ],
+                'POST' => [
+                    'controller' => $loginController,
+                    'action' => 'processLogin'
+                ]
+            ],
+            'login/error' => [
+                'GET' => [
+                    'controller' => $loginController,
+                    'action' => 'error'
+                ]
+            ],
+            'login/success' => [
+                'GET' => [
+                    'controller' => $loginController,
+                    'action' => 'success'
+                ],
+                'login' => true
+            ]
+        ];
+
+        return $routes;
+    }
+}
+```

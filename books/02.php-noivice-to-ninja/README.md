@@ -6075,3 +6075,49 @@ $author->addJoke($joke);
 
 > This added flexibility is incredibly useful for an increasingly popular 
 > development methodology called `test-driven development (TDD)`
+
+### 18.1. Object Relational Mappers
+
+The `DatabaseTable` class we've built step by step so far is a type of library called an `object relational mapper`
+or (`ORM`). 
+
+There are a lot of ORM implementations avaiable
+- Doctrine
+- Propel
+- ReadBeanPHP
+
+Thease all do essentially the same job as the `DatabaseTable` class we've been building:
+- Providing an `OOP` interface for a `relational database`
+- Bridge the gap between `SQL` and `PHP` code
+
+> Generally, `ORM`s deal with `Objects`.
+
+```php
+$author = $authors->findById(123);
+echo $author['name'];
+```
+
+Here, the `$author` variable is an array with keys for each of the columns in the database. 
+`Arrays` can't contain functions, so implementing an `addJoke` method on the `$author` instance 
+isn't possible. So we need an `Entity class`
+
+```php
+namespace Ijdb\Entity;
+
+class Author {
+  public $id;
+  public $name;
+  public $email;
+  public $password;
+}
+```
+
+A class like this, which is designed to `map directly` to a record in the database, is commonly 
+known as an `Entity Class`, which is why I've used the name `Entity` in the `namespace`.
+
+Create the directory `Entity` inside the `Ijdb` folder and save the class inside it with the name `Author.php`
+
+> There's some repetition here: every time you add a column to the `database table`, 
+> you'll need to add it to this entity class. 
+> Because of this, many `ORM`s provide a method of generating these entity classes from the 
+> database schema, or even creating the database table from the `object`!

@@ -5776,3 +5776,60 @@ class IjdbRoutes implements Routes
     }
 }
 ```
+### 17.9. Logging Out
+
+Display `login` and `logout` status on `Navbar`. So, we will need to `pass` status to `layout.html.php`
+
+```php
+echo $this->loadTemplate('layout.html.php', [
+  'loggedIn' => $authentication->isLoggedIn(),
+  'output' => $output,
+  'title' => $title
+]);
+```
+
+Open up `layout.html.php` and display the navbar based on status
+
+```php
+<ul>
+  <?php if ($loggedIn): ?>
+    <li><a href="/logout">Log Out</a></li>
+  <?php else: ?>
+    <li><a href="/login">Log In</a></li>
+</ul>
+```
+
+Create `logout action`
+
+```php
+public function logout() {
+  unset($_SESSION);
+  session_destroy();
+
+  return [
+    'template' => 'logout.html.php',
+    'title' => 'You have been logged out'
+  ];
+}
+```
+
+`unset($_SESSION)` will remove any data from the current `session`, logging the user out.
+
+Add new `route`
+
+```php
+'logout' => [
+  'GET' => [
+    'controller' => $loginController,
+    'action' => 'logout'
+  ]
+]
+```
+
+And `logout template`
+
+```html
+<h2>Logged Out</h2>
+
+<p>You have been logged out</p>
+```

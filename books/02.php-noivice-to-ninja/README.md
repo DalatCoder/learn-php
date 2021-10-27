@@ -5957,3 +5957,121 @@ Conditional rendering in `edit template`
 <?php endif; ?>
 ```
 
+## 18. Reltionships
+
+`SQL JOIN` is one of mny solutions to this problem of finding relevant information from `2` tables.
+Although there are performance advantages to using `JOIN`, unfortunately `JOIN`s don't work well
+with object-oriented programming. The `relational` approach used by databases is generally incompatible 
+with the nested structure of `object-oriented programming`.
+
+In `object-oriented` programming, objects are stored in a `hierarchical structure`. An
+author `contains` - or, in the correct OOP terminology, `encapsulates` a list of their
+jokes, and a category also encapsulates a list of the jokes within the category
+
+In `SQL`
+
+```sql
+SELECT atuhor.name, joke.id, joke.joketext
+FROM author 
+INNER JOIN joke on joke.authorId = author.id
+WHERE authorId = 123
+```
+
+In `OOP`
+
+```php
+// Find the author with the id of `123`
+$author = $authors->findById(123);
+
+// Get all the jokes by this author
+$jokes = $author->getJokes();
+
+// Print the text of the first joke by that author
+echo $jokes[0]->joketext;
+```
+
+Notice that there’s no SQL here. The data is coming from the database, but it all
+happens `behind the scenes`.
+
+We could fetch all the information by using the SQL query I provided above, but
+this `doesn’t work well` with the `DatabaseTable` class we’ve used so far. It would
+be very difficult to design the class in such a way that it would account for every
+possible set of relationships we may want.
+
+- `relational` way of dealth with the `relationship` between `jokes` and `authors`
+
+```php
+// Find the author with the ID 123
+$author = $this->authors->findById(123)
+
+// Now find all the jokes posted by the author with that ID
+$jokesByAuthor = $this->jokes->find('authorId', $authorId);
+```
+
+This run `two seperate` `SELECT` queries, and the two `DatabaseTable` instances are entirely separate.
+
+> Whoever writes this code `must know` about the underlying structure of the `database` and
+> that the `authors` and `jokes` are stored in a `relatioinal` way.
+
+In `object-oriented` programming, it's preferable to `hide` the `underlying` implementation, and the 
+code above would be expressed like this
+
+- `oop` way of dealth with the `relationship` between `jokes` and `authors`
+
+```php
+public function saveEdit()
+{
+  $author = $this->authentication->getUser();
+
+  $joke = $_POST['joke'];
+  $joke['jokedate'] = new \DateTime();
+
+  $author->addJoke($joke);
+
+  header('location: /joke/list');
+}
+```
+
+> The person who writes this code `doesn't` have to know anything about what hapens behind the scenes,
+> or how the `relationship` is modeled in the `database`.
+
+Instead of `modeling the relationships in a relational way`, object-oriented
+programming takes a `hierarchical approach`, using data structures. Just as the
+routes in the `IjdbRoutes` class is a `multi-dimensional array`, OOP has `multidimensional` data structures stored within `objects`.
+
+In the example above, the `$author->addJoke($joke)` method call might be
+writing the joke data to a `database`. Alternatively, it might be saving the data to a
+`file`. And that file could be in `JSON format`, `XML format` or an `Excel spreadsheet`.
+The developer who writes this `saveEdit` method `doesn’t need to know` anything
+about the underlying storage `mechanism—how data is being stored—but` only
+that the data is being stored somehow, and that it’s being stored inside the author
+instance.
+
+In `object-oriented programming` terminology, this is known as **implementation
+hiding**, and it has several `advantages`. Different people can work on different
+sections of the code. The developer who writes the `saveEdit` doesn’t have to be
+familiar with how `addJoke` actually works. They only need to know that it saves
+data, and that the data can be retrieved later.
+
+You only need to know what the
+method returns and what arguments it requires. We can imagine what the
+following lines of code do, knowing how each of them works:
+
+```php
+$jokes = $author->getJokes();
+
+$joke->getAuthor()->name;
+
+$joke = $_POST['joke'];
+$joke['jokedate'] = new \DateTime();
+
+$author->addJoke($joke);
+```
+
+> This approach to splitting up the logic is loosely known as `separation of concerns`.
+> The process of saving a joke is different from the process of writing data to the database
+> Each of these is a different concern.
+> By splitting out the two concerns, you have a lot more flexibility.
+
+> This added flexibility is incredibly useful for an increasingly popular 
+> development methodology called `test-driven development (TDD)`

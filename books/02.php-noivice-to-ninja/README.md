@@ -6126,3 +6126,81 @@ Nine times out of ten—in fact, ninety-nine times out of a hundred—public
 properties are the wrong solution to any given problem. However, if the
 responsibility of the class is to represent a `data structure`, and it’s `interchangeable`
 with an `array`, then `public` properties are fine.
+
+### 18.2. Methods in Entity Classes
+
+A class is used to store the data about `authors` instead of an `array`, because the class can contain `methods`,
+and we can do things like this
+
+```php
+// Find the author with the id 1234
+$author = $this->authorsTable->findById('1234');
+
+// Find all the jokes by that author
+$author->getJokes();
+
+// Add a new joke and associate it with the author
+// represented by `$author`
+$author->addJoke($joke);
+```
+
+Let's take a moment to think about waht the `getJokes` method might look like. 
+Assuming the `id` property in the `$author` class is set, it would be possible to do this 
+
+```php
+public function getJokes() {
+  return $this->jokesTable->find('authorid', $this->id);
+}
+```
+
+The `author` class needs access to the `jokesTable` instance of the `DatabaseTable` class.
+
+```php
+namespace Ijdb\Entity;
+
+use Ninja\DatabaseTable;
+
+class Author
+{
+    public $id;
+    public $name;
+    public $email;
+    public $password;
+
+    private $jokesTable;
+
+    public function __construct(DatabaseTable $jokesTable)
+    {
+        $this->jokesTable = $jokesTable;
+    }
+
+    public function getJokes()
+    {
+        return $this->jokesTable->find('authorid', $this->id);
+    }
+}
+```
+
+We're going to amend the `DatabaseTable` class to return an instance of this class instead of 
+an array. But before we do that, let's take a look at how the `Author` class can be used on its own
+
+```php
+$jokesTable = new DatabaseTable($pdo, 'joke', 'id');
+
+$author = new Author($jokesTable);
+
+$author->id = 123;
+
+$jokes = $author->getJokes();
+```
+
+Next, the `addJoke` method
+
+```php
+public function addJoke($joke)
+{
+    $joke['authorid'] = $this->id;
+    $this->jokesTable->save($joke);
+}
+```
+

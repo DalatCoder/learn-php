@@ -6121,3 +6121,8 @@ Create the directory `Entity` inside the `Ijdb` folder and save the class inside
 > you'll need to add it to this entity class. 
 > Because of this, many `ORM`s provide a method of generating these entity classes from the 
 > database schema, or even creating the database table from the `object`!
+
+Nine times out of ten—in fact, ninety-nine times out of a hundred—public
+properties are the wrong solution to any given problem. However, if the
+responsibility of the class is to represent a `data structure`, and it’s `interchangeable`
+with an `array`, then `public` properties are fine.

@@ -7,12 +7,21 @@ class DatabaseTable
     private \PDO $pdo;
     private string $table;
     private string $primaryKey;
+    private $className;
+    private $constructorArgs;
 
-    public function __construct(\PDO $pdo, string $table, string $primaryKey)
-    {
+    public function __construct(
+        \PDO $pdo,
+        string $table,
+        string $primaryKey,
+        string $className = '\stdClass',
+        array $constructorArgs = []
+    ) {
         $this->pdo = $pdo;
         $this->table = $table;
         $this->primaryKey = $primaryKey;
+        $this->className = $className;
+        $this->constructorArgs = $constructorArgs;
     }
 
     public function findAll()
@@ -20,7 +29,7 @@ class DatabaseTable
         $sql = "SELECT * FROM `{$this->table}`";
         $result = $this->query($sql);
 
-        return $result->fetchAll();
+        return $result->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
     }
 
     public function findById($value)
@@ -33,7 +42,7 @@ class DatabaseTable
 
         $query = $this->query($sql, $parameters);
 
-        return $query->fetch();
+        return $query->fetchObject($this->className, $this->constructorArgs);
     }
 
     public function find($column, $value)
@@ -46,7 +55,7 @@ class DatabaseTable
 
         $query = $this->query($sql, $parameters);
 
-        return $query->fetchAll();
+        return $query->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
     }
 
     public function total()

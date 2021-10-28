@@ -31,21 +31,7 @@ class Joke
 
     public function list()
     {
-        $result = $this->jokesTable->findAll();
-
-        $jokes = [];
-        foreach ($result as $joke) {
-            $author = $this->authorsTable->findById($joke['authorid']);
-
-            $jokes[] = [
-                'id' => $joke['id'],
-                'joketext' => $joke['joketext'],
-                'jokedate' => $joke['jokedate'],
-                'name' => $author['name'],
-                'email' => $author['email'],
-                'authorid' => $author['id']
-            ];
-        }
+        $jokes = $this->jokesTable->findAll();
 
         $author = $this->authentication->getUser();
         $title = 'Joke List';
@@ -58,7 +44,7 @@ class Joke
             'variables' => [
                 'totalJokes' => $totalJokes,
                 'jokes' => $jokes,
-                'userid' => $author['id'] ?? null
+                'userid' => $author->id ?? null
             ]
         ];
     }
@@ -76,11 +62,9 @@ class Joke
         $author = $this->authentication->getUser();
 
         $joke = $_POST['joke'];
-
         $joke['jokedate'] = new \DateTime();
-        $joke['authorid'] = $author['id'];
 
-        $this->jokesTable->save($joke);
+        $author->addJoke($joke);
 
         header('Location: /joke/list');
         exit();
@@ -102,7 +86,7 @@ class Joke
             'title' => $title,
             'variables' => [
                 'joke' => $joke ?? null,
-                'userid' => $author['id'] ?? null
+                'userid' => $author->id ?? null
             ]
         ];
     }

@@ -24,12 +24,13 @@ class Authentication
         if (empty($user))
             return false;
 
-        if (!password_verify($password, $user[0][$this->passwordColumn]))
+        $passwordColumn = $this->passwordColumn;
+        if (!password_verify($password, $user[0]->$passwordColumn))
             return false;
 
         session_regenerate_id();
         $_SESSION['username'] = $username;
-        $_SESSION['password'] = $user[0][$this->passwordColumn];
+        $_SESSION['password'] = $user[0]->$passwordColumn;
 
         return true;
     }
@@ -46,7 +47,8 @@ class Authentication
             return false;
         }
 
-        if ($user[0][$this->passwordColumn] !== $_SESSION['password']) {
+        $passwordColumn = $this->passwordColumn;
+        if ($user[0]->$passwordColumn !== $_SESSION['password']) {
             return false;
         }
 

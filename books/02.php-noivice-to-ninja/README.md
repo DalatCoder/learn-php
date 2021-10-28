@@ -6578,3 +6578,60 @@ if (empty($joke->id) || $userid == $joke->authorId) {}
 
 We've now go an almost entirely object-oriented website! All the entities have their own class, and we can 
 add any methods we like to each entity class.
+
+### 18.9. Caching
+
+```php
+echo $joke->getAuthor()->name;
+echo $joke->getAuthor()->email;
+echo $joke->getAuthor()->password;
+```
+
+
+> Querying the database is considerably slower than just reading a value from a variable.
+> Each time a query is sent to the database, it will slow down the page's speed slightly. 
+> Although each query adds onl a tiny overhead, if this is done insde a loop on a page, it 
+> can cause a noticeable slowdown.
+
+To avoid this problem, you can fetch the author object once, then use the existing instance
+
+```php
+$author = $joke->getAuthor();
+echo $author->name;
+echo $author->email;
+echo $author->password;
+```
+
+Instead, it's better to implement a technique called `transparent caching`. 
+
+> The term `caching` refers to storing some data for quicker access later on, and the technique I'm
+> about to show you is called `transparent caching` because the person using class doesn't even need 
+> to know it's happening!
+
+To implement caching, add a property to the `Joke` entity class to store the `author` between 
+`method` calls
+
+```php
+class Joke {
+  public $joketext;
+  private $authorsTable;
+  private $author;
+}
+
+public function getAuthor()
+{
+  if (empty($this->author)) {
+    $this->author = $this->authorsTable->findById($this->authorid);
+  }
+
+  return $this->author;
+}
+```
+
+Now, the following code will only send a single query to the database
+
+```php
+echo $joke->getAuthor()->name;
+echo $joke->getAuthor()->email;
+echo $joke->getAuthor()->password;
+```

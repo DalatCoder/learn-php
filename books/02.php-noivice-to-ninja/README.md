@@ -6567,3 +6567,14 @@ $joke->getAuthor()->email;
 Now, the controller just provides a `list of jokes`. The `template` can now read any of the values
 it needs, including information about the `author`. If we added a `new column` in the `database`, we 
 could amend the `template` to show this value without needing to change the controller.
+
+### 18.8. Tidying Up
+
+Fixing the `Edit Joke` page.
+
+```php
+if (empty($joke->id) || $userid == $joke->authorId) {}
+```
+
+We've now go an almost entirely object-oriented website! All the entities have their own class, and we can 
+add any methods we like to each entity class.

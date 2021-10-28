@@ -6204,3 +6204,199 @@ public function addJoke($joke)
 }
 ```
 
+### 18.3. Using `Entity` classes from the `DatabaseTable` class
+
+Currently `saveEdit` method
+
+```php
+public function saveEdit() {
+  $authorsObject = $this->authentication->getUser();
+
+  $joke = $_POST['joke'];
+  $joke['jokedate'] = new \DateTime();
+
+  $authorsObject->addJoke($joke);
+
+  header('location: /joke/list');
+}
+```
+
+This currently don't work `because` the `getUser` is returned an `array` instead of `an object`.
+
+The first thing we need to do is `edit the getUser` method so that it returns the `Author Entity`.
+
+```php
+public function getUser()
+{
+    if (!$this->isLoggedIn()) {
+        return false;
+    }
+
+    $user = $this->users->find($this->usernameColumn, strtolower($_SESSION['username']))[0];
+    return $user;
+}
+```
+
+And the `find` method in `DatabaseTable ORM` is currently return an `array`
+
+```php
+public function find($column, $value)
+{
+    $sql = "SELECT * FROM `{$this->table}` WHERE `$column` = :value";
+
+    $parameters = [
+        'value' => $value
+    ];
+
+    $query = $this->query($sql, $parameters);
+
+    return $query->fetchAll();
+}
+```
+
+Here, `$query->fetchAll()`, and `$query->fetch()` return an `array`. Luckily for us, there's also
+`fetchObject` method, which returns an instance of a specified class - in our case, `Author`.
+
+This will instruct `PDO` to create `an instance` of the `Author` class and set the properties on that, 
+rather than returning a simple array.
+
+```php
+return $query->fetchObject('Author', [$jokesTable]);
+```
+
+There are `two` arguments here
+
+- `The name` of the class to instantiate
+- `An array` of arguments to `provide` to the `constructor` when the object is created. Because 
+there's only a single element in the array, `[$jokesTable]` looks a little strange. However, as `constructors`
+can have multiple arguments, `an array` is required so you can `provide` each constructor argument
+
+```php
+$pdo->query('SELECT * FROM `author` WHERE id = 123');
+
+$author = $pdo->fetchObject('Author', [$jokesTable]);
+```
+
+We can't amend the `DatabaseTable` class to use the `return` line above
+
+- It doesn't have access to the `$jokesTable` variable
+- `DatabaseTable` is a `framework class`
+
+Instead of hardcoding the `class name` and `constructor argument`, we can amend the `constructor` of 
+the `DatabaseTable` class to take `two` optional argumets
+
+- `The name` of the class to create
+- `Arguments` list provide to the `class`
+
+```php
+class DatabaseTable {
+  private $pdo;
+  private $table;
+  private $primaryKey;
+  private $className;
+  private $constructorArgs;
+
+  public function __construct(
+    \PDO $pdo,
+    string $table,
+    string $primaryKey,
+    string $className = '\stdClass',
+    array $constructorArgs = []
+  ) {
+    $this->pdo = $pdo;
+    $this->table = $table;
+    $this->primaryKey = $primaryKey;
+    $this->className = $className;
+    $this->constructorArgs = $constructorArgs;
+  }
+}
+```
+
+- `stdClass` class is `an inbuilt` PHP empty class that can be used for simple `data storage`.
+
+Change the `findById method`
+
+```php
+public function findById($value) {
+  $query = "SELECT * FROM `{$this->table}` WHERE `{$this->primaryKey}` = :value";
+
+  $parameters = [
+    'value' => $value
+  ];
+
+  $query = $this->query($query, $parameters);
+  return $query->fetchObject($this->className, $this->constructorArgs);
+}
+```
+
+The `fetchAll` method can also be `instructed` to return `an object` by providing `\PDO::FETCH_CLASS` as 
+the first argument, the `class name` as the second, and the `constructor arguments` as the third
+
+```php
+return $result->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
+```
+
+Now, we cah change the way `DatabaseTable` class is instantiated
+
+```php
+$this->jokesTable = new \Ninja\DatabaseTable($pdo, 'joke', 'id');
+
+$this->authorsTable = new \Ninja\DatabaseTable($pdo, 'author', 'id', '\Ijdb\Entity\Author', [$this->jokesTable]);
+```
+
+Now, we can get the `saveEdit method` working like this
+
+```php
+public function saveEdit()
+{
+  $author = $this->authentication->getUser();
+
+  $joke = $_POST['joke'];
+  $joke['jokedate'] = new \DateTime();
+
+  $author->addJoke($joke);
+
+  header('location: /joke/list');
+}
+```
+
+Then, we must to fix the `Authentication` class to use `an object` rather than `an arrray`
+
+```php
+$passwordColumn = $this->passwordColumn;
+
+if (!empty($user) && $user[0]->$passwordColumn === $_SESSION['password']) {
+  // User logged in
+}
+```
+
+Using `braces`
+
+> As an alternative to creating a new variable, you can also use braces to tell PHP
+> to evaluate the `$this->passwordColumn` lookup first
+
+```php
+$user[0]->{$this->passwordColumn};
+```
+
+Then, we can do the same thing with `login method`
+
+```php
+public function login($username, $password) 
+{
+  $user = $this->users->find($this->usernameColumn, strtolower($username));
+
+  if (emtpy($user)) 
+    return false;
+
+  $saved_password = $user[0]->{$this->passwordColumn};
+  if (!password_verify($password, $saved_password))
+    return false;
+
+  session_regenerate_id();
+  $_SESSION['username'] = $username;
+  $_SESSION['password'] = $user[0]->{$this->passwordColumn};
+  
+  return true;
+}
+```

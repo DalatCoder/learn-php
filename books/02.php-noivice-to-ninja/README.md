@@ -6635,3 +6635,127 @@ echo $joke->getAuthor()->name;
 echo $joke->getAuthor()->email;
 echo $joke->getAuthor()->password;
 ```
+
+### 18.10. Joke Categories
+
+Let's add a new relationship.
+
+Firstly, let's create the table to store the categories
+
+```sql
+CREATE TABLE `category` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) NULL,
+  PRIMARY KEY (`id`)
+);
+```
+
+Create a new controller called `Category` in `Ijdb/Controllers/Category.php`
+
+```php
+namespace Ijdb\Controllers;
+
+class Category
+{
+    private $categoriesTable;
+
+    public function __construct(DatabaseTable $categoriesTable)
+    {
+        $this->categoriesTable = $categoriesTable;
+    }
+
+    public function edit()
+    {
+        $title = 'Create new category';
+
+        if (isset($_GET['id'])) {
+            $category = $this->categoriesTable->findById($_GET['id']);
+            $title = 'Edit category';
+        }
+
+        return [
+            'template' => 'editcategory.html.php',
+            'title' => $title,
+            'variables' => [
+                'category' => $category ?? null
+            ]
+        ];
+    }
+
+    public function saveEdit()
+    {
+        $category = $_POST['category'];
+
+        $this->categoriesTable->save($category);
+
+        header('location: /category/list');
+        exit();
+    }
+
+    public function list()
+    {
+        $categories = $this->categoriesTable->findAll();
+
+        $title = 'Joke Categories';
+
+        return [
+            'template' => 'categories.html.php',
+            'title' => $title,
+            'variables' => [
+                'categories' => $categories
+            ]
+        ];
+    }
+
+    public function delete()
+    {
+        $this->categoriesTable->delete($_POST['id']);
+
+        header('location: /category/list');
+        exit();
+    }
+}
+```
+
+Add `routes` in `IjdbRoutes`
+
+```php
+
+public function __construct()
+{
+ $this->categoriesTable = new DatabaseTable($pdo, 'category', 'id'); 
+}
+
+public function getRoutes()
+{
+  $categoryController = new Category($this->categoriesTable);
+
+  $routes = [
+    'category/edit' => [
+        'POST' => [
+            'controller' => $categoryController,
+            'action' => 'saveEdit'
+        ],
+        'GET' => [
+            'controller' => $categoryController,
+            'action' => 'edit'
+        ],
+        'login' => true
+    ],
+    'category/list' => [
+        'GET' => [
+            'controller' => $categoryController,
+            'action' => 'list'
+        ],
+        'login' => true
+    ],
+    'category/delete' => [
+        'POST' => [
+            'controller' => $categoryController,
+            'action' => 'delete'
+        ],
+        'login' => true
+    ]
+  ];
+}
+```

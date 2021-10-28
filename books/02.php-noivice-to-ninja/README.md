@@ -6759,3 +6759,15 @@ public function getRoutes()
   ];
 }
 ```
+
+### 18.11. Assigning `Jokes` to `Categories`
+
+Create `lookup table`
+
+```SQL
+CREATE TABLE `joke_category` (
+  `jokeid` INT NOT NULL,
+  `categoryid` INT NOT NULL,
+  PRIMARY KEY (`jokeid`, `categoryid`)
+);
+```

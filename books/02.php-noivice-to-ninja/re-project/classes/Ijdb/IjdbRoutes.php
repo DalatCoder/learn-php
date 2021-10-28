@@ -32,7 +32,7 @@ class IjdbRoutes implements Routes
     {
         include __DIR__ . '/../../includes/DatabaseConnection.php';
 
-        $jokeController = new Joke($this->authorsTable, $this->jokesTable, $this->authentication);
+        $jokeController = new Joke($this->authorsTable, $this->jokesTable, $this->categoriesTable, $this->authentication);
         $authorController = new Register($this->authorsTable);
         $loginController = new Login($this->authentication);
         $categoryController = new Category($this->categoriesTable);

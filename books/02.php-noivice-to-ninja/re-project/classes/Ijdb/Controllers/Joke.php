@@ -9,12 +9,18 @@ class Joke
 {
     private $authorsTable;
     private $jokesTable;
+    private $categoriesTable;
     private $authentication;
 
-    public function __construct(DatabaseTable $authorsTable, DatabaseTable $jokesTable, Authentication $authentication)
-    {
+    public function __construct(
+        DatabaseTable $authorsTable,
+        DatabaseTable $jokesTable,
+        DatabaseTable $categoriesTable,
+        Authentication $authentication
+    ) {
         $this->authorsTable = $authorsTable;
         $this->jokesTable = $jokesTable;
+        $this->categoriesTable = $categoriesTable;
         $this->authentication = $authentication;
     }
 
@@ -73,6 +79,7 @@ class Joke
     public function edit()
     {
         $author = $this->authentication->getUser();
+        $categories = $this->categoriesTable->findAll();
 
         $title = 'Create New Joke';
 
@@ -86,7 +93,8 @@ class Joke
             'title' => $title,
             'variables' => [
                 'joke' => $joke ?? null,
-                'userid' => $author->id ?? null
+                'userid' => $author->id ?? null,
+                'categories' => $categories
             ]
         ];
     }

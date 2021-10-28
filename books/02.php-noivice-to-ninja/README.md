@@ -6396,7 +6396,174 @@ public function login($username, $password)
   session_regenerate_id();
   $_SESSION['username'] = $username;
   $_SESSION['password'] = $user[0]->{$this->passwordColumn};
-  
+
   return true;
 }
 ```
+
+### 18.4. `Joke` Objects
+
+Fix the code in `list method`
+
+```php
+$author = $this->authorsTable->findById($joke->authorId);
+
+$jokes[] = [
+  'id' => $joke->id,
+  'joketext' => $joke->joketext,
+  'jokedate' => $joke->jokedate,
+  'name' => $author->name,
+  'email' => $author->email
+]
+
+return [
+  'template' => 'jokes.html.php',
+  'title' => $title,
+  'variables' => [
+    'totalJokes' => $totalJokes,
+    'jokes' => $jokes,
+    'userId' => $author->id ?? null
+    ]
+  ];
+```
+
+Although this `solution works`, now that we're using an `object-oriented approach`, it can be
+solved in a much nicer way. Currently, each value from either the `author` or `joke` table is
+stored under an `equivalent` key in the `$jokes` array
+
+The code for generating the `$jokes` array looks like this
+
+```php
+public function list()
+{
+  $result = $this->jokesTable->findAll();
+
+  $jokes = [];
+  foreach ($result as $joke) {
+    $author = $this->authorsTable->findById($joke->authorid);
+
+    $jokes[] = [
+      'id' => $joke->id,
+      'joketext' => $joke->joketext,
+      'jokedate' => $joke->jokedate,
+      'name' => $author->name,
+      'email' => $author->email
+    ];
+  }
+}
+```
+
+The process currently looks like this
+
+- `query` the database and `select all the jokes`
+- `loop over` each `joke`
+  - select the `related author`
+  - create a new aray containing all the information about the `joke` and the `author`
+- pass this `constructed array` to the template for `display`
+
+This is a `very long-winded process` for something we can make a lot simpler using `OOP`
+
+At the moment, we can `fetch all` the `jokes` by a specific `author` using `$author->getJokes()`.
+However, we can also `model` the `inverse relationship` and do something like this
+
+```php
+echo $joke->getAuthor()->name;
+```
+
+Firstly, let's create the `Joke` entity class in `Ijdb/Entity/Joke.php`
+
+```php
+namespace Ijdb\Entity;
+
+class Joke
+{
+  public $id;
+  public $authorId;
+  public $jokedate;
+  public $joketext;
+
+  private $authorsTable;
+
+  public function __construct(\Ninja\DatabaseTable $authorsTable)
+  {
+    $this->authorsTable = $authorsTable;
+  }
+
+  public function getAuthor()
+  {
+    return $this->authorsTable->findById($this->authorId);
+  }
+}
+```
+
+### 18.5. Using the `Joke` class
+
+First, we need to update the `IjdbRoutes`
+
+```php
+$this->jokesTable = new \Ninja\DatabaseTable($pdo, 'joke', 'id', '\Ijdb\Entity\Joke', [$this->authorsTable]);
+$this->authorsTable = new \Ninja\DatabaseTable($pdo, 'author', 'id', '\Ijdb\Entity\Author', [$this->jokesTable]);
+```
+
+> Think about that for a second. It poses a problem that's not immediately obvious
+
+If the `authorsTable` instance constructor requires an instance of `jokesTable`, and 
+the `jokesTable` constructor requires an `authorsTable` instance, we have a `catch-22`
+
+- To create the `jokesTable` instance, you need an existing `authorsTable` instance
+- To create the `authorsTable` instance, you need an existing `jokesTable` instance
+
+> Both instances require the other instance to exist before they do!
+
+> This `catch-22` occurs sometimes in `object-oriented programming`. Luckily, in this case
+> it can be fairly easily solved using something called a `reference`
+
+### 18.6. References (Pointer)
+
+To create a reference, you prefix the variable you want to create a reference to with an `ampersand &`
+
+```php
+$originalVariable = 1;
+$reference = &$originalVariable;
+$originalVariable = 2;
+echo $reference;
+```
+
+It allows us to solve the `catch-22` we encoutered ealier. By providing references as the constructor arguments
+for the `Joke` and `Author` classes, by the time the `authorsTable` and `jokesTable` instances are needed,
+they'll have been created
+
+```php
+$this->jokesTable = new \Ninja\DatabaseTable($pdo, 'joke', 'id', '\Ijdb\Entity\Joke', [&$this->authorsTable]);
+$this->authorsTable = new \Ninja\DatabaseTable($pdo, 'author', 'id', '\Ijdb\Entity\Author', [&$this->jokesTable]);
+```
+
+Now, when the `DatabaseTable` class creates a `Joke` or `Author` object and has to provide it the `authorsTable`
+or `jokesTable` instance, it will read what's stored in the `authorsTable` or `jokesTable` class variables
+at the tiime any `Author` or `Joke` entity is instantiated.
+
+### 18.7. Simplifying the `List Controller Action`
+
+```php
+public function list() 
+{
+  $jokes = $this->jokesTable->findAll();
+
+  return [
+    'variables' => [
+      'jokes' => $jokes
+    ]
+  ];
+}
+```
+
+Rather than fetching the `author` in the `controller`, we can now do it in the template `jokes.html.php`
+
+```php
+$joke->getAuthor()->name;
+$joke->getAuthor()->email;
+```
+
+Now, the controller just provides a `list of jokes`. The `template` can now read any of the values
+it needs, including information about the `author`. If we added a `new column` in the `database`, we 
+could amend the `template` to show this value without needing to change the controller.

@@ -7193,3 +7193,42 @@ public function addCategory($categoryId)
   $this->jokeCategoriesTable->save($jokeCat);
 }
 ```
+
+### 18.13. Displaying Jokes by Category
+
+Now that we have jokes in the database that are assigned to a category, let's add a page that allows
+selecting jokes by category.
+
+On the `Joke list` page, let's add a list of categories to allow filtering of the `jokes`
+
+The first part is fairly simpe: we need a list of categories as links on the `Joke List` page. This 
+involves two fairly simple steps
+
+1. Amend the `lsit` action to pass a list of categories to the template
+
+```php
+public function list()
+{
+  $jokes = $this->jokesTable->findAll();
+  $author = $this->authentication->getUser();
+  $categories = $this->categoriesTable->findAll();
+
+  return [
+    'variables' => [
+      'jokes' => $jokes,
+      'userId' => $author->id ?? null,
+      'categories' => $categories
+    ]
+  ];
+}
+```
+
+2. Loop through the categories in the `jokes.html.php` template and create a list with links for each one
+
+```php
+<ul class="categories">
+  <?php foreach ($categories as $category): ?>
+    <li><a href="/joke/list?category=<?= $category->id ?>"><?= $category->name ?></a></li>
+  <?php endforeach; ?>
+</ul>
+```

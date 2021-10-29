@@ -38,6 +38,7 @@ class Joke
     public function list()
     {
         $jokes = $this->jokesTable->findAll();
+        $categories = $this->categoriesTable->findAll();
 
         $author = $this->authentication->getUser();
         $title = 'Joke List';
@@ -50,7 +51,8 @@ class Joke
             'variables' => [
                 'totalJokes' => $totalJokes,
                 'jokes' => $jokes,
-                'userid' => $author->id ?? null
+                'userid' => $author->id ?? null,
+                'categories' => $categories
             ]
         ];
     }

@@ -7232,3 +7232,111 @@ public function list()
   <?php endforeach; ?>
 </ul>
 ```
+
+That's the list done, but the links currently don't do anything. Each link sets a `$_GET` variable called
+`category` to the `ID` of the category we want to view. 
+If you click on one of the new category links, you'll see the page you visit is `/jokes/list?category=1` or similar.
+
+we have a `many-to-many` relationship, it's not quite so simple. One option is to pass the `jokeCategoriesTable`
+to the controller and do something like this
+
+```php
+if (isset($_GET['category'])) {
+  $jokeCategories = $this->jokeCategoriesTable->find('categoryid', $_GET['category']);
+
+  $jokes = [];
+
+  foreach ($jokeCategories as $jokecategory) {
+    $jokes[] = $this->jokesTable->findById($jokecategory->jokeid);
+  }
+}
+else {
+  $jokes = $this->jokesTable->findAll();
+}
+```
+
+I haven't give you the code for this because it's not a `greate solution`. One of the most difficulut
+parts of programming is placing code in the right place. The logic above is `correct`. It works,
+and it was fairly simple to work out. However, it would be better if we could get a list of `jokes`
+from a `category` like this.
+
+```php
+$category = $this->categoriesTable->findById($_GET['category']);
+
+$jokes = $category->getJokes();
+```
+
+Doing so would allow us to get a `list of jokes` from a category anywhere in the program, not just the 
+`list` method.
+
+So, the first thing we will need is a `Category` entity class that has access to the `jokesTable` instance,
+the `jokeCategoriesTable` instance, and has a method called `getJokes`
+
+```php
+namespace Ijdb\Entity;
+
+use Ninja\DatabaseTable;
+
+class Category
+{
+    public $id;
+    public $name;
+
+    private $jokesTable;
+    private $jokeCategoriesTable;
+
+    public function __construct(DatabaseTable $jokesTable, DatabaseTable $jokeCategoriesTable)
+    {
+        $this->jokesTable = $jokesTable;
+        $this->jokeCategoriesTable = $jokeCategoriesTable;
+    }
+
+    public function getJokes()
+    {
+        $jokeCategories = $this->jokeCategoriesTable->find('categoryid', $this->id);
+
+        $jokes = [];
+
+        foreach ($jokeCategories as $jokeCategory) {
+            $joke = $this->jokesTable->findById($jokeCategory->jokeid);
+
+            if ($joke) {
+                $jokes[] = $joke;
+            }
+        }
+
+        return $jokes;
+    }
+}
+```
+
+Amend `IjdbRoutes` to set the `categoriesTable` instance to use the new `Category` entity class provide
+the two `constructor` arguments
+
+```php
+$this->categoriesTable = new \Ninja\DatabaseTable(
+  $pdo,
+  'category',
+  'id',
+  '\Ijdb\Entity\Category',
+  [
+    &$this->jokesTable,
+    &$this->jokeCategoriesTable
+  ]
+);
+```
+
+Finally, use the new `getJokes` method to retrive the `jokes` in the `list` controller `action`
+
+```php
+if (isset($_GET['category'])) {
+  $cateogy = $this->categoriesTable->findById($_GET['category']);
+  $jokes = $category->getJokes();
+}
+else {
+  $jokes = $this->jokesTable->findAll();
+}
+```
+
+Using this approach, any time you need a `list of jokes` that exist in a `category`, you can find the `category`
+and then use `$category->getJokes()`

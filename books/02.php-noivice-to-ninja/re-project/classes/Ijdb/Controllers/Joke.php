@@ -37,13 +37,19 @@ class Joke
 
     public function list()
     {
-        $jokes = $this->jokesTable->findAll();
+        if (isset($_GET['category'])) {
+            $category = $this->categoriesTable->findById($_GET['category']);
+            $jokes = $category->getJokes();
+        } else {
+            $jokes = $this->jokesTable->findAll();
+        }
+
         $categories = $this->categoriesTable->findAll();
 
         $author = $this->authentication->getUser();
         $title = 'Joke List';
 
-        $totalJokes = $this->jokesTable->total();
+        $totalJokes = count($jokes);
 
         return [
             'template' => 'jokes.html.php',

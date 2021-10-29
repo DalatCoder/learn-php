@@ -8220,3 +8220,69 @@ In template
     <?php endif; ?>
 <?php endfor; ?>
 ```
+
+### 20.3. Paginate Jokes Categories
+
+```php
+public function list()
+{
+    $post_per_page = 1;
+    $page = $_GET['page'] ?? 1;
+    $offset = ($page - 1) * $post_per_page;
+
+    $totalJokes = $this->jokesTable->total();
+
+    if (isset($_GET['category'])) {
+        $category = $this->categoriesTable->findById($_GET['category']);
+        $jokes = $category->getJokes();
+
+        $totalJokes = count($jokes);
+        echo $totalJokes . '|' . $offset . '|' . $post_per_page;
+        $jokes = array_slice($jokes, $offset, $post_per_page);
+    } else {
+        $jokes = $this->jokesTable->findAll(null, null, $post_per_page, $offset);
+    }
+
+    $categories = $this->categoriesTable->findAll();
+
+    $author = $this->authentication->getUser();
+    $title = 'Joke List';
+
+    $number_of_pages = ceil($totalJokes / $post_per_page);
+
+    return [
+        'template' => 'jokes.html.php',
+        'title' => $title,
+        'variables' => [
+            'totalJokes' => $totalJokes,
+            'jokes' => $jokes,
+            'user' => $author ?? null,
+            'categories' => $categories,
+            'numberOfPages' => $number_of_pages,
+            'currentpage' => $page,
+            'category_id' => $_GET['category'] ?? null
+        ]
+    ];
+}
+```
+
+In template
+
+```php
+<?php for ($i = 1; $i <= $numberOfPages; $i++) : ?>
+
+    <?php
+    $params = 'page=' . $i;
+
+    if (isset($category_id)) {
+        $params .= '&category=' . $category_id;
+    }
+    ?>
+
+    <?php if ($i == $currentpage) : ?>
+        <a class="currentpage" href="/joke/list?<?= $params ?>"><?= $i ?></a>
+    <?php else : ?>
+        <a href="/joke/list?<?= $params ?>"><?= $i ?></a>
+    <?php endif; ?>
+<?php endfor; ?>
+```

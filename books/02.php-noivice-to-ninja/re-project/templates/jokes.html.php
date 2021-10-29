@@ -49,10 +49,19 @@
     Select page:
 
     <?php for ($i = 1; $i <= $numberOfPages; $i++) : ?>
+
+        <?php
+        $params = 'page=' . $i;
+
+        if (isset($category_id)) {
+            $params .= '&category=' . $category_id;
+        }
+        ?>
+
         <?php if ($i == $currentpage) : ?>
-            <a class="currentpage" href="/joke/list?page=<?= $i ?>"><?= $i ?></a>
+            <a class="currentpage" href="/joke/list?<?= $params ?>"><?= $i ?></a>
         <?php else : ?>
-            <a href="/joke/list?page=<?= $i ?>"><?= $i ?></a>
+            <a href="/joke/list?<?= $params ?>"><?= $i ?></a>
         <?php endif; ?>
     <?php endfor; ?>
 </div>

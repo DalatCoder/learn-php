@@ -7712,3 +7712,41 @@ $constants = $reflected->getConstants();
 By passing this array to the template, we can actually generate the list of checkboxes for 
 permissions from the cnostants inside the template
 
+### 19.4. Setting Permissions
+
+The next stage is storing the user's permissions once you press `save`. Each user will have a set of 
+permissions, and there are many different ways to represent this in the database.
+
+We could do it in the same way we did with categories: 
+
+- create a `user_permission` table with two columns `authorid` and `permission`
+- then, we could write a record for each permissioin
+
+| authorid | permission |
+| 4        | 1          |
+| 4        | 3          |
+| 4        | 5          |
+
+### 19.5. Setting Permissions | A different approach
+
+Imagine if we set up the `author` table with a column for each permission
+
+```sql
+CREATE TABLE `author` (
+  `id` INT (11) NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(255) DEFAULT NULL,
+  `email` VARCHAR(255) DEFAULT NULL,
+  `password` VARCHAR(255) DEFAULT NULL,
+  `editJoke` TINYINT(1) NOT NULL DEFAULT 0,
+  `deleteJokes` TINYINT(1) NOT NULL DEFAULT 0,
+  `addCategories` TINYINT(1) NOT NULL DEFAULT 0,
+  `removeCategories` TINYINT(1) NOT NULL DEFAULT 0,
+  `editUserAccess` TINYINT(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+)
+```
+
+The downside to this approach is that every time we add a permission to the website, we'd need
+to add a column to the table.
+
+If you examined a user's record in `MySQL`, you might see something like `0 1 0 0 1 0 0` in the `permissions columns`

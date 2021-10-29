@@ -7986,3 +7986,77 @@ public function delete()
 ```
 
 That's it! All the permission checks are now in place.
+
+## 20. Sorting, Limiting and Offsets
+
+### 20.1. Sorting
+
+MySQL supports asking for retrieved records in a specific order. At the moment, the `Joke List` page displays
+jokes in the order they were posted. It would be better if it showed the newest first.
+
+A `SELECT` query can contain an `ORDER BY` clause that specifies the column that the data is sorted by.
+
+```sql
+SELECT * FROM `joke` ORDER BY `jokedate` DESC
+```
+
+Instead, we can do the sort in `PHP itself`, using the `usort` function. The `usort` function takes two arguments:
+
+- `An array` to be sorted
+- `The name` of a function that compares two values
+
+```php
+function cmp($a, $b)
+{
+  if ($a == $b) {
+    return 0;
+  }
+
+  return ($a < $b) ? -1 : 1;
+}
+
+$a = [3, 2, 4, 6, 1];
+
+usort($a, 'cmp');
+```
+
+The array has been sorted `smallest` to `largest`. The `cmp` function is called with two values
+from the array, and returns 
+
+- ` 1`: The first should be placed `after` the second
+- `-1`: The first should be place `before` the second
+
+The comparison function can take argumets that are objects, and we can build a comparison
+function into our `Category` class like so
+
+```php
+public function getJokes()
+{
+    $jokeCategories = $this->jokeCategoriesTable->find('categoryid', $this->id);
+
+    $jokes = [];
+
+    foreach ($jokeCategories as $jokeCategory) {
+        $joke = $this->jokesTable->findById($jokeCategory->jokeid);
+
+        if ($joke) {
+            $jokes[] = $joke;
+        }
+    }
+
+    usort($jokes, [$this, 'sortJokes']);
+
+    return $jokes;
+}
+
+private function sortJokes($a, $b)
+{
+    $aDate = new \DateTime($a->jokedate);
+    $bDate = new \DateTime($b->jokedate);
+
+    if ($aDate->getTimestamp() == $bDate->getTimestamp())
+        return 0;
+
+    return $aDate->getTimestamp() > $bDate->getTimestamp() ? -1 : 1;
+}
+```

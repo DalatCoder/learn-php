@@ -2,6 +2,7 @@
 
 namespace Ijdb\Entity;
 
+use DateTime;
 use Ninja\DatabaseTable;
 
 class Category
@@ -32,6 +33,19 @@ class Category
             }
         }
 
+        usort($jokes, [$this, 'sortJokes']);
+
         return $jokes;
+    }
+
+    private function sortJokes($a, $b)
+    {
+        $aDate = new \DateTime($a->jokedate);
+        $bDate = new \DateTime($b->jokedate);
+
+        if ($aDate->getTimestamp() == $bDate->getTimestamp())
+            return 0;
+
+        return $aDate->getTimestamp() > $bDate->getTimestamp() ? -1 : 1;
     }
 }

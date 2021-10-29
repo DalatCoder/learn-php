@@ -70,7 +70,11 @@ class Joke
         $joke = $_POST['joke'];
         $joke['jokedate'] = new \DateTime();
 
-        $author->addJoke($joke);
+        $jokeEntity = $author->addJoke($joke);
+
+        foreach ($_POST['category'] as $categoryId) {
+            $jokeEntity->addCategory($categoryId);
+        }
 
         header('Location: /joke/list');
         exit();

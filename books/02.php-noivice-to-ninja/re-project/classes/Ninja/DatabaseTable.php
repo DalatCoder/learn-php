@@ -89,6 +89,8 @@ class DatabaseTable
         $fields = $this->processDate($fields);
 
         $this->query($sql, $fields);
+
+        return $this->pdo->lastInsertId();
     }
 
     private function update($fields)
@@ -111,6 +113,8 @@ class DatabaseTable
 
     public function save($record)
     {
+        $entity = new $this->className(...$this->constructorArgs);
+
         try {
             if (!array_key_exists($this->primaryKey, $record)) {
                 $record[$this->primaryKey] = null;
@@ -120,10 +124,21 @@ class DatabaseTable
                 $record[$this->primaryKey] = null;
             }
 
-            $this->insert($record);
+            $insertId = $this->insert($record);
+
+            $primaryKeyColumn = $this->primaryKey;
+            $entity->$primaryKeyColumn = $insertId;
         } catch (\PDOException $e) {
             $this->update($record);
         }
+
+        foreach ($record as $key => $value) {
+            if (!empty($value)) {
+                $entity->$key = $value;
+            }
+        }
+
+        return $entity;
     }
 
     public function delete($id)

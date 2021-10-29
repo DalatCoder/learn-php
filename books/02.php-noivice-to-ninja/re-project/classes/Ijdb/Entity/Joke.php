@@ -13,10 +13,12 @@ class Joke
 
     private $author;
     private $authorsTable;
+    private $jokeCategoriesTable;
 
-    public function __construct(DatabaseTable $authorsTable)
+    public function __construct(DatabaseTable $authorsTable, DatabaseTable $jokeCategoriesTable)
     {
         $this->authorsTable = $authorsTable;
+        $this->jokeCategoriesTable = $jokeCategoriesTable;
     }
 
     public function getAuthor()
@@ -26,5 +28,15 @@ class Joke
         }
 
         return $this->author;
+    }
+
+    public function addCategory($categoryId)
+    {
+        $jokeCat = [
+            'jokeid' => $this->id,
+            'categoryid' => $categoryId
+        ];
+
+        $this->jokeCategoriesTable->save($jokeCat);
     }
 }

@@ -7597,3 +7597,37 @@ else {
 ```
 
 Now, if we visit `/categories/list`, we will see there `error page`.
+
+### 19.1. Creating a Form to Assign Permissions
+
+Before we can implement the `hasPermission` method, the website needs a page that allows assigning permissions
+to any given user.
+
+We'll need two pages - one that lists all the authors, so we can select the one we want to give 
+permissions to, and a second that contains a form with checkboxes for each permission.
+
+```php
+$routes = [
+ 'author/permissions' => [
+      'GET' => [
+          'controller' => $authorController,
+          'action' => 'permissions'
+      ],
+      'POST' => [
+          'controller' => $authorController,
+          'action' => 'savePermissions'
+      ],
+      'login' => true
+  ],
+  'author/list' => [
+      'GET' => [
+          'controller' => $authorController,
+          'action' => 'list'
+      ],
+      'login' => true
+  ] 
+];
+```
+
+Rather than adding a `new controller`, we'll use the `Register` controller that already 
+`exists` and is used for handling changes to users' accounts.

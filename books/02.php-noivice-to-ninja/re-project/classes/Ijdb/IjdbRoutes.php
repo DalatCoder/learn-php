@@ -143,6 +143,24 @@ class IjdbRoutes implements Routes
                 ],
                 'login' => true,
                 'permissions' => Author::REMOVE_CATEGORIES
+            ],
+            'author/permissions' => [
+                'GET' => [
+                    'controller' => $authorController,
+                    'action' => 'permissions'
+                ],
+                'POST' => [
+                    'controller' => $authorController,
+                    'action' => 'savePermissions'
+                ],
+                'login' => true
+            ],
+            'author/list' => [
+                'GET' => [
+                    'controller' => $authorController,
+                    'action' => 'list'
+                ],
+                'login' => true
             ]
         ];
 

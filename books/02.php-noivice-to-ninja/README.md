@@ -7340,3 +7340,105 @@ else {
 
 Using this approach, any time you need a `list of jokes` that exist in a `category`, you can find the `category`
 and then use `$category->getJokes()`
+
+### 18.14. Editing Jokes
+
+Add a `method` to check whether the `joke` has the `category`
+
+```php
+if ($joke->hasCategory($category->id)) {   }
+
+public function hasCategory($categoryId) {
+  $jokeCategories = $this->jokeCategoriesTable->find('jokeid', $this->id);
+
+  foreach ($jokeCategories as $jokecategory) {
+    if ($jokecategory->categoryId == $categoryId) {
+      return true;
+    }
+  }
+}
+```
+
+With that in place, we can use it in the `editjoke.html.php` template
+
+```php
+<?php foreach ($categories as $category) : ?>
+
+    <?php if ($joke && $joke->hasCategory($category->id)) : ?>
+        <input type="checkbox" checked name="category[]" id="<?= $category->id ?>" value="<?= $category->id ?>">
+    <?php else : ?>
+        <input type="checkbox" name="category[]" id="<?= $category->id ?>" value="<?= $category->id ?>">
+    <?php endif; ?>
+
+    <label for="<?= $category->id ?>"><?= $category->name ?></label>
+<?php endforeach; ?>
+```
+
+Although we have some logic that says, "If the box is checked, add a record to the `joke_category` table",
+we don't have anything to remove that record after it's been added and the checkbox has been unticked.
+
+We could use this process
+
+- `Loop` through every single category
+- `Check` to see if the corresponding checkbook box wasn't checked
+- If the box wasn't checked and there's a corresponding record, delete the record
+
+We'd need do this check for every category, and it would take a fairly large amount of code to achieve.
+
+Instead, a much simpler approach is to delete all the records from the `joke_category` table that are
+related to the joke we're editing, then apply the same logic as before: `loop through the checked boxes 
+and insert records for each category that was checked`
+
+Admittedly, this isn't entirely efficient. If the joke is edited and the category checkboxes aren't changed,
+this will cause unnecessary deletion and reinsertion of ideantical data. However, it's still the simplest approach.
+
+Our `DatabaseTable` class has a `delete` method that allows deleting a record by its
+`primary key`. However, our table has `two primary keys` — `jokeId` and
+`categoryId` — so we can’t use it as it currently is.
+
+Instead, let's add a `deleteWhere` method to the `DatabaseTable` class that works like the existing `find` method
+
+```php
+public function deleteWhere($column, $value)
+{
+    $query = "DELETE FROM `{$this->table}` WHERE `$column` = :value";
+
+    $parameters = [
+        'value' => $value
+    ];
+
+    $query = $this->query($query, $parameters);
+}
+```
+
+Add a `clearCategories` method to the `Joke` entity class that removes all the related
+records from the `jokeCategories` table for a given joke
+
+```php
+public function clearCategories()
+{
+  $this->jokeCategoriesTable->deleteWhere('jokeId', $this->id);
+}
+```
+
+Then, we edit the `saveEdit` method
+
+```php
+public function saveEdit()
+{
+  $author = $this->authentication->getUser();
+
+  $joke = $_POST['joke'];
+  $joke['jokedate'] = new \DateTime();
+
+  $jokeEntity = $author->addJoke($joke);
+
+  $jokeEntity->clearCategories();
+
+  foreach ($_POST['category'] as $categoryId) {
+    $jokeEntity->addCategory($categoryId);
+  }
+
+  header('location: /joke/list');
+}
+```

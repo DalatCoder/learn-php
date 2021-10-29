@@ -79,9 +79,12 @@ class Joke
         $joke['jokedate'] = new \DateTime();
 
         $jokeEntity = $author->addJoke($joke);
+        $jokeEntity->clearCategories();
 
-        foreach ($_POST['category'] as $categoryId) {
-            $jokeEntity->addCategory($categoryId);
+        if (isset($_POST['category'])) {
+            foreach ($_POST['category'] as $categoryId) {
+                $jokeEntity->addCategory($categoryId);
+            }
         }
 
         header('Location: /joke/list');

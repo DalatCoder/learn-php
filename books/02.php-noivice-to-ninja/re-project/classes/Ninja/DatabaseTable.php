@@ -151,6 +151,17 @@ class DatabaseTable
         $this->query($sql, $parameters);
     }
 
+    public function deleteWhere($column, $value)
+    {
+        $query = "DELETE FROM `{$this->table}` WHERE `$column` = :value";
+
+        $parameters = [
+            'value' => $value
+        ];
+
+        $query = $this->query($query, $parameters);
+    }
+
     private function query($sql, $parameters = [])
     {
         $query = $this->pdo->prepare($sql);

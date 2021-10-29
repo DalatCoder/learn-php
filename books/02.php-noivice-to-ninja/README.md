@@ -7676,3 +7676,39 @@ public function list()
     </tbody>
 </table>
 ```
+
+### 19.3. Edit Author Permissions
+
+The template could look like this
+
+```php
+<input type="checkbox" value="1" <?php if ($author->hasPermission(EDIT_JOKES)) { echo 'checked' } ?>> Edit Jokes
+```
+
+This would work, but it requires storing the information about the permission in `two different places`
+
+- The `constants` in the `Author` entity class
+- The `template`
+
+Like most cases when we find repetition like this, there's a much easier way!
+
+> It's actually possible to read information about the variables, methods and constants
+> that are contained inside a class using a tool called `Reflection`
+
+We can actually get a list of contants, and their values, from the class!
+
+PHP makes this fairly simple. To `reflect` the `Author` entity class and read all its properties, you can
+use the following code
+
+```php
+$reflected = new \ReflectionClass('\Ijdb\Entity\Author');
+
+$constants = $reflected->getConstants();
+```
+
+> `Reflection` can be a very powerful tool, and I've only scratched the surface of what
+> you can do. For more information on `Reflection`, see the `PHP manual page`.
+
+By passing this array to the template, we can actually generate the list of checkboxes for 
+permissions from the cnostants inside the template
+

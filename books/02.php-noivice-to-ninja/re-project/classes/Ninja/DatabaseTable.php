@@ -24,13 +24,52 @@ class DatabaseTable
         $this->constructorArgs = $constructorArgs;
     }
 
-    public function findAll()
+    public function findAll($orderBy = null, $orderDirection = null, $limit = null, $offset = null)
     {
         $sql = "SELECT * FROM `{$this->table}`";
+
+        if ($orderBy != null && $orderDirection != null) {
+            $sql .= " ORDER BY `{$orderBy}` {$orderDirection}";
+        }
+
+        if ($limit != null) {
+            $sql .= " LIMIT {$limit}";
+        }
+
+        if ($offset != null) {
+            $sql .= " OFFSET {$offset}";
+        }
+
         $result = $this->query($sql);
 
         return $result->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
     }
+
+    public function find($column, $value, $orderBy = null, $orderDirection = null, $limit = null, $offset = null)
+    {
+        $sql = "SELECT * FROM `{$this->table}` WHERE `$column` = :value";
+
+        if ($orderBy != null && $orderDirection != null) {
+            $sql .= " ORDER BY `{$orderBy}` {$orderDirection}";
+        }
+
+        if ($limit != null) {
+            $sql .= " LIMIT {$limit}";
+        }
+
+        if ($offset != null) {
+            $sql .= " OFFSET {$offset}";
+        }
+
+        $parameters = [
+            'value' => $value
+        ];
+
+        $query = $this->query($sql, $parameters);
+
+        return $query->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
+    }
+
 
     public function findById($value)
     {
@@ -43,19 +82,6 @@ class DatabaseTable
         $query = $this->query($sql, $parameters);
 
         return $query->fetchObject($this->className, $this->constructorArgs);
-    }
-
-    public function find($column, $value)
-    {
-        $sql = "SELECT * FROM `{$this->table}` WHERE `$column` = :value";
-
-        $parameters = [
-            'value' => $value
-        ];
-
-        $query = $this->query($sql, $parameters);
-
-        return $query->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
     }
 
     public function total()

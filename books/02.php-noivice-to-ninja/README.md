@@ -8060,3 +8060,163 @@ private function sortJokes($a, $b)
     return $aDate->getTimestamp() > $bDate->getTimestamp() ? -1 : 1;
 }
 ```
+### 20.2. Pagination with `LIMIT` and `OFFSET`
+
+A common approach is using `pagination` to display a sensible number - for example, ten jokes per page - 
+and allow clicking a link to move between pages.
+
+Our first take is to display just the first ten jokes. Using SQL, this is increadibly easy.
+The `LIMIT` caluse can be appended to any `SELECT` query to restrict the number of records returned
+
+```sql
+SELECT * FROM `joke` ORDER BY `jokedate` DESC LIMIT 10
+```
+
+We'll need to build this into `findAll` and `find` methods of the `DatabaseTable` class
+as optioinal parameters, as we did with the `$orderBy` variable
+
+```php
+public function findAll($limit = null)
+{
+    $sql = "SELECT * FROM `{$this->table}`";
+
+    if ($limit != null) {
+        $sql .= " LIMIT {$limit}";
+    }
+
+    $result = $this->query($sql);
+
+    return $result->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
+}
+
+public function find($column, $value, $limit = null)
+{
+    $sql = "SELECT * FROM `{$this->table}` WHERE `$column` = :value";
+
+    if ($limit != null) {
+        $sql .= " LIMIT {$limit}";
+    }
+
+    $parameters = [
+        'value' => $value
+    ];
+
+    $query = $this->query($sql, $parameters);
+
+    return $query->fetchAll(\PDO::FETCH_CLASS, $this->className, $this->constructorArgs);
+}
+```
+
+With that in place, you'll see only ten jokes on the `Joke List` page. The problem now is how we'll view the rest 
+of the jokes!
+
+The solution is to have different pages that can be accessed by a `$_GET` variable:
+`/joke/list?page=1` or `/joke/list?page=2` to select which page to show.
+
+Page `1` will show jokes `1-10`, page `2` will how jokes `11-20`, and so on.
+
+The template already has access to the `$totalJokes` variable, so we can display the
+pages at the end of `jokes.html.php`
+
+
+```php
+public function list()
+{
+  $totalJokes = count($jokes);
+  $post_per_page = 1;
+
+  $number_of_pages = ceil($totalJokes / $post_per_page);
+
+  return [
+      'template' => 'jokes.html.php',
+      'title' => $title,
+      'variables' => [
+          'totalJokes' => $totalJokes,
+          'jokes' => $jokes,
+          'user' => $author ?? null,
+          'categories' => $categories,
+          'numberOfPages' => $number_of_pages
+      ]
+  ];
+}
+```
+
+In template
+
+```php
+Select page:
+
+<?php for ($i = 1; $i <= $numberOfPages; $i++) : ?>
+    <a href="/joke/list?page=<?= $i ?>"><?= $i ?></a>
+<?php endfor; ?>
+```
+
+If you click the links, the `$_GET` variable will be set. It's now just a matter of using it 
+to display different sets of jokes
+
+The `SQL` clause `OFFSET` can be used with `LIMIT` to do exactly what we want
+
+```sql
+SELECT * FROM `joke` ORDER BY `jokedate` LIMIT 10 OFFSET 10
+```
+
+This query will return 10 jokes, but instead of returning the `first` ten jokes, it
+will display ten jokes starting from joke 10.
+
+the simple calculationi to get `$offset`
+
+```php
+$offset = ($_GET['page'] - 1) * 10;
+```
+
+Then, edit then `list method` to this
+
+```php
+public function list()
+{
+    $post_per_page = 2;
+    $page = $_GET['page'] ?? 1;
+    $offset = ($page - 1) * $post_per_page;
+
+    if (isset($_GET['category'])) {
+        $category = $this->categoriesTable->findById($_GET['category']);
+        $jokes = $category->getJokes();
+    } else {
+        $jokes = $this->jokesTable->findAll(null, null, $post_per_page, $offset);
+    }
+
+    $categories = $this->categoriesTable->findAll();
+
+    $author = $this->authentication->getUser();
+    $title = 'Joke List';
+
+    $totalJokes = $this->jokesTable->total();
+
+    $number_of_pages = ceil($totalJokes / $post_per_page);
+
+    return [
+        'template' => 'jokes.html.php',
+        'title' => $title,
+        'variables' => [
+            'totalJokes' => $totalJokes,
+            'jokes' => $jokes,
+            'user' => $author ?? null,
+            'categories' => $categories,
+            'numberOfPages' => $number_of_pages,
+            'currentPage' => $page
+        ]
+    ];
+}
+```
+
+In template
+
+```php
+<?php for ($i = 1; $i <= $numberOfPages; $i++) : ?>
+    <?php if ($i == $currentpage) : ?>
+        <a class="currentpage" href="/joke/list?page=<?= $i ?>"><?= $i ?></a>
+    <?php else : ?>
+        <a href="/joke/list?page=<?= $i ?>"><?= $i ?></a>
+    <?php endif; ?>
+<?php endfor; ?>
+```

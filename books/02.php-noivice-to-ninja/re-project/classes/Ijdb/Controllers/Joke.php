@@ -37,11 +37,15 @@ class Joke
 
     public function list()
     {
+        $post_per_page = 2;
+        $page = $_GET['page'] ?? 1;
+        $offset = ($page - 1) * $post_per_page;
+
         if (isset($_GET['category'])) {
             $category = $this->categoriesTable->findById($_GET['category']);
             $jokes = $category->getJokes();
         } else {
-            $jokes = $this->jokesTable->findAll();
+            $jokes = $this->jokesTable->findAll(null, null, $post_per_page, $offset);
         }
 
         $categories = $this->categoriesTable->findAll();
@@ -49,7 +53,9 @@ class Joke
         $author = $this->authentication->getUser();
         $title = 'Joke List';
 
-        $totalJokes = count($jokes);
+        $totalJokes = $this->jokesTable->total();
+
+        $number_of_pages = ceil($totalJokes / $post_per_page);
 
         return [
             'template' => 'jokes.html.php',
@@ -58,7 +64,9 @@ class Joke
                 'totalJokes' => $totalJokes,
                 'jokes' => $jokes,
                 'user' => $author ?? null,
-                'categories' => $categories
+                'categories' => $categories,
+                'numberOfPages' => $number_of_pages,
+                'currentpage' => $page
             ]
         ];
     }

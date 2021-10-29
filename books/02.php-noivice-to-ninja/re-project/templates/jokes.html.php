@@ -45,4 +45,14 @@
         </blockquote>
 
     <?php endforeach; ?>
+
+    Select page:
+
+    <?php for ($i = 1; $i <= $numberOfPages; $i++) : ?>
+        <?php if ($i == $currentpage) : ?>
+            <a class="currentpage" href="/joke/list?page=<?= $i ?>"><?= $i ?></a>
+        <?php else : ?>
+            <a href="/joke/list?page=<?= $i ?>"><?= $i ?></a>
+        <?php endif; ?>
+    <?php endfor; ?>
 </div>

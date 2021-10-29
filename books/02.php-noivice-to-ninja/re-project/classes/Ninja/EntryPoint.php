@@ -51,6 +51,17 @@ class EntryPoint
             }
         }
 
+        $permission_required = $routes[$this->route]['permissions'] ?? false;
+
+        if ($permission_required) {
+            $permission = $routes[$this->route]['permissions'];
+
+            if (!$this->routes->checkPermission($permission)) {
+                header('location: /login/error');
+                exit();
+            }
+        }
+
         $controller = $routes[$this->route][$this->method]['controller'];
         $action = $routes[$this->route][$this->method]['action'];
 

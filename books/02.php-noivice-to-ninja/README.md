@@ -7442,3 +7442,158 @@ public function saveEdit()
   header('location: /joke/list');
 }
 ```
+
+## 19. User Roles
+
+On our website, we would need at minimum the following access levels
+
+1. `standard users`: can post new jokes, and edit/delete jokes they've posted
+2. `administrators`: can add/edit/remove categories, post jokes, and edit/delete jokes
+anyone has posted. They should also be able to turn other users into `administrators`
+
+The `simplest way` to do this is to have a column in the `author` table that represents the `author's access level`.
+
+- `1` in the column could represent a normal user
+- `2` could represent an administrator
+
+This method very simple to understand, and we could even very easily abstract it to `isAdmin()` to 
+improve the readablitity
+
+```php
+$author = $this->authentication->getUser();
+
+if ($author->isAdmin()) {
+  // They're an administrator
+}
+else {
+
+}
+```
+
+A more `flexible` approach is to give each user individual permissioins for each `acction`.
+
+For this website, we've already considered these `permissions`
+
+- Edit other people's jokes
+- Delete other people's jokes
+- Add categories
+- Edit categories
+- Remove categories
+- Edit user access levels
+
+Before we model this in the database, let's think about how we'd check these in the existing code
+
+```php
+namespace Ijdb\Entity;
+
+class Author
+{
+  const EDIT_JOKES = 1;
+  const DELETE_JOKES = 2;
+  const LIST_CATEGORIES = 3;
+  const EDIT_CATEGORIES = 4;
+  const REMOVE_CATEGORIES = 5;
+  const EDIT_USER_ACCESS = 6;
+
+  public function hasPermission($permission)
+  {
+
+  }
+}
+```
+
+And we use it like this
+
+```php
+$author = $this->authentication->getUser();
+
+if ($author->hasPermission(Author::LIST_CATEGORIES)) {  }
+```
+
+There are two different places we'll need to implement this. The first is page-level access. As we did
+with the login check, a check can be done in the `router` to stop people even viewing a page if 
+they don't have the correct permissions
+
+This will need to be done in `EntryPoint`, but because each website you build might have
+a different way of handling these checkes, we'll add a new method to `IjdbRouets` called `checkPermissions`
+
+```php
+public function checkPermission($permission) : bool {
+  $user = $this->authentication->getUser();
+
+  if ($user && $user->hasPermission($permission)) {
+    return true;
+  }
+  else {
+    return false;
+  }
+}
+```
+
+This fetches the current logged-in user and checks to see if they have a specific permission.
+
+Next, we changes the `interface` to include the `checkPermission` method
+
+```php
+namespace Ninja;
+
+interface Routes 
+{
+  public function getRoutes() : array;
+  public function getAuthentication() : \Ninja\Authentication;
+  public function checkPermission($permission) : bool;
+}
+```
+
+To implement this in the `EntryPoint` class, we'll add an extra entry to the `$rouets`
+array to specify which permissions are required for accessing each page.
+
+Let's start with the category permissions
+
+```php
+$routes = [
+  'category/edit' => [
+    'POST' => [],
+    'GET' => [],
+    'login' => true,
+    'permissions' => \Ijdb\Entity\Author::EDIT_CATEGORIES
+  ],
+  'category/delete' => [
+    'POST' => [],
+    'login' => true,
+    'permissions' => \Ijdb\Entity\Author::REMOVE_CATEGORIES
+  ],
+  'category/list' => [
+    'GET' => [],
+    'login' => true,
+    'permissions' => \Ijdb\Entity\Author::LIST_CATEGORIES
+  ]
+]
+```
+
+The process here is fairly straightforward. When you visit a page, the `EntryPoint` class
+will read the value stored in the `permissions` key for that route, then call the new 
+`checkPermission` method to determine whether ther user who is logged in and viewing the page has that 
+permission.
+
+This will work in the same way as the login check
+
+```php
+if (
+  isset($routes[$this->route]['login']) && 
+  !authentication->isLoggedIn()
+) {
+  header('location: /login/error');
+}
+else if (
+  isset($routes[$this->route]['permissions']) &&
+  !$this->routes->checkPermission($routes[$this->route]['permissions'])
+) {
+  header('location: /login/error');
+}
+else {
+  //
+}
+```
+
+Now, if we visit `/categories/list`, we will see there `error page`.

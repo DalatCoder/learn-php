@@ -7,6 +7,7 @@ use Ninja\DatabaseTable;
 use Ijdb\Controllers\Joke;
 use Ijdb\Controllers\Login;
 use Ijdb\Controllers\Register;
+use Ijdb\Entity\Author;
 use Ninja\Authentication;
 use Ninja\Routes;
 
@@ -124,21 +125,24 @@ class IjdbRoutes implements Routes
                     'controller' => $categoryController,
                     'action' => 'edit'
                 ],
-                'login' => true
+                'login' => true,
+                'permissions' => Author::EDIT_CATEGORIES
             ],
             'category/list' => [
                 'GET' => [
                     'controller' => $categoryController,
                     'action' => 'list'
                 ],
-                'login' => true
+                'login' => true,
+                'permissions' => Author::LIST_CATEGORIES
             ],
             'category/delete' => [
                 'POST' => [
                     'controller' => $categoryController,
                     'action' => 'delete'
                 ],
-                'login' => true
+                'login' => true,
+                'permissions' => Author::REMOVE_CATEGORIES
             ]
         ];
 
@@ -148,5 +152,16 @@ class IjdbRoutes implements Routes
     public function getAuthentication(): Authentication
     {
         return $this->authentication;
+    }
+
+    public function checkPermission($permission): bool
+    {
+        $user = $this->authentication->getUser();
+
+        if ($user && $user->hasPermission($permission)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

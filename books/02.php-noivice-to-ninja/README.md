@@ -7791,3 +7791,198 @@ Let's convert the binary numbers to decimal: `000001` becomes `1`, `111111` beco
 
 If someone has the permissions value `63`, we know they have all the permissions
 that are available.
+
+### 19.8. Back to PHP
+
+The difficult part is extracting the individual permissions.
+
+What if we want to know whether the user has the `EDIT_CATEGORIES` permission? One the chart
+above, I've assigned the `8 bit` to mean `EDIT_CATEGORIES`. If a user has the `permissions`
+value `13`, it's not clear whether the `8 bit` is set.
+
+Most programming languages, including PHP and MySQL, support something called `bitwise` operations.
+
+These allow you to inquire whether a specific bit is set in any `integer`. Using a single `permissions` column,
+the query above can be expressed as follows
+
+```php
+SELECT * FROM author WHERE id = 4 AND 8 & permissions
+```
+
+The clever part here is the part `AND 8 & permissions`. This uses the bitwise and (`&`) operator
+to inquire whether the `8 bit` is set in the number stored in the `permissions` column for that record.
+
+PHP also provides the bitwise `and` operator. You've already seen that the number `6` is represented
+as `0110`, which means that the bits `4` and `2` are set.
+
+```php
+if (6 & 2) {
+
+}
+```
+
+This says, "Is the bit 2 set in the number 6", and it will evaluate to true.
+
+```php
+if (6 & 1) {
+
+}
+```
+
+It would return `false`, because the `1` bit is not set in the binary representation of `6` (`0110`)
+
+Binary operations like this are actually fairly common in PHP
+
+Imagine the `author` table had a column called `permissions`: it's possible to determine
+whether an `author` has the permission `EDIT_CATEGORIES` by using this code
+
+```php
+if ($author->permissions & 8) {
+
+}
+```
+
+This code has the same problem I mentioned earlier: it's not clear exactly what's happening here to anyone 
+looking at the code. Again, we could represent the bits as constants
+
+```php
+const EDIT_JOKES = 1;
+const DELETE_JOKES = 2;
+const LIST_CATEGORIES = 4;
+const EDIT_CATEGORIES = 8;
+const REMOVE_CATEGORIES = 16;
+const EDIT_USER_ACCESS = 32;
+```
+
+And we could write the permissions check like so
+
+```php
+// Does the author have the `EDIT_CATEGORIES` permissions
+if ($author->permissions & EDIT_CATEGORIES) {
+
+}
+
+// Does the author have the `DELETE_JOKES` permissions
+if ($author->permissions & DELETE_JOKES) {
+
+}
+```
+
+You don't even need to understand the underlying binary to understand what's happeing here, and 
+individual numbers don't even matter!
+
+### 19.9. Storing Bitwise Permissions in the Database
+
+Let's implement this on the website. Amend the `author` table by adding a column called `permissions`,
+and set it to `INT(64)` so we can store a maximum of `64` different permissions.
+
+Let's imagine that the boxes for `EDIT_JOKES`, `DELETE_JOKES`, `LIST_CATEGORIES` and `EDIT_USER_ACCESS`
+are ticked. When the form is submitted, we'd get the array `[1, 2, 4, 32]`.
+
+The binary representation of those permissions is `100111`. If you work out what that is in decimal, 
+you'll get `39`. Add together the values from the array `1 + 2 + 4 + 32` and you'll also get `39`!
+
+The `savePermissions` method in the `Register` controller can be written like this
+
+```php
+public function savePermissions()
+{
+    $author = [
+        'id' => $_GET['id'],
+        'permissions' => array_sum($_POST['permissions'] ?? [])
+    ];
+
+    $this->authorsTable->save($author);
+
+    header('location: /author/list');
+}
+```
+
+That's it! The `savePermissions` method is converting the checked boxes into a `number`, and 
+that `number's library representation` is how we're modeling the permissions of each user.
+
+### 19.10. Cleaning Up
+
+Firstly, we need to add the permissions to the routes
+
+Make sure you have granted your user account the permission `EDIT_USER_ACCESS` before making these changes,
+or you won't be able to change anyone's permissions!
+
+```php
+'author/permissions' => [
+    'GET' => [
+        'controller' => $authorController,
+        'action' => 'permissions'
+    ],
+    'POST' => [
+        'controller' => $authorController,
+        'action' => 'savePermissions'
+    ],
+    'login' => true,
+    'permissions' => Author::EDIT_USER_ACCESS
+],
+'author/list' => [
+    'GET' => [
+        'controller' => $authorController,
+        'action' => 'list'
+    ],
+    'login' => true,
+    'permissions' => Author::EDIT_USER_ACCESS
+]
+```
+
+### 19.11. Editing Others' Jokes
+
+The final two permissions are `EDIT_JOKES` and `DELETE_JOKES`, which determine whether the `logged-in`
+user can edit or delete a joke someone else has posted.
+
+We can't do this with the `$routes array`, because the check isn't done there. The `edit` link 
+and `delete` button are hidden in the template, and there are checks inside the `joke` controller.
+
+Firstly,, let's make the `edit` link and `delete` button appear on the list page for all jokes
+if you have the `EDIT_JOKES` or `DELETE_JOKES` permissions.
+
+Change the `list` method to return the `entire $author object` that represents the `logged-in` user
+
+```php
+return [
+  'user' => $author
+]
+```
+
+The check in the template can now be amended so that the button and link are only visible
+to the person who posted the joke, or someone with the relevant permission
+
+```php
+<?php if ($user && ($user->id == $joke->authorid) || $user->hasPermission(\Ijdb\Entity\Author::EDIT_JOKES)) : ?>
+    <a href="/joke/edit?jokeid=<?= $joke->id ?>">Edit</a>
+<?php endif; ?>
+
+<?php if ($user && ($user->id == $joke->authorid) || $user->hasPermission(\Ijdb\Entity\Author::DELETE_JOKES)) : ?>
+    <form action="/joke/delete" method="POST">
+        <input type="hidden" name="id" value="<?= $joke->id ?>">
+        <input type="submit" value="Delete">
+    </form>
+<?php endif; ?>
+```
+
+Change the `delete method` to include the permissions check
+
+```php
+public function delete()
+{
+    $author = $this->authentication->getUser();
+    $joke = $this->jokesTable->findById($_POST['id']);
+
+    if ($joke->authorid != $author->id && !$author->hasPermission(\Ijdb\Entity\Author::DELETE_JOKES)) {
+        return;
+    }
+
+    $this->jokesTable->delete($_POST['id']);
+
+    header('Location: /joke/list');
+    exit();
+}
+```
+
+That's it! All the permission checks are now in place.

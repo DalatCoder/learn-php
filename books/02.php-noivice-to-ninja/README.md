@@ -6916,3 +6916,204 @@ In `editjoke.html.php`
       <label for="<?= $category->id ?>"><?= $category->name ?></label>
   <?php endforeach; ?>
 ```
+
+
+Add new `instance of JokeCategory` table
+
+```php
+   $this->jokeCategoriesTable = new DatabaseTable($pdo, 'joke_category', 'categoryid');
+```
+
+Now we need to change the `saveEdit` method to handle new data from the form submission.
+
+We could pass the `jokeCategoriesTable` instance to the `Joke` controller.
+However, it's better to implement this using an `object-oriented approach`, where a joke is added to a 
+category using this code
+
+```php
+$joke->addCategory($categoryId);
+```
+
+To do this, we'll need a `Joke` entity instance in the `saveEdit` method in the `JokeController`. 
+The code for updated `saveEdit` method will look like this
+
+```php
+public function saveEdit()
+{
+  $author = $this->authentication->getUser();
+
+  $joke = $_POST['joke'];
+  $joke['jokedate'] = new \DateTime();
+
+  $jokeEntity = $author->addJoke($joke);
+
+  foreach ($_POST['category'] as $categoryId) {
+    $jokeEntity->addCategory($categoryId);
+  }
+
+  header('Location: /joke/list');
+}
+```
+
+We need to modify the `addJoke method` so that it return a `Joke entity` instead of `void`.
+
+As a first thought, a simple approach would be to fetch the joke from the `jokesTable`
+instance after it's been created, using the following process
+
+- Take the data for the new joke from `$_POST`
+- Pass it to the `addJoke` method in the `Author` entity class
+- Retrieve the newly added `joke` from the database using a `SELECT` query (or the `findById` method)
+
+Example
+
+```php
+public function addJoke($joke)
+{
+  $joke['authorid'] = $this->id;
+
+  $this->jokesTable->save($joke);
+
+  return $this->jokesTable->findById($id);
+}
+```
+
+There are `two problems` with this
+
+- We `don't know what the newly created jokes'id is`
+- It adds additional overhead. We're actually making two trips to the databse
+  - once to run an `INSERT` query to send the data about the new `joke`
+  - then a `SELECT` query to fetch that vry same information back out of the database immediately afterwards
+
+Instead, we can move this logic to the `save` method in `DatabaseTable` class.
+The first thing we need to do is create an instance of the relevant `entity`
+
+```php
+$entity = new $this->className(...$this->constructorArgs);
+```
+
+For example
+
+```php
+$joke = new \Ijdb\Entity\Joke($authorsTable);
+```
+
+The `className`, `\Ijdb\Entity\Joke` is stored in the `$this->className` variable, so the above could be 
+expressed like this
+
+```php
+$joke = new $this->className($authorsTable);
+```
+
+However, each entity class has different `arguments` and, potentially, a different `number of arguments`.
+The `... operator` , known as the `argument unpacking operator` or `splat operator`, allows specifying `an 
+array` in place of `several arguments.`
+
+For example, consider this code
+
+```php
+$array = [1, 2];
+
+someFunction(...$array);
+```
+
+It's the same as this
+
+```php
+someFunction(1, 2);
+```
+
+Now, the `save` method will look like this
+
+```php
+public function save($record)
+{
+  $entity = new $this->className(...$this->constructorArgs);
+
+  try {
+    if ($record[$this->primaryKey] == '') {
+      $record[$this->primaryKey] = null;
+    }
+
+    $this->insert($record);
+  }
+  catch (\PDOException $e) {
+    $this->update($record);
+  }
+
+  foreach ($record as $key => $value) {
+    if (!empty($value)) {
+      $entity->$key = $value;
+    }
+  }
+
+  return $entity;
+}
+```
+
+> Converting Arrays to Object
+> This approach is a common method of converting an array to an object
+
+This will work fine for `records being updated`.
+
+A newly created record, however, will now have the `primary key set`. In fact, we couldn't pass the `id`
+even if we wanted to, as we don't know what it will be before the record has been created in the `database`.
+
+The `id` primary key is actually created by `MYSQL` inside the database. Luckily, the `PDO` library provides
+a very simple method of doing this. After an `INSERT` query has been sent to the database, you can call
+the `lastInsertId` method on the `PDO` instance to read the `ID` of the last record inserted.
+
+So, we need to modify the `insert` method to `retrieve` the `newly created id`
+
+```php
+public function insert($fields)
+{
+  $query = '';
+  $this->query($query, $fields);
+
+  return $this->pdo->lastInsertId();
+}
+```
+
+Now, the `save method` can read this value and set the `primary key` on the `created entity object`
+
+```php
+public function save($record)
+{
+  $entity = new $this->className(...$this->constructorArgs);
+
+  try {
+    if ($record[$this->primaryKey] == '') {
+      $record[$this->primaryKey] = null;
+    }
+
+    $insertId = $this->insert($record);
+    $entity->{$this->primaryKey} = $insertId;
+  }
+  catch (\PDOException $e) {
+    $this->update($record);
+  }
+
+  foreach ($record as $key => $value) {
+    if (!empty($value)) {
+      $entity->$key = $value;
+    }
+  }
+
+  return $entity;
+}
+```
+
+The `save` method is now complete. Any time the `save` method is called, it will return 
+an `entity instance` representing the record that's just been saved.
+
+Then, the code for `addJoke` look like this
+
+```php
+public function addJoke($joke)
+{
+  $joke['authorid'] = $this->id;
+
+  return $this->jokesTable->save($joke);
+}
+```
+

@@ -15,6 +15,7 @@ class IjdbRoutes implements Routes
     private $authorsTable;
     private $jokesTable;
     private $categoriesTable;
+    private $jokeCategoriesTable;
     private $authentication;
 
     public function __construct()
@@ -24,6 +25,7 @@ class IjdbRoutes implements Routes
         $this->jokesTable = new DatabaseTable($pdo, 'joke', 'id', '\Ijdb\Entity\Joke', [&$this->authorsTable]);
         $this->authorsTable = new DatabaseTable($pdo, 'author', 'id', '\Ijdb\Entity\Author', [&$this->jokesTable]);
         $this->categoriesTable = new DatabaseTable($pdo, 'category', 'id');
+        $this->jokeCategoriesTable = new DatabaseTable($pdo, 'joke_category', 'categoryid');
 
         $this->authentication = new Authentication($this->authorsTable, 'email', 'password');
     }

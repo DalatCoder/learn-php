@@ -7750,3 +7750,44 @@ The downside to this approach is that every time we add a permission to the webs
 to add a column to the table.
 
 If you examined a user's record in `MySQL`, you might see something like `0 1 0 0 1 0 0` in the `permissions columns`
+
+### 19.6. Be Bit-wise
+
+You're probably wondering why any of this matters and what is has to do with user permissions.
+
+In short, binary has nothing to do with permissions. But neither do `if` statements or `checkboxes`.
+All three are tools we can use to solve the problem of permissions.
+
+What's useful is that you can use PHP to inquire whether any given integer has a 1 o 0 set for any of the bits that make up the number.
+
+### 19.7. Bitwise Permissions
+
+Rather than using a different database column to store each one or zero, we could
+use a single binary number to store those ones and zeros in a single column.
+
+By assigning a column to a permission, a binary number can represent which permissions any user has
+
+- `EDIT_USER_ACCESS` - `32`
+- `REMOVE_CATEGORIES` - `16`
+- `EDIT_CATEGORIES` - `8`
+- `LIST_CATEGORIES` - `4`
+- `DELETE_JOKES` - `2`
+- `EDIT_JOKES` - `1`
+
+The binary number `000001`, which has a 1 in the `EDIT_JOKES` column, would represent
+a user with `EDIT_JOKES` permissions.
+
+`111111` would represent a user that had all the permissions
+
+`011111` would represent a user that had every permission apart from being able to edit the 
+`permissions` of other users (`EDIT_USER_ACCESS`)
+
+This process is identical to using multiple columns in a database, each with a one or zero.
+We're just using a binary number to represent the same data. Rather than one column
+per bit, we can store multiple bits in a single `INT` column.
+
+Let's convert the binary numbers to decimal: `000001` becomes `1`, `111111` becomes `63` and
+`011111` becomes `31`. We can easily store these numbers as integers in a database!
+
+If someone has the permissions value `63`, we know they have all the permissions
+that are available.

@@ -7117,3 +7117,79 @@ public function addJoke($joke)
 }
 ```
 
+### 18.12. Assigning Categories to Jokes
+
+We can amend the `saveEdit` method in the `Joke controller` to look like this
+
+```php
+public function saveEdit()
+{
+  $author = $this->authentication->getUser();
+
+  $joke = $_POST['joke'];
+  $joke['jokedate'] = new \DateTime();
+
+  $jokeEntity = $author->addJoke($joke);
+
+  foreach ($_POST['category'] as $categoryId) {
+    $jokeEntity->addCategory($categoryId);
+  }
+
+  header('location: /joke/list');
+}
+```
+
+So, we need to make some changes to the `Joke` entity class
+
+As the `addCategory` method will write a record to the new `joke_category` table, it
+will need a reference to the `jokeCategories DatabaseTable` instance.
+You know the drill here: `add a class variable and constuctor argument`
+
+```php
+namespace Ijdb\Entity;
+
+class Joke {
+  public $id;
+  public $authorId;
+  public $jokedate;
+  public $joketext;
+
+  private $authorsTable;
+  private $author;
+  private $jokeCategoriesTable;
+
+  public function __construct(\Ninja\DatabaseTable $authorsTable, \Ninja\DatabaseTable $jojkeCategoriesTable) {
+    $this->authorsTable = $authorsTable;
+    $this->jokeCategoriesTable = $jokeCategoriesTable;
+  }
+}
+```
+
+Then amend `IjdbRoutes` to provide the instance as `an argument` to the `constructor` of the `$jokesTable` instance
+
+```php
+$this->jokesTable = new \Ninja\DatabaseTable(
+  $pdo,
+  'joke',
+  'id',
+  '\Ijdb\Entity\Joke',
+  [
+    &$this->authorsTable,
+    &$this->jokeCategoriesTable
+  ]
+);
+```
+
+Next, add the `addCategory` method to the `Joke` entity class
+
+```php
+public function addCategory($categoryId)
+{
+  $jokeCat = [
+    'jokeid' => $this->id,
+    'categoryId' => $categoryId
+  ];
+
+  $this->jokeCategoriesTable->save($jokeCat);
+}
+```

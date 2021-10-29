@@ -7631,3 +7631,48 @@ $routes = [
 
 Rather than adding a `new controller`, we'll use the `Register` controller that already 
 `exists` and is used for handling changes to users' accounts.
+
+### 19.2. Author List
+
+Add a method in the `Register` controller called `list` that fetches a list of all registered users and passes
+them to the template
+
+```php
+public function list()
+{
+    $authors = $this->authorsTable->findAll();
+
+    return [
+        'template' => 'authorlist.html.php',
+        'title' => 'Author List',
+        'variables' => [
+            'authors' => $authors
+        ]
+    ];
+}
+```
+
+`authorlist.html.php`
+
+```php
+<h2>User List</h2>
+
+<table>
+    <thead>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Edit</th>
+    </thead>
+    <tbody>
+        <?php foreach ($authors as $author) : ?>
+            <tr>
+                <td><?= $author->name ?></td>
+                <td><?= $author->email ?></td>
+                <td>
+                    <a href="/author/permissions?id=<?= $author->id ?>">Edit Permissions</a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+```

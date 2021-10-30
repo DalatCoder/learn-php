@@ -11,17 +11,32 @@ class DatabaseTable
     private $constructorArgs;
 
     public function __construct(
-        \PDO $pdo,
         string $table,
         string $primaryKey,
         string $className = '\stdClass',
         array $constructorArgs = []
     ) {
-        $this->pdo = $pdo;
+
+        $this->init_database();
+
         $this->table = $table;
         $this->primaryKey = $primaryKey;
         $this->className = $className;
         $this->constructorArgs = $constructorArgs;
+    }
+
+    public function init_database()
+    {
+        include_once __DIR__ . '/../../ninja-config.php';
+
+        $db_name = $ninja_global_configs['db_name'];
+        $db_host = $ninja_global_configs['db_host'];
+        $db_charset = $ninja_global_configs['db_charset'];
+        $db_username = $ninja_global_configs['db_username'];
+        $db_password = $ninja_global_configs['db_password'];
+
+        $this->pdo = new \PDO("mysql:host=$db_host;dbname=$db_name;charset=$db_charset", $db_username, $db_password);
+        $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
     }
 
     public function findAll($orderBy = null, $orderDirection = null, $limit = null, $offset = null)
@@ -64,6 +79,7 @@ class DatabaseTable
         $parameters = [
             'value' => $value
         ];
+        $parameters = $this->processDate($parameters);
 
         $query = $this->query($sql, $parameters);
 
@@ -205,7 +221,7 @@ class DatabaseTable
     {
         foreach ($fields as $key => $value) {
             if ($value instanceof \DateTime) {
-                $fields[$key] = $value->format('Y-m-d H:i:s');
+                $fields[$key] = $value->format('Y-m-d');
             }
         }
 

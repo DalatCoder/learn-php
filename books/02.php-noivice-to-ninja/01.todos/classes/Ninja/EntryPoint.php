@@ -8,12 +8,12 @@ class EntryPoint
 {
     private $route;
     private $method;
-    private $routes;
+    private $route_handler;
 
-    public function __construct($route, $method, Routes $routes)
+    public function __construct($route, $method, Routes $route_handler)
     {
         $this->route = $route;
-        $this->routes = $routes;
+        $this->route_handler = $route_handler;
         $this->method = $method;
         $this->checkUrl();
     }
@@ -39,27 +39,38 @@ class EntryPoint
 
     public function run()
     {
-        $routes = $this->routes->getRoutes();
-        $authentication = $this->routes->getAuthentication();
+        include __DIR__ . '/../../ninja-config.php';
+        
+        $routes = $this->route_handler->getRoutes();
 
-        $login_required = $routes[$this->route]['login'] ?? false;
+        $authentication = $this->route_handler->getAuthentication();
 
-        if ($login_required) {
-            if (!$authentication->isLoggedIn()) {
-                header('location: /login/error');
-                exit();
+        if ($ninja_global_configs['auth'] == true) {
+            $login_required = $routes[$this->route]['login'] ?? false;
+            if ($authentication && $login_required) {
+                if (!$authentication->isLoggedIn()) {
+                    header('location: /login/error');
+                    exit();
+                }
             }
         }
 
-        $permission_required = $routes[$this->route]['permissions'] ?? false;
+        if ($ninja_global_configs['permission']) {
+            $permission_required = $routes[$this->route]['permissions'] ?? false;
+            if ($permission_required) {
+                $permission = $routes[$this->route]['permissions'];
 
-        if ($permission_required) {
-            $permission = $routes[$this->route]['permissions'];
-
-            if (!$this->routes->checkPermission($permission)) {
-                header('location: /login/error');
-                exit();
+                if (!$this->route_handler->checkPermission($permission)) {
+                    header('location: /login/error');
+                    exit();
+                }
             }
+        }
+        
+        if (isset($routes[$this->route]['REDIRECT'])) {
+            http_response_code(301);
+            header('location: ' . $routes[$this->route]['REDIRECT']);
+            exit();
         }
 
         $controller = $routes[$this->route][$this->method]['controller'];
@@ -70,13 +81,22 @@ class EntryPoint
         $title = $page['title'];
         $templateFileName = $page['template'];
         $variables = $page['variables'] ?? [];
+        $custom_styles = $page['custom_styles'] ?? [];
+        $custom_scripts = $page['custom_scripts'] ?? [];
 
-        $output = $this->loadTemplate($templateFileName, $variables);
+        $output = $this->loadTemplate($templateFileName, $variables) ?? '';
 
-        echo $this->loadTemplate('layout.html.php', [
-            'loggedIn' => $authentication->isLoggedIn(),
-            'output' => $output,
-            'title' => $title
-        ]);
+        $template_args = [
+            'content' => $output,
+            'title' => $title,
+            'custom_styles' => $custom_styles,
+            'custom_scripts' => $custom_scripts
+        ];
+
+        if ($ninja_global_configs['auth']) {
+            $template_args['loggedIn'] = $authentication->isLoggedIn() ?? null;
+        }
+
+        echo $this->loadTemplate('master.html.php', $template_args);
     }
 }

@@ -23,10 +23,10 @@ class IjdbRoutes implements Routes
     {
         include __DIR__ . '/../../includes/DatabaseConnection.php';
 
-        $this->jokesTable = new DatabaseTable($pdo, 'joke', 'id', '\Ijdb\Entity\Joke', [&$this->authorsTable, &$this->jokeCategoriesTable]);
-        $this->authorsTable = new DatabaseTable($pdo, 'author', 'id', '\Ijdb\Entity\Author', [&$this->jokesTable]);
-        $this->categoriesTable = new DatabaseTable($pdo, 'category', 'id', '\Ijdb\Entity\Category', [&$this->jokesTable, &$this->jokeCategoriesTable]);
-        $this->jokeCategoriesTable = new DatabaseTable($pdo, 'joke_category', 'categoryid');
+        $this->jokesTable = new DatabaseTable('joke', 'id', '\Ijdb\Entity\Joke', [&$this->authorsTable, &$this->jokeCategoriesTable]);
+        $this->authorsTable = new DatabaseTable('author', 'id', '\Ijdb\Entity\Author', [&$this->jokesTable]);
+        $this->categoriesTable = new DatabaseTable('category', 'id', '\Ijdb\Entity\Category', [&$this->jokesTable, &$this->jokeCategoriesTable]);
+        $this->jokeCategoriesTable = new DatabaseTable('joke_category', 'categoryid');
 
         $this->authentication = new Authentication($this->authorsTable, 'email', 'password');
     }

@@ -29,8 +29,12 @@ class MilkshopIRoutes implements IRoutes
 
     public function __construct()
     {
-        $this->adminHangSuaTable = new DatabaseTable('hang-sua', 'id', HangSua::CLASS_NAME);
-        $this->adminLoaiSuaTable = new DatabaseTable('loai-sua', 'id', LoaiSua::CLASS_NAME);
+        $this->adminHangSuaTable = new DatabaseTable('hang-sua', 'id', HangSua::CLASS_NAME, [
+            &$this->adminSanPhamTable
+        ]);
+        $this->adminLoaiSuaTable = new DatabaseTable('loai-sua', 'id', LoaiSua::CLASS_NAME, [
+            &$this->adminSanPhamTable
+        ]);
         $this->adminSanPhamTable = new DatabaseTable('san-pham-sua', 'id', SanPham::CLASS_NAME, [
             &$this->adminHangSuaTable,
             &$this->adminLoaiSuaTable
@@ -217,7 +221,7 @@ class MilkshopIRoutes implements IRoutes
         /**
          * Client Controller
          */
-        $homeController = new HomeController();
+        $homeController = new HomeController($this->adminSanPhamTable, $this->adminHangSuaTable, $this->adminLoaiSuaTable);
 
         $client_routes = [
             '/' => [

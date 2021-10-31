@@ -12,7 +12,8 @@ class Authentication
 
     public function __construct(DatabaseTable $users, $usernameColumn, $passwordColumn)
     {
-        session_start();
+        if (session_status() === PHP_SESSION_NONE)
+            session_start();
 
         $this->users = $users;
         $this->usernameColumn = $usernameColumn;

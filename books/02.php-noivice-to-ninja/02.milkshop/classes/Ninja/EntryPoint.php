@@ -2,7 +2,7 @@
 
 namespace Ninja;
 
-use Ninja\Routes;
+use Ninja\IRoutes;
 
 class EntryPoint
 {
@@ -10,7 +10,7 @@ class EntryPoint
     private $method;
     private $route_handler;
 
-    public function __construct($route, $method, Routes $route_handler)
+    public function __construct($route, $method, IRoutes $route_handler)
     {
         $this->route = $route;
         $this->route_handler = $route_handler;
@@ -25,6 +25,11 @@ class EntryPoint
             header('location: ' . strtolower($this->route));
             exit();
         }
+    }
+    
+    private function checkTemplateDir($templateFileName)
+    {
+        return file_exists(__DIR__ . '/../../templates/' . $templateFileName);
     }
 
     private function loadTemplate($templateFileName, $variables = [])
@@ -78,8 +83,22 @@ class EntryPoint
 
         $page = $controller->$action();
 
-        $title = $page['title'];
-        $templateFileName = $page['template'];
+        $master = $page['master'] ?? null;
+        if (!$master) 
+            throw new \Exception('Vui lòng thêm thuộc tính master để xác định master layout');
+        if (!$this->checkTemplateDir($master))
+            throw new \Exception('Đường dẫn không hợp lệ! Trang master không tồn tại');
+        
+        $title = $page['title'] ?? null;
+        if (!$title)
+            throw new \Exception('Vụi lòng thêm thuộc tính title');
+        
+        $templateFileName = $page['template'] ?? null;
+        if (!$templateFileName) 
+            throw new \Exception('Vui lòng thêm thuộc tính template để xác định template layout');
+        if (!$this->checkTemplateDir($templateFileName))
+            throw new \Exception('Đường dẫn không hợp lệ! Trang template không tồn tại');
+        
         $variables = $page['variables'] ?? [];
         $custom_styles = $page['custom_styles'] ?? [];
         $custom_scripts = $page['custom_scripts'] ?? [];
@@ -90,13 +109,18 @@ class EntryPoint
             'content' => $output,
             'title' => $title,
             'custom_styles' => $custom_styles,
-            'custom_scripts' => $custom_scripts
+            'custom_scripts' => $custom_scripts,
+            'route' => $this->route
         ];
 
         if ($ninja_global_configs['auth']) {
             $template_args['loggedIn'] = $authentication->isLoggedIn() ?? null;
         }
+        
+        if ($ninja_global_configs['shop_name']) {
+            $template_args['shop_name'] = $ninja_global_configs['shop_name'];
+        }
 
-        echo $this->loadTemplate('master.html.php', $template_args);
+        echo $this->loadTemplate($master, $template_args);
     }
 }

@@ -27,7 +27,7 @@ class DatabaseTable
 
     public function init_database()
     {
-        include_once __DIR__ . '/../../ninja-config.php';
+        include __DIR__ . '/../../ninja-config.php';
 
         $db_name = $ninja_global_configs['db_name'];
         $db_host = $ninja_global_configs['db_host'];

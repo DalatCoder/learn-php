@@ -35,6 +35,7 @@ class TodoRoutes implements Routes
             '/' => [
                 'REDIRECT' => '/todos'
             ],
+            #region Todo Handler
             '/todos' => [
                 'GET' => [
                     'controller' => $todoController,
@@ -73,6 +74,7 @@ class TodoRoutes implements Routes
                     'action' => 'make_doing'
                 ]
             ]
+            #endregion
         ];
     }
 }

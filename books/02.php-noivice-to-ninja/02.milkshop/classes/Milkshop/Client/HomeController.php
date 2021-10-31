@@ -36,8 +36,8 @@ class HomeController
         }
         
         return [
-            'template' => 'home.html.php',
-            'master' => 'master.html.php',
+            'template' => 'client/home.html.php',
+            'master' => 'client/master.html.php',
             'title' => 'Trang chủ',
             'variables' => [
                 'hang_suas' => $all_hang_sua_chuan,

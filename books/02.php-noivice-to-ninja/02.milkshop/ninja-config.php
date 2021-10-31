@@ -3,7 +3,7 @@
 $ninja_global_configs = [
     'shop_name' => 'NTH Milk Shop',
     'routes' => true,
-    'auth' => false,
+    'auth' => true,
     'permission' => false,
     'db_name' => 'milkshop',
     'db_host' => 'localhost',

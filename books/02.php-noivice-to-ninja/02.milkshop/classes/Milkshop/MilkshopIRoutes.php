@@ -13,6 +13,7 @@ use Milkshop\Admin\Entity\HangSua;
 use Milkshop\Admin\Entity\KhachHang;
 use Milkshop\Admin\Entity\LoaiSua;
 use Milkshop\Admin\Entity\SanPham;
+use Milkshop\Client\Controller\BaoMatController;
 use Milkshop\Client\HomeController;
 use Ninja\Authentication;
 use Ninja\DatabaseTable;
@@ -26,6 +27,8 @@ class MilkshopIRoutes implements IRoutes
     private $adminKhachHangTable;
     private $adminDonHangTable;
     private $adminChiTietDonHangTable;
+    
+    private $baoMatHelper;
 
     public function __construct()
     {
@@ -48,6 +51,8 @@ class MilkshopIRoutes implements IRoutes
             &$this->adminDonHangTable,
             &$this->adminSanPhamTable
         ]);
+        
+        $this->baoMatHelper = new Authentication($this->adminKhachHangTable, 'ten_dang_nhap', 'mat_khau');
     }
 
     public function getRoutes(): array
@@ -222,12 +227,33 @@ class MilkshopIRoutes implements IRoutes
          * Client Controller
          */
         $homeController = new HomeController($this->adminSanPhamTable, $this->adminHangSuaTable, $this->adminLoaiSuaTable);
+        $baoMatController = new BaoMatController($this->adminKhachHangTable, $this->baoMatHelper);
 
         $client_routes = [
             '/' => [
                 'GET' => [
                     'controller' => $homeController,
                     'action' => 'home'
+                ]
+            ],
+            '/bao-mat/login' => [
+                'GET' => [
+                    'controller' => $baoMatController,
+                    'action' => 'show_login_form'
+                ],
+                'POST' => [
+                    'controller' => $baoMatController,
+                    'action' => 'process_login'
+                ]
+            ],
+            '/bao-mat/register' => [
+                'GET' => [
+                    'controller' => $baoMatController,
+                    'action' => 'show_register_form'
+                ],
+                'POST' => [
+                    'controller' => $baoMatController,
+                    'action' => 'process_register'
                 ]
             ]
         ];
@@ -240,7 +266,7 @@ class MilkshopIRoutes implements IRoutes
 
     public function getAuthentication(): ?Authentication
     {
-        return null;
+        return $this->baoMatHelper;
     }
 
     public function checkPermission($permission): ?bool

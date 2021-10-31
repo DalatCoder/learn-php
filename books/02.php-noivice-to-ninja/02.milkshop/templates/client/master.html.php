@@ -61,11 +61,21 @@
                             Giỏ hàng
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link  <?= strpos($route, "/khach-hang") !== false ? 'active' : '' ?>"
-                           href="/khach-hang/profile">Xin
-                            chào Nguyễn Trọng Hiếu</a>
-                    </li>
+                    <?php if ($loggedIn): ?>
+                        <li class="nav-item">
+                            <a class="nav-link  <?= strpos($route, "/khach-hang") !== false ? 'active' : '' ?>"
+                               href="/khach-hang/profile"><?= $loggedInUser ? $loggedInUser->ten : '' ?></a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link  <?= strpos($route, "/bao-mat/register") !== false ? 'active' : '' ?>"
+                               href="/bao-mat/register">Tạo tài khoản</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link  <?= strpos($route, "/bao-mat/login") !== false ? 'active' : '' ?>"
+                               href="/bao-mat/login">Đăng nhập</a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
                 <form class="d-flex">
                     <input class="form-control me-2" type="search" placeholder="Tìm kiếm">
@@ -79,11 +89,12 @@
 <main>
 
     <?= $content ?>
-    
+
     <!-- FOOTER -->
     <footer class="container  mt-5">
         <p class="float-end"><a href="#">Lên đầu trang</a></p>
-        <p>&copy; 2021 <?= $shop_name ?>, Inc. &middot; <a href="#">Chính sách riêng tư</a> &middot; <a href="#">Điều khoản</a></p>
+        <p>&copy; 2021 <?= $shop_name ?>, Inc. &middot; <a href="#">Chính sách riêng tư</a> &middot; <a href="#">Điều
+                khoản</a></p>
     </footer>
 </main>
 

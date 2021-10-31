@@ -51,6 +51,10 @@ class EntryPoint
         $authentication = $this->route_handler->getAuthentication();
 
         if ($ninja_global_configs['auth'] == true) {
+            
+            if (!$authentication)
+                throw new \Exception('Bạn phải viết phương thức getAuthentication');
+            
             $login_required = $routes[$this->route]['login'] ?? false;
             if ($authentication && $login_required) {
                 if (!$authentication->isLoggedIn()) {
@@ -110,11 +114,15 @@ class EntryPoint
             'title' => $title,
             'custom_styles' => $custom_styles,
             'custom_scripts' => $custom_scripts,
-            'route' => $this->route
+            'route' => $this->route,
+            'loggedIn' => null,
+            'shop_name' => null,
+            'loggedInUser' => null
         ];
 
         if ($ninja_global_configs['auth']) {
             $template_args['loggedIn'] = $authentication->isLoggedIn() ?? null;
+            $template_args['loggedInUser'] = $authentication->getUser() ?? null;
         }
         
         if ($ninja_global_configs['shop_name']) {

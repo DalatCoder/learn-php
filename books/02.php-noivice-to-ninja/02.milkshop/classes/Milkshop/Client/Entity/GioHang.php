@@ -1,5 +1,8 @@
 <?php
 
+namespace Milkshop\Client\Entity;
+
+use Cassandra\Exception\InvalidArgumentException;
 use Milkshop\Admin\Entity\ChiTietDonHang;
 
 class GioHang
@@ -14,7 +17,11 @@ class GioHang
             session_start();
     }
     
-    public function add(ChiTietDonHang $chiTietDonHang)
+    public function add_by_id($id)
+    {
+    }
+    
+    public function add(CartItem $chiTietDonHang)
     {
         if ($this->exists($chiTietDonHang)) {
             if ($chiTietDonHang->so_luong > 1) {
@@ -56,7 +63,7 @@ class GioHang
         unset($_SESSION[self::S_KEY_PRODUCTS]);
     }
     
-    public function exists(ChiTietDonHang $chiTietDonHang)
+    public function exists(CartItem $chiTietDonHang)
     {
         $products = $this->get_all();
         
@@ -69,7 +76,7 @@ class GioHang
         return null;
     }
     
-    public function increase(ChiTietDonHang $chiTietDonHang)
+    public function increase(CartItem $chiTietDonHang)
     {
         $products = $this->get_all();
         

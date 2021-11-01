@@ -14,7 +14,9 @@ use Milkshop\Admin\Entity\KhachHang;
 use Milkshop\Admin\Entity\LoaiSua;
 use Milkshop\Admin\Entity\SanPham;
 use Milkshop\Client\Controller\BaoMatController;
+use Milkshop\Client\Controller\GioHangController;
 use Milkshop\Client\HomeController;
+use Milkshop\Client\Entity\GioHang;
 use Ninja\Authentication;
 use Ninja\DatabaseTable;
 use Ninja\IRoutes;
@@ -67,6 +69,9 @@ class MilkshopIRoutes implements IRoutes
         $donHangController = new DonHangController($this->adminDonHangTable);
 
         $admin_routes = [
+            '/admin' => [
+                'REDIRECT' => '/admin/hang-sua'
+            ],
             #region Admin Hang Sua
             '/admin/hang-sua' => [
                 'GET' => [
@@ -229,6 +234,9 @@ class MilkshopIRoutes implements IRoutes
         $homeController = new HomeController($this->adminSanPhamTable, $this->adminHangSuaTable, $this->adminLoaiSuaTable);
         $baoMatController = new BaoMatController($this->adminKhachHangTable, $this->baoMatHelper);
         $clientSanPhamController = new \Milkshop\Client\Controller\SanPhamController($this->adminSanPhamTable);
+        
+        $gioHangEntity = new GioHang($this->adminSanPhamTable);
+        $gioHangController = new GioHangController($gioHangEntity);
 
         $client_routes = [
             '/' => [
@@ -261,6 +269,16 @@ class MilkshopIRoutes implements IRoutes
                 'GET' => [
                     'controller'  => $clientSanPhamController,
                     'action' => 'show'
+                ]
+            ],
+            '/gio-hang' => [
+                'GET' => [
+                    'controller' => $gioHangController,
+                    'action' => 'show_cart_page'
+                ],
+                'POST' => [
+                    'controller' => $gioHangController,
+                    'action' => 'process_cart'
                 ]
             ]
         ];

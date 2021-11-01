@@ -87,7 +87,7 @@
                             </a>
                         </li>
                         <li class="d-flex align-items-center">
-                            <form action="" method="post">
+                            <form action="/gio-hang" method="post">
                                 <input type="hidden" name="product_id"
                                        value="8">
                                 <button type="submit" class="nav-link p-0 me-1 border-0 bg-transparent text-white fw-bold">
@@ -132,7 +132,7 @@
                             </a>
                         </li>
                         <li class="d-flex align-items-center">
-                            <form action="" method="post">
+                            <form action="/gio_hang" method="post">
                                 <input type="hidden" name="product_id"
                                        value="10">
                                 <button type="submit" class="nav-link p-0 me-1 border-0 bg-transparent text-white fw-bold">

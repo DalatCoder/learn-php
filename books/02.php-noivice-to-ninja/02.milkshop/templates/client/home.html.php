@@ -82,7 +82,7 @@
                         </li>
                         <li class="d-flex align-items-center me-3">
                             <a class="nav-link p-0 text-white fw-bold"
-                               href="">
+                               href="/san-pham/show?id=<?= $san_pham->id ?>">
                                 <span data-feather="eye"></span>
                             </a>
                         </li>

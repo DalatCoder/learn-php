@@ -228,6 +228,7 @@ class MilkshopIRoutes implements IRoutes
          */
         $homeController = new HomeController($this->adminSanPhamTable, $this->adminHangSuaTable, $this->adminLoaiSuaTable);
         $baoMatController = new BaoMatController($this->adminKhachHangTable, $this->baoMatHelper);
+        $clientSanPhamController = new \Milkshop\Client\Controller\SanPhamController($this->adminSanPhamTable);
 
         $client_routes = [
             '/' => [
@@ -254,6 +255,12 @@ class MilkshopIRoutes implements IRoutes
                 'POST' => [
                     'controller' => $baoMatController,
                     'action' => 'process_register'
+                ]
+            ],
+            '/san-pham/show' => [
+                'GET' => [
+                    'controller'  => $clientSanPhamController,
+                    'action' => 'show'
                 ]
             ]
         ];
